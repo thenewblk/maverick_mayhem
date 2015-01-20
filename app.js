@@ -40,7 +40,7 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash());
 
 
-require('./routes/tag')(app, passport);
+require('./routes/sport')(app, passport);
 require('./routes/index')(app, passport);
 
 // catch 404 and forward to error handler

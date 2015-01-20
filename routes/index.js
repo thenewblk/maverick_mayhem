@@ -48,7 +48,13 @@ module.exports = function(app, passport) {
 		res.send(req.user);
 	});
 
-	app.get('*', function(req, res) {
-	  res.render('index', { title: 'Hello World', user: req.user });
+	app.get('/', function(req, res) {
+	  res.render('index', { 
+	  	user: req.user
+	  });
 	});
+
+	// app.get('*', function(req, res) {
+	//   res.render('index', { title: 'Hello World', user: req.user });
+	// });
 };
