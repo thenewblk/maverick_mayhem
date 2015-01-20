@@ -3,7 +3,7 @@ var mongoose = require("mongoose"),
     Game    = require("../../../models/game"),
     chai     = require("chai"),
     expect   = chai.expect,
-    configDB = require('../../../config/database.js'),
+    configDB = require('../../../config/database'),
     tools = require('../../../lib/utils');
 //tell Mongoose to use our test DB
 

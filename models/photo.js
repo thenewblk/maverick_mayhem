@@ -2,8 +2,8 @@ var mongoose = require( 'mongoose' );
 var tools = require('../lib/utils');
 
 var photoSchema = mongoose.Schema({
-		name    				: String,
-		slug    				: String
+	name    				: String,
+	slug    				: String
 });
 
 photoSchema.pre('save', function (next) {

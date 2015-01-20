@@ -2,8 +2,8 @@ var mongoose = require( 'mongoose' );
 var tools = require('../lib/utils');
 
 var newsSchema = mongoose.Schema({
-		name    				: String,
-		slug    				: String,
+	name    				: String,
+	slug    				: String,
     description    	: String,
 });
 

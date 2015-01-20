@@ -30,14 +30,14 @@ gulp.task('sass', function() {
 });
 
 // Compile Our React Stuff
-gulp.task('react', function() {
-    // Browserify/bundle the JS.
-    browserify('./public/javascripts/raw/app.jsx')
-        .transform(reactify)
-        .bundle()
-        .pipe(source('bundle.js'))
-        .pipe(gulp.dest('public/javascripts/'));
-});
+// gulp.task('react', function() {
+//     // Browserify/bundle the JS.
+//     browserify('./public/javascripts/raw/app.jsx')
+//         .transform(reactify)
+//         .bundle()
+//         .pipe(source('bundle.js'))
+//         .pipe(gulp.dest('public/javascripts/'));
+// });
 
 // Concatenate & Minify JS
 // gulp.task('scripts', function() {
@@ -51,7 +51,7 @@ gulp.task('react', function() {
 
 // Watch Files For Changes
 gulp.task('watch', function() {
-    gulp.watch('public/javascripts/raw/**/*.jsx', ['react']);
+    // gulp.watch('public/javascripts/raw/**/*.jsx', ['react']);
     gulp.watch('public/stylesheets/*.scss', ['sass']);
 });
 
@@ -65,4 +65,4 @@ gulp.task('develop', function () {
 
 // Default Task
 // gulp.task('default', ['lint', 'sass', 'scripts', 'watch']);
-gulp.task('default', ['sass', 'react', 'watch', 'develop']);
+gulp.task('default', ['sass', 'watch', 'develop']);
