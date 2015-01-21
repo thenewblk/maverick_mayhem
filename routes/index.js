@@ -1,3 +1,5 @@
+var util = require("util");
+
 
 module.exports = function(app, passport) {
 	// locally --------------------------------
@@ -18,11 +20,14 @@ module.exports = function(app, passport) {
 	app.post('/login-js', function(req, res, next) {
 	  passport.authenticate('local-login', function(err, user, info) {
 	    if (err) { return next(err); }
-	    if (!user) { return res.send(false); }
-	    req.logIn(user, function(err) {
-	      if (err) { return next(err); }
-	      return res.send(user);
-	    });
+	    if (!user) { return res.send(info); }
+	    if (info) { return res.send(info); }
+	    if (!info) {
+		    req.logIn(user, function(err) {
+		      if (err) { return next(err); }
+		      return res.send(user);
+		    });
+		}
 	  })(req, res, next);
 	});
 
@@ -38,6 +43,17 @@ module.exports = function(app, passport) {
 		failureRedirect : '/signup', // redirect back to the signup page if there is an error
 		failureFlash : true // allow flash messages
 	}));
+
+	app.post('/signup-js', function(req, res, next) {
+	  passport.authenticate('local-signup', function(err, user, info) {
+	    if (err) { return next(err); }
+	    if (!user) { return res.send('fuck you'); }
+	    req.logIn(user, function(err) {
+	      if (err) { return next(err); }
+	      return res.send(user);
+	    });
+	  })(req, res, next);
+	});
 
 	app.get('/logout', function(req, res) {
 		req.logout();

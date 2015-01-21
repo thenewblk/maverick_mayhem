@@ -38,7 +38,7 @@ describe("Game", function(){
   it("count is equal to one", function(done){ 
     Game.count({}, function(err, c) {
       if (err) return console.error(err);
-      expect(c).to.equal(1);
+      expect(1).to.equal(c);
       done();
     })
   });

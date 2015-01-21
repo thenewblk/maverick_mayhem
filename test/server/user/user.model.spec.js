@@ -11,12 +11,15 @@ describe("User", function(){
 
   before(function(done){ 
     mongoose.connect(configDB.test);
-    var newUser = new User();
 
-    newUser.local.email    = 'John Smith';
-    newUser.local.password = newUser.generateHash('123456');
+    var user = new User({
+      name: 'John Smith'
+    });
 
-    newUser.save(function(err, user) {
+    user.local.email    = 'john@example.com';
+    user.local.password = user.generateHash('123456');
+
+    user.save(function(err, user) {
       if (err) { throw err; }
 
       currentuser = user; 
@@ -35,9 +38,33 @@ describe("User", function(){
   it("count is equal to one", function(done){ 
     User.count({}, function(err, c) {
       if (err) return console.error(err);
-      expect(c).to.equal(1);
+      expect(1).to.equal(c);
       done();
     })
   });
+
+  it("can be found by name", function(done){ 
+    User.findOne({name: currentuser.name}, function(err, user) {
+      if (err) return console.error(err); 
+      expect(user.name).to.equal(currentuser.name);
+      done();
+    });
+  }); 
+
+  it("can be found by email", function(done){ 
+    User.findOne({name: currentuser.name}, function(err, user) {
+      if (err) return console.error(err); 
+      expect(user.local.email).to.equal(currentuser.local.email);
+      done();
+    });
+  }); 
+
+  it("can be found by password", function(done){ 
+    User.findOne({name: currentuser.name}, function(err, user) {
+      if (err) return console.error(err); 
+      expect(user.local.password).to.equal(currentuser.local.password);
+      done();
+    });
+  }); 
 
 });
