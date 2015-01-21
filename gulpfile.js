@@ -64,7 +64,7 @@ gulp.task('autoprefixer', function() {
 // Watch Files For Changes
 gulp.task('watch', function() {
     // gulp.watch('public/js/raw/**/*.jsx', ['react']);
-    gulp.watch('public/css/*.scss', ['stylesheets']);
+    gulp.watch('public/scss/**/*.scss', ['stylesheets']);
 });
 
 gulp.task('develop', function () {
