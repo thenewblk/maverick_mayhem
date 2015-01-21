@@ -1,10 +1,137 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en-us">
   <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <meta charset="utf-8">
+
+    <title>Maverick Mayhem</title>
+    <meta name="description" content="">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Typekit -->
+    <script>
+      (function(d) {
+        var config = {
+          kitId: 'bwv0gog',
+          scriptTimeout: 3000
+        },
+        h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='//use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+      })(document);
+    </script>
   </head>
   <body>
-    <h3><a href="/hockey">Hockey</a></h3>
+    <div class="nav-container">
+      <nav class="nav--primary" role="navigation">
+        <img src="img/icon-bull.png" alt="" class="icon--brand">
+        <ul class="nav__menu">
+          <li class="nav__item"><a href="">Hocky</a></li>
+          <li class="nav__item"><a href="">New Arena</a></li>
+          <li class="nav__item"><a href="">Join</a></li>
+        </ul>
+      </nav>
+    </div>
+    <header>
+      <div class="row">
+        <div class="container banner">
+          <h1 class="page-headline">Mavericks take win over deluth 4-1</h1>
+        </div>
+      </div>
+    </header>
+    <main id="main" role="main">
+      <div class="row">
+        <div class="container">
+          <div class="video-container">
+            <div class="video-wrapper">
+              <iframe width="853" height="480" src="//www.youtube.com/embed/Mspf3phvhN4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+            </div>
+          </div>
+          <div class="sport">
+            <div class="game-content">
+              <table class="sport__scoreboard scoreboard-hockey">
+                <thead>
+                  <tr class="scoreboard__header">
+                    <th>&nbsp;</th>
+                    <th>1st</th>
+                    <th>2nd</th>
+                    <th>3rd</th>
+                    <th class="score-total">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="team visitor">
+                    <td class="team-name">Deluth</td>
+                    <td class="score">1</td>
+                    <td class="score">0</td>
+                    <td class="score">0</td>
+                    <td class="score">1</td>
+                  </tr>
+                  <tr class="team away">
+                    <td class="team-name">Omaha</td>
+                    <td class="score">2</td>
+                    <td class="score">1</td>
+                    <td class="score">1</td>
+                    <td class="score score-winner">4</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="5"><a href="#">» view stats</a></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="upcoming-game">
+              <h3><span>Next Game: </span>Fri, Nov 28th 2014</h3>
+              <p>vs North Dakota @ Grand Forks, N.D</p>
+            </div>
+            <a href="" class="btn">Get Tickets</a>
+          </div>
+        </div>
+      </div>
+      <div class="row ticket-listing">
+        <div class="container">
+          <h2>Listed tickets below</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="container">
+          <div class="news">
+            <ul class="news__list">
+              <li class="news__list-item">
+                <a href="">
+                  <h4 class="news__title">Newcomers spark Mavericks' surprising start<span class="news__byline">by OWH</span></h4>
+                </a>
+              </li>
+              <li class="news__list-item">
+                <a href="">
+                  <h4 class="news__title">Newcomers spark Mavericks' surprising start<span class="news__byline">by OWH</span></h4>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="featured-photo">
+            <img src="http://placehold.it/800x400" alt="">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="container">
+          <ul class="photo-list">
+            <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
+            <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
+            <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
+            <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
+            <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
+          </ul>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <div class="container">
+        <p>Copyright &copy; 2015</p>
+      </div>
+    </footer>
   </body>
 </html>
+

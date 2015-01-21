@@ -1,0 +1,50 @@
+/**
+ * Base typography
+ */
+html {
+  font-family: $base-font-family;
+  font-weight: 500;
+  font-size: 80%;
+  line-height: 1.5;
+
+  @include respond-to(small) {
+    font-size: 90%;
+  }
+
+  @include respond-to(medium) {
+    font-size: 100%;
+  }
+}
+
+/**
+ * Links
+ */
+a {
+  color: $white;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+/**
+ * Paragraphs
+ */
+p, %p {
+  font-size: em(16);
+  margin: 0 0 em(32px);
+}
+/**
+ * Headings
+ */
+h1, .h1,
+h2, .h2,
+h3, .h3,
+h4, .h4,
+h5, .h5 {
+  margin-top: 0;
+  margin-bottom: em(16px);
+  font-family: $museo-slab, $base-font-family;
+  font-weight: 1000;
+}
+

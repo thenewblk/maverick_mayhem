@@ -1,0 +1,41 @@
+/**
+ * Color variables
+ */
+
+// Brand colors
+$brand_red: #cf0a2c;
+$brand_black: #131212;
+
+// Monochromatic grayscale
+$black: #000;
+$white: #fff;
+$gray1: #ccc;
+
+
+/**
+ * Typography
+ */
+$museo-sans: 'museo-sans';
+$museo-slab: 'museo-slab';
+
+$base-font-family: $museo-sans, Helvetica, Arial, sans-serif;
+
+/**
+ * RWD Breakpoints for layout changes
+ */
+$breakpoints: (
+  // Layout breakpoints
+  'mobile'  : ( max-width:  767px ),
+  'small'   : ( min-width:  768px ),
+  'medium'  : ( min-width:  960px ),
+  'large'   : (min-width: 1140px )
+);
+
+/**
+ * Susy grid setup
+ */
+$susy: (
+  columns: 12,
+  gutters: 0,
+  container: 1140px
+);

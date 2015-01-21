@@ -1,0 +1,61 @@
+.sport {
+  @include span(4 omega);
+  background-color: $black;
+}
+
+.game-content {
+  padding: 16px;
+}
+
+.sport__scoreboard {
+  width: 100%;
+  font-size: em(14px);
+
+  th,
+  td {
+    width: 10%;
+    padding: 10px;
+    text-align: center;
+
+    &.team-name {
+      width: 80%;
+      text-align: left;
+      padding-left: 24px;
+    }
+  }
+
+  tfoot td {
+    width: 100%;
+    text-align: right;
+  }
+}
+
+.sport__scoreboard-hockey {
+  color: $white;
+}
+
+.score-total,
+.score-winner {
+  color: $brand_red;
+  font-weight: 500;
+}
+
+.upcoming-game {
+  color: $white;
+
+  h3 {
+    line-height: 1;
+  }
+
+  span {
+    background-color: $brand_red;
+    padding: 4px 4px 4px 24px;
+    margin-right: 8px;
+  }
+
+  p {
+    padding: 24px 16px;
+    text-align: center;
+    font-size: em(14px);
+  }
+}

@@ -1,6 +1,6 @@
 // gulpfile.js
 // Include gulp
-var gulp = require('gulp'); 
+var gulp = require('gulp');
 
 // npm install --save gulp gulp-jshint gulp-sass gulp-concat gulp-uglify gulp-rename gulp-nodemon
 
@@ -13,30 +13,42 @@ var jshint = require('gulp-jshint'),
 	nodemon = require('gulp-nodemon'),
     browserify = require('browserify'),
     reactify = require('reactify'),
-    source = require('vinyl-source-stream');
+    source = require('vinyl-source-stream'),
+    sourcemaps = require('gulp-sourcemaps'),
+    autoprefixer = require('gulp-autoprefixer');
 
 // Lint Task
 gulp.task('lint', function() {
-    return gulp.src('public/javascripts/*.js')
+    return gulp.src('public/js/*.js')
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
 
 // Compile Our Sass
-gulp.task('sass', function() {
-    return gulp.src('public/stylesheets/*.scss')
-        .pipe(sass())
-        .pipe(gulp.dest('public/stylesheets'));
+gulp.task('build-styles', function() {
+  return gulp.src('./public/scss/*.scss')
+          .pipe(sourcemaps.init())
+            .pipe(sass())
+          .pipe(sourcemaps.write())
+          .pipe(gulp.dest('./public/css'));
+});
+
+gulp.task('autoprefixer', function() {
+  return gulp.src('./public/css/main.css')
+          .pipe(autoprefixer({
+            browsers: ['last 2 versions'],
+            cascade: false
+          }));
 });
 
 // Compile Our React Stuff
 // gulp.task('react', function() {
 //     // Browserify/bundle the JS.
-//     browserify('./public/javascripts/raw/app.jsx')
+//     browserify('./public/js/raw/app.jsx')
 //         .transform(reactify)
 //         .bundle()
 //         .pipe(source('bundle.js'))
-//         .pipe(gulp.dest('public/javascripts/'));
+//         .pipe(gulp.dest('public/js/'));
 // });
 
 // Concatenate & Minify JS
@@ -51,8 +63,8 @@ gulp.task('sass', function() {
 
 // Watch Files For Changes
 gulp.task('watch', function() {
-    // gulp.watch('public/javascripts/raw/**/*.jsx', ['react']);
-    gulp.watch('public/stylesheets/*.scss', ['sass']);
+    // gulp.watch('public/js/raw/**/*.jsx', ['react']);
+    gulp.watch('public/css/*.scss', ['stylesheets']);
 });
 
 gulp.task('develop', function () {
@@ -65,4 +77,6 @@ gulp.task('develop', function () {
 
 // Default Task
 // gulp.task('default', ['lint', 'sass', 'scripts', 'watch']);
-gulp.task('default', ['sass', 'watch', 'develop']);
+gulp.task('default', ['stylesheets', 'watch', 'develop']);
+// Stylesheets
+gulp.task('stylesheets', ['build-styles', 'autoprefixer']);

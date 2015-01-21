@@ -1,0 +1,24 @@
+{
+  "name": "maverick_mayhem",
+  "version": "0.0.1",
+  "authors": [
+    "Alex Rock <alex@thenewblk.com>",
+    "Christopher Kollars <chris@christopherkollars.com>"
+  ],
+  "description": "Sports social platform for UNO Mavericks",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/_bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bourbon": "~4.0.2",
+    "susy": "~2.2.1",
+    "jquery": "~2.1.3"
+  }
+}

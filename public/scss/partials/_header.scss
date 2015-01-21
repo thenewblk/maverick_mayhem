@@ -1,0 +1,13 @@
+.banner {
+  padding: 40px 0;
+  background-color: tint($black, 10%);
+}
+
+.page-headline {
+  padding-left: 30px;
+  margin: 0;
+  font-size: em(36px);
+  line-height: 1;
+  text-transform: uppercase;
+  color: $white;
+}

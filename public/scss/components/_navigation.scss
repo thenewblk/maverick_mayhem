@@ -1,0 +1,23 @@
+.nav-container {
+  @include clearfix;
+  background-color: $black;
+  padding: 16px;
+  font-size: rem(14px);
+}
+
+.nav__menu {
+  @include horizontal-list;
+  float: right;
+  margin-right: 30px;
+}
+
+.nav__item {
+  margin-right: rem(16px);
+  line-height: rem(32px);
+
+  a {
+    display: block;
+    padding: 4px 8px;
+    text-decoration: none;
+  }
+}
