@@ -23,22 +23,24 @@
   <body>
     <div class="nav-container">
       <nav class="nav--primary" role="navigation">
-        <img src="img/icon-bull.png" alt="" class="icon--brand">
-        <ul class="nav__menu">
-          <li class="nav__item"><a href="">Hocky</a></li>
+        <a href="/" class="nav__logo">
+          <img src="img/icon-bull.svg" alt="UNO Maverics bull icon">
+        </a>
+        <ul class="nav__menu nav__menu-disabled">
+          <li class="nav__item"><a href="">Hockey</a></li>
           <li class="nav__item"><a href="">New Arena</a></li>
           <li class="nav__item"><a href="">Join</a></li>
         </ul>
       </nav>
+      <span class="nav__menu-icon">Menu</span>
+      <div class="sport-type-avatar"></div>
     </div>
-    <header>
-      <div class="row">
-        <div class="container banner">
-          <h1 class="page-headline">Mavericks take win over deluth 4-1</h1>
-        </div>
+    <header role="banner">
+      <div class="banner">
+        <h1 class="page-headline">Mavericks take win over deluth 4-1</h1>
       </div>
     </header>
-    <main id="main" role="main">
+    <div id="main" role="main">
       <div class="row">
         <div class="container">
           <div class="video-container">
@@ -128,7 +130,7 @@
           </ul>
         </div>
       </div>
-    </main>
+    </div>
     <footer>
       <div class="container">
         <p>Copyright &copy; 2015</p>
