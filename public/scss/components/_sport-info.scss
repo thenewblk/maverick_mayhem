@@ -28,6 +28,14 @@
     width: 100%;
     text-align: right;
   }
+  a {
+    text-decoration: none;
+
+    &:before {
+      content: "> ";
+      color: $brand_red;
+    }
+  }
 }
 
 .sport__scoreboard-hockey {
