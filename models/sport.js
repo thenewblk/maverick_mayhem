@@ -1,13 +1,14 @@
-var mongoose = require( 'mongoose' );
-var moment = require('moment');
-var tools = require('../lib/utils');
+var mongoose = require( 'mongoose' ),
+    moment = require('moment'),
+    tools = require('../lib/utils'),
+    Schema = mongoose.Schema;
 
 var sportSchema = mongoose.Schema({
     updated_date  : String,
     updated_at    : String,
     name          : String,
     slug          : String,
-    games         : [{ type: String, ref: 'Game' }] ,
+    games         : [{ type: Schema.Types.ObjectId, ref: 'Game' }],
     photos        : [{ type: String, ref: 'Photo' }] ,
     news          : [{ type: String, ref: 'News' }] ,
 });
