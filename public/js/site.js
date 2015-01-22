@@ -1,4 +1,3 @@
-
 $(function() {
   $('.btn--play').on('click', function(){
     console.log('play');

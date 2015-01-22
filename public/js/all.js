@@ -9793,7 +9793,6 @@ $("videojs.autoSetup",t.oc);$("videojs.plugin",t.ge);$("videojs.createTimeRange"
 		
 	};
 });
-
 $(function() {
   $('.btn--play').on('click', function(){
     console.log('play');
