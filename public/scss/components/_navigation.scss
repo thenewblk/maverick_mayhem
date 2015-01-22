@@ -10,7 +10,10 @@
 
 .nav__menu {
   @include horizontal-list;
-  float: left;
+  @include transition(all, 0.2s);
+  position: absolute;
+  left: 100px;
+  // float: left;
 }
 
 .nav__item {
@@ -33,10 +36,6 @@
   border-right: 1px solid rgba($white, 0.1);
 }
 
-.nav__menu-disabled {
-  display: none;
-}
-
 .nav__menu-icon {
   float: left;
   color: $white;
@@ -56,5 +55,9 @@
     background: url(../img/icon-menu.svg) no-repeat left center;
     background-size: 100%;
   }
+}
+
+.nav__menu-disabled {
+  left: -1000px;
 
 }
