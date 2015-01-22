@@ -11,11 +11,11 @@ var jshint = require('gulp-jshint'),
 	uglify = require('gulp-uglify'),
 	rename = require('gulp-rename'),
 	nodemon = require('gulp-nodemon'),
-    browserify = require('browserify'),
-    reactify = require('reactify'),
-    source = require('vinyl-source-stream'),
-    sourcemaps = require('gulp-sourcemaps'),
-    autoprefixer = require('gulp-autoprefixer');
+  browserify = require('browserify'),
+  reactify = require('reactify'),
+  source = require('vinyl-source-stream'),
+  sourcemaps = require('gulp-sourcemaps'),
+  autoprefixer = require('gulp-autoprefixer');
 
 // Lint Task
 gulp.task('lint', function() {
@@ -51,20 +51,18 @@ gulp.task('autoprefixer', function() {
 //         .pipe(gulp.dest('public/js/'));
 // });
 
-// Concatenate & Minify JS
-// gulp.task('scripts', function() {
-//     return gulp.src('js/*.js')
-//         .pipe(concat('all.js'))
-//         .pipe(gulp.dest('dist'))
-//         .pipe(rename('all.min.js'))
-//         .pipe(uglify())
-//         .pipe(gulp.dest('dist'));
-// });
+// Concatenate JS
+gulp.task('build-scripts', function() {
+    return gulp.src(['./public/js/vendors/jquery-2.1.3.js', './public/js/vendors/video.js', './public/js/vendors/bigvideo.js', './public/js/site.js'])
+        .pipe(concat('all.js'))
+        .pipe(gulp.dest('./public/js'))
+});
 
 // Watch Files For Changes
 gulp.task('watch', function() {
     // gulp.watch('public/js/raw/**/*.jsx', ['react']);
     gulp.watch('public/scss/**/*.scss', ['stylesheets']);
+    gulp.watch('public/js/site.js', ['build-scripts']);
 });
 
 gulp.task('develop', function () {
