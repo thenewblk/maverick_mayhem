@@ -2,12 +2,11 @@ var mongoose = require( 'mongoose' );
 var tools = require('../lib/utils');
 
 var photoSchema = mongoose.Schema({
-	name    				: String,
-	slug    				: String
+	url    				: String,
+	description		: String
 });
 
 photoSchema.pre('save', function (next) {
-  this.slug = tools.slugify(this.name);
   next();
 });
  

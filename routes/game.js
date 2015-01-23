@@ -2,10 +2,17 @@ var Game = require('../models/game');
 
 module.exports = function(app) {
 	// Add New game
-	app.post('/api/game/new', function(req, res) {
-		var name = req.body.name;
+	app.post('/api/games/new', function(req, res) {
+		var new_game = {};
+		new_game.name 			= req.body.name;
+		new_game.opponent 	= req.body.opponent;
+		new_game.date     	= req.body.date;
+		new_game.time     	= req.body.time;
+		new_game.ticket   	= req.body.ticket;
+		new_game.location 	= req.body.location;
+		new_game.scores   	= req.body.scores;
 
-		Game.create({ name: name }, function (err, game) {
+		Game.create(new_game, function (err, game) {
 		  if (err) return console.log(err);
 		  res.send(game);
 		});
@@ -22,7 +29,7 @@ module.exports = function(app) {
 	});
 
 	// Display game
-	app.get('/api/game/:slug', function(req, res) {
+	app.get('/api/games/:slug', function(req, res) {
 		Game
 			.findOne({ slug: req.params.slug })
 			.exec( function (err, game) {
@@ -32,26 +39,38 @@ module.exports = function(app) {
 	});
 
 	// Display Edit game Form
-	app.get('/api/game/:slug/edit', function(req, res) {
+	app.get('/api/games/:slug/edit', function(req, res) {
 		Game
 			.findOne({ slug: req.params.slug })
 			.exec( function (err, game) {
-			  	if (err) { console.log(err); }
+			  if (err) { console.log(err); }
 				res.send(game);
 		});
 	});
 
 	// Edit game
-	app.post('/api/game/:slug/edit', function(req, res) {
-		tmp_game = {};
-		tmp_game.name = req.body.name;
+	app.post('/api/games/:slug/edit', function(req, res) {
+		var edit_game = {};
+		edit_game.name 			= req.body.name;
+		edit_game.opponent 	= req.body.opponent;
+		edit_game.date     	= req.body.date;
+		edit_game.time     	= req.body.time;
+		edit_game.ticket   	= req.body.ticket;
+		edit_game.location 	= req.body.location;
+		edit_game.scores   	= req.body.scores;
 
 		Game
 			.findOne({ slug: req.params.slug })
 			.exec(function (err, game) {
-			  	if (err) return console.log(err);
+			  if (err) return console.log(err);
 
-				game.name = tmp_game.name;
+				game.name 			= edit_game.name;
+				game.opponent 	= edit_game.opponent;
+				game.date     	= edit_game.date;
+				game.time     	= edit_game.time;
+				game.ticket   	= edit_game.ticket;
+				game.location 	= edit_game.location;
+				game.scores   	= edit_game.scores;
 
 				game.save(function (err) {
 					if (err) return console.log(err);
@@ -61,7 +80,7 @@ module.exports = function(app) {
 	});
 	
 	// Delete game
-	app.delete('/api/game/:slug/delete', function(req, res) {
+	app.delete('/api/games/:slug/delete', function(req, res) {
 		Game
 			.findOne({ slug: req.params.slug })
 			.remove( function (err, game) {
