@@ -9,8 +9,8 @@ var sportSchema = mongoose.Schema({
     name          : String,
     slug          : String,
     games         : [{ type: Schema.Types.ObjectId, ref: 'Game' }],
-    photos        : [{ type: String, ref: 'Photo' }] ,
-    news          : [{ type: String, ref: 'News' }] ,
+    photos        : [{ type: Schema.Types.ObjectId, ref: 'Photo' }] ,
+    news          : [{ type: Schema.Types.ObjectId, ref: 'News' }] ,
 });
 
 sportSchema.pre('save', function (next) {

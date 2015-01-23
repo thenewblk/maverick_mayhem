@@ -97,4 +97,24 @@ describe("Sport", function(){
         done();
     });
   }); 
+
+  it("updates game correctly", function(done){ 
+    Sport
+      .findOne({ name: currentsport.name })
+      .populate('games')
+      .exec(function(err, sport) {
+        if (err) return console.error(err); 
+        console.log('Games: 0('+ sport.games[0].name + '), 1('+sport.games[1].name+')');
+        sport.save(function(err, new_sport) {
+          console.log(new_sport);
+          Game
+            .findOne({ _id: sport.games[0]._id })
+            .exec(function(err, game){
+              console.log('game.name: '+game.name);
+            });
+          if (err) return console.error(err);
+          done(); 
+        });
+    });
+  }); 
 });

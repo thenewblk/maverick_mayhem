@@ -22,45 +22,17 @@ describe("Server-side routes", function(){
   var game_name = "Umbrella";
   var new_game_name = "Ostrich";
 
-  // before(function(done){ 
-  //   mongoose.connect(configDB.test);
-  //   // mongoose.connection.on("open", done);
-  //   mongoose.connection.on("open", function(){
-  //     currentgame = new Game({ 
-  //       name: "Game Number 1" 
-  //     });
-
-  //     currentgame.save(function(err, game) {
-  //       if (err) return console.error(err);
-  //       // currentgame = game; 
-  //       done();
-  //     });
-  //   });
-
-  // });
-
-  // after(function(done){ 
-  //   Game.remove({}, function() { 
-  //     mongoose.disconnect();
-  //     done(); 
-  //   }); 
-  // });
-
-
   before(function(done){ 
     mongoose.connect(configDB.test);
-    // mongoose.connection.on("open", done);
-    // mongoose.connection.on("open", function(){
-      currentgame = new Game({ 
+      var new_game = new Game({ 
         name: "Game Number 1" 
       });
 
-      currentgame.save(function(err, game) {
+      new_game.save(function(err, game) {
         if (err) return console.error(err);
-        // currentgame = game; 
+        currentgame = game; 
         done();
       });
-    // });
 
   });
 
