@@ -1,14 +1,8 @@
-.featured-photo {
-  @include span(8 omega);
-}
-
 .photo-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
-
 
 .photo-list__item {
   float: left;
