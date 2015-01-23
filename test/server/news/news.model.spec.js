@@ -8,7 +8,7 @@ var mongoose = require("mongoose"),
 //tell Mongoose to use our test DB
 
 
-describe("news", function(){ 
+describe("News", function(){ 
   var currentnews;
 
 
