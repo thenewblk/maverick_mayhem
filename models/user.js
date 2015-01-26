@@ -34,16 +34,7 @@ var userSchema = mongoose.Schema({
         token        : String,
         displayName     : String,
         name         : String
-    },
-    // things: [ 
-    //     { 
-    //         post: { type: String, ref: 'Post' } ,
-    //         instagram: { type: String, ref: 'Instagram' },
-    //         column: { type: String, ref: 'Column' },
-    //         position: Number 
-    //     }
-    // ]
-
+    }
 });
 
 // generating a hash
