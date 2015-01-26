@@ -3,7 +3,7 @@
   position: fixed;
   z-index: 1000;
   width: 100%;
-  background-color: $brand_black;
+  background-color: $black;
   font-size: em(14px);
   border-bottom: 1px solid rgba($white, 0.1);
 }
@@ -11,9 +11,7 @@
 .nav__menu {
   @include horizontal-list;
   @include transition(all, 0.2s);
-  position: absolute;
-  left: 100px;
-  // float: left;
+  float: left;
 }
 
 .nav__item {

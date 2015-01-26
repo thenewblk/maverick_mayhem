@@ -1,6 +1,7 @@
 .banner {
+  position: relative;
   padding: 40px 0;
-  background-color: tint($black, 10%);
+  background-color: $black;
 }
 
 .banner__headline {
@@ -14,4 +15,16 @@
 
 header {
   padding-top: 51px;
+}
+
+.sport-type-avatar {
+  position: absolute;
+  right: 30px;
+  top: -20px;
+  z-index: 1010;
+  width: 140px;
+  img {
+    width: 100%;
+    opacity: 1;
+  }
 }
