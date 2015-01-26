@@ -9,6 +9,42 @@ function isLoggedIn(req, res, next) {
 
 module.exports = function(app, passport) {
 
+	// Display pages
+	app.get('/pages/new', function(req, res) {
+		Page
+			.find({})
+			.exec( function (err, pages) {
+			  	if (err) return console.log(err);
+				res.render('pages/new');
+		});
+	});
+
+	// Display page
+	app.get('/:slug', function(req, res) {
+		Page
+			.findOne({ slug: req.params.slug })
+			.populate('games')
+			.exec( function (err, page) {
+			  	if (err) return console.log(err);
+				res.render('pages/show', {
+					page: page
+				});
+		});
+	});
+
+
+	app.get('/:slug/edit', function(req, res) {
+		Page
+			.findOne({ slug: req.params.slug })
+			.populate('games')
+			.exec( function (err, page) {
+			  	if (err) return console.log(err);
+				res.render('pages/edit', {
+					page: page
+				});
+		});
+	});
+
 	// Add New page
 	app.post('/api/pages/new', function(req, res) {
 		var new_page = {};
@@ -42,6 +78,7 @@ module.exports = function(app, passport) {
 	app.get('/api/pages/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
+			.populate('games')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 				res.send(page);

@@ -19,12 +19,43 @@ module.exports = function(app) {
 	});
 
 	// Display games
+	app.get('/games/', function(req, res) {
+		Game
+			.find({})
+			.exec( function (err, games) {
+			  	if (err) return console.log(err);
+
+			    res.render('games/index', {
+			    	games: games
+			    });
+		});
+	});
+
 	app.get('/api/games/', function(req, res) {
 		Game
 			.find({})
 			.exec( function (err, games) {
 			  	if (err) return console.log(err);
-				res.send(games);
+				res.format({
+				  // 'text/plain': function(){
+				  //   res.send('hey');
+				  // },
+
+				  'html': function(){
+				    res.render('games/index', {
+				    	games: games
+				    });
+				  },
+
+				  'json': function(){
+				    res.json(games);
+				  },
+
+				  'default': function() {
+				    // log the request and respond with 406
+				    res.status(406).send('Not Acceptable');
+				  }
+				});
 		});
 	});
 

@@ -32,3 +32,6 @@ npm-debug.log
 # Sass rules
 .sass-cache
 *.css.map
+
+.env
+Procfile

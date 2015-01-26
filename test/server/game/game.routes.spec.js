@@ -84,6 +84,8 @@ describe("Server-side routes", function(){
     it("respond with json", function(done){
       request(app)
         .get("/api/games")
+        // .set('Accept', 'application/json')
+        .accept('json')
         .expect("Content-Type", /json/)
         .expect(200, done);
     });

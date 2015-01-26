@@ -37,7 +37,7 @@
     </div>
     <header role="banner">
       <div class="banner">
-        <h1 class="banner__headline">Mavericks take on North Dakota Jan 22</h1>
+        <h1 class="banner__headline"><%= page.banner %></h1>
       </div>
     </header>
     <div id="main" role="main">
@@ -53,7 +53,7 @@
       </div>
       <div class="container">
         <div class="sport__headline">
-          <h2>MAVERICKS TAKE WIN OVER DELUTH 4-1</h2>
+          <h2><%= page.headline %></h2>
         </div>
         <div class="sport">
           <div class="game-content">
@@ -61,26 +61,27 @@
               <thead>
                 <tr class="scoreboard__header">
                   <th class="team-name">&nbsp;</th>
-                  <th>1st</th>
-                  <th>2nd</th>
-                  <th>3rd</th>
+                  <% page.games[0].scores.us.forEach(function(score, index){ %>
+                    <th><%= page.games[0].getPeriod(index +1) %></th>
+                  <% }); %>
                   <th class="score-total">Total</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="team visitor">
-                  <td class="team-name">Deluth</td>
-                  <td class="score">1</td>
-                  <td class="score">0</td>
-                  <td class="score">0</td>
-                  <td class="score">1</td>
+                  <td class="team-name"><%= page.games[0].opponent %></td>
+                  <% page.games[0].scores.us.forEach(function(score, index){ %>
+                    <td class="score"><%= score %></td>
+                  <% }); %>
+                  <td class="score"><%= page.games[0].scores.total.us %></td>
                 </tr>
                 <tr class="team away">
                   <td class="team-name">Omaha</td>
-                  <td class="score">2</td>
-                  <td class="score">1</td>
-                  <td class="score">1</td>
-                  <td class="score score-winner">4</td>
+                  <% page.games[0].scores.them.forEach(function(score, index){ %>
+                    <td class="score"><%= score %></td>
+                  <% }); %>
+                  <td class="score"><%= page.games[0].scores.total.them %></td>
+                  <!-- <td class="score score-winner">4</td> -->
                 </tr>
               </tbody>
               <tfoot>
@@ -91,10 +92,10 @@
             </table>
           </div>
           <div class="upcoming-game">
-            <h3><span>Next Game: </span>Fri, Nov 28th 2014</h3>
-            <p>vs North Dakota @ Grand Forks, N.D</p>
+            <h3><span>Next Game: </span><%= page.games[0].date %></h3>
+            <p>vs <%= page.games[0].opponent %> @ <%= page.games[0].location %></p>
           </div>
-          <a href="" class="btn btn--red">Get Tickets</a>
+          <a href="<%= page.games[0].ticket %>" class="btn btn--red">Get Tickets</a>
         </div>
         <div class="news">
         <ul class="news__list">

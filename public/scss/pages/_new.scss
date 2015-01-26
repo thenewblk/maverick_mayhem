@@ -1,0 +1,32 @@
+#new_page {
+	margin-top: 75px;
+	background: white;
+	padding: 15px;
+	input {
+		width: 100%;
+		text-align: center;
+		line-height: 2;
+	}
+}
+
+.game {
+	border: 1px solid #eee;
+	padding: 15px;
+}
+
+.submit  {
+	background: $brand_red;
+	width: 100%;
+	display: block;
+	text-align: center;
+	line-height: 30px;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 12px;
+	cursor: pointer;
+	transition: 0.15s ease-out;
+}
+
+.submit:hover {
+	background: $brand_black;
+}

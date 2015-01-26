@@ -33,6 +33,7 @@
     "gulp": "^3.8.10",
     "gulp-browserify": "^0.5.1",
     "gulp-concat": "^2.4.3",
+    "gulp-folders": "^1.1.0",
     "gulp-jshint": "^1.9.0",
     "gulp-livereload": "^3.0.2",
     "gulp-nodemon": "^1.0.4",
@@ -42,7 +43,8 @@
     "mocha": "^2.1.0",
     "reactify": "^0.17.1",
     "sinon": "^1.12.2",
-    "supertest": "^0.15.0"
+    "supertest": "^0.15.0",
+    "vinyl-buffer": "^1.0.0"
   },
   "scripts": {
     "test": "mocha 'test/server/**/*.spec.js'"
