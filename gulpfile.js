@@ -53,7 +53,7 @@ gulp.task('autoprefixer', function() {
 
 // Concatenate JS
 gulp.task('build-scripts', function() {
-    return gulp.src(['./public/js/vendors/jquery-2.1.3.js', './public/js/vendors/video.js', './public/js/vendors/bigvideo.js', './public/js/site.js'])
+    return gulp.src(['./public/js/vendors/jquery-2.1.3.js', './public/js/vendors/video.js', './public/js/vendors/headroom.js', './public/js/vendors/jQuery.headroom.js', './public/js/vendors/bigvideo.js', './public/js/site.js'])
         .pipe(concat('all.js'))
         .pipe(gulp.dest('./public/js'))
 });
