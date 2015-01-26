@@ -26,32 +26,31 @@
         <a href="/" class="nav__logo">
           <img src="img/icon-bull.svg" alt="UNO Maverics bull icon">
         </a>
-        <ul class="nav__menu nav__menu-disabled">
-          <li class="nav__item"><a href="">Hockey</a></li>
+        <ul class="nav__menu">
+          <li class="nav__item"><a href="">Basketball</a></li>
           <li class="nav__item"><a href="">New Arena</a></li>
-          <li class="nav__item"><a href="">Join</a></li>
         </ul>
       </nav>
-      <span class="nav__menu-icon">Menu</span>
-      <div class="sport-type-avatar"></div>
+      <!-- <span class="nav__menu-icon">Menu</span> -->
     </div>
     <header role="banner">
       <div class="banner">
         <h1 class="banner__headline"><%= page.banner %></h1>
+        <div class="sport-type-avatar"><img src="img/icon--uno-hockey.svg" alt=""></div>
       </div>
     </header>
     <div id="main" role="main">
       <div class="video-container">
         <div class="video-wrapper">
           <div class="btn--play">Play</div>
-          <video id="video-background" poster="http://dfcb.github.io/BigVideo.js/img/background-dock.jpg" autoplay muted="muted" loop>
+          <video id="video-background" poster="" autoplay muted="muted" loop>
             <source src="video/WomensVball_10sec_loop.mp4" type="video/mp4">
 
           </video>
           <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
         </div>
       </div>
-      <div class="container">
+      <div class="container sport-recap">
         <div class="sport__headline">
           <h2><%= page.headline %></h2>
         </div>
@@ -84,11 +83,11 @@
                   <!-- <td class="score score-winner">4</td> -->
                 </tr>
               </tbody>
-              <tfoot>
+              <!-- <tfoot>
                 <tr>
                   <td colspan="5"><a href="#">view stats</a></td>
                 </tr>
-              </tfoot>
+              </tfoot> -->
             </table>
           </div>
           <div class="upcoming-game">
@@ -98,33 +97,28 @@
           <a href="<%= page.games[0].ticket %>" class="btn btn--red">Get Tickets</a>
         </div>
         <div class="news">
-        <ul class="news__list">
-          <li class="news__list-item">
-            <a href="">
-              <h4 class="news__title"><span>Newcomers spark Mavericks' surprising start<em class="news__byline">by OWH</em></span></h4>
-            </a>
-            <img src="img/news-item.jpg" alt="">
-          </li>
-          <li class="news__list-item">
-            <a href="">
-              <h4 class="news__title"><span>Newcomers spark Mavericks' surprising start<em class="news__byline">by OWH</em><span></h4>
-            </a>
-            <img src="img/news-item.jpg" alt="">
-          </li>
-        </ul>
-      </div>
+          <ul class="news__list">
+            <li class="news__list-item" style="background: url(img/news-item.jpg) no-repeat center;">
+              <a href="">
+                <h4 class="news__title"><span>Newcomers spark Mavericks' surprising start<em class="news__byline">by OWH</em></span></h4>
+              </a>
+            </li>
+            <li class="news__list-item" style="background: url(img/news-item.jpg) no-repeat center;">
+              <a href="" >
+                <h4 class="news__title"><span>Newcomers spark Mavericks' surprising start<em class="news__byline">by OWH</em><span></h4>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
 
-      <div class="container">
-        <div class="featured-photo">
-          <img src="http://placehold.it/1140x400" alt="">
-        </div>
+      <div class="photo-gallery">
         <ul class="photo-list">
-          <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="http://placehold.it/260x260" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey1.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey2.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey3.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey4.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey5.jpg" alt="" class="photo"></li>
         </ul>
       </div>
     </div> <!-- END #main -->

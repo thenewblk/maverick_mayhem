@@ -44,7 +44,7 @@
     "reactify": "^0.17.1",
     "sinon": "^1.12.2",
     "supertest": "^0.15.0",
-    "vinyl-buffer": "^1.0.0"
+    "vinyl-buffer": "~1.0.0"
   },
   "scripts": {
     "test": "mocha 'test/server/**/*.spec.js'"
