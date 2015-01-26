@@ -48,3 +48,16 @@ h5, .h5 {
   font-weight: 1000;
 }
 
+h1, .h1,
+h2, .h2 {
+  margin: 0;
+  color: $white;
+  font-size: em(40px);
+  text-transform: uppercase;
+}
+
+.sport__headline {
+  text-align: center;
+
+  padding: 60px 0;
+}

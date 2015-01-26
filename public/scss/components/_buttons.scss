@@ -1,8 +1,9 @@
 .btn {
+  @include transition(background-color 0.2s);
   display: block;
   text-align: center;
   padding: 24px 16px;
-  font-size: em(18);
+  font-size: em(24);
   font-family: $museo-slab;
   font-weight: 1000;
   text-decoration: none;
@@ -10,4 +11,8 @@
 
 .btn--red {
   background-color: $brand_red;
+
+  &:hover {
+    background-color: darken($brand_red, 10%);
+  }
 }

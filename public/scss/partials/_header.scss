@@ -1,6 +1,8 @@
 .banner {
+  position: relative;
   padding: 40px 0;
-  background-color: tint($black, 10%);
+  background: $black url(../img/bg--hockey_banner.jpg) no-repeat center top;
+  background-size: cover;
 }
 
 .banner__headline {
@@ -14,4 +16,22 @@
 
 header {
   padding-top: 51px;
+  background-color: $black;
+
+  @include respond-to(mobile) {
+    padding-top: 37px;
+  }
 }
+
+.sport-type-avatar {
+  position: absolute;
+  right: 30px;
+  top: -20px;
+  z-index: 1010;
+  width: 140px;
+  img {
+    width: 100%;
+    opacity: 1;
+  }
+}
+

@@ -25,6 +25,10 @@
   height: auto;
   z-index: -1000;
   overflow: hidden;
+
+  @include respond-to(mobile) {
+    display: none;
+  }
 }
 
 .btn--play {

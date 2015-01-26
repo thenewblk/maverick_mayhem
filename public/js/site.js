@@ -5,4 +5,6 @@ $(function() {
     $('#video-background').toggle();
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').toggle();
   })
+
+  $('.nav-container').headroom();
 });
