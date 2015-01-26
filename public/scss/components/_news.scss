@@ -1,5 +1,11 @@
 .news {
-  @include span(6);
+  float: left;
+  width: 47%;
+
+  @include respond-to(mobile) {
+    width: 100%;
+    float: none;
+  }
 }
 
 .news__list {
@@ -40,11 +46,12 @@
 .news__title {
   @include transition(color, 0.2s);
   display: table;
-  vertical-align: middle;
   margin: 0;
   height: 100%;
+  width: 100%;
+  vertical-align: middle;
   font-family: $base-font-family;
-  font-size: em(16px);
+  font-size: em(20px);
   line-height: 1.1;
 
   em {

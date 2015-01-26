@@ -1,6 +1,13 @@
 .sport {
-  @include span(6);
+  float: left;
+  width: 47%;
+  margin-right: 6%;
   background-color: $black;
+
+  @include respond-to(mobile) {
+    width: 100%;
+    float: none;
+  }
 }
 
 .game-content {
@@ -9,7 +16,7 @@
 
 .sport__scoreboard {
   width: 100%;
-  font-size: em(14px);
+  font-size: em(20px);
 
   th,
   td {
@@ -49,10 +56,12 @@
 }
 
 .upcoming-game {
+  margin-top: 40px;
   color: $white;
 
   h3 {
     line-height: 1;
+    font-size: em(24px);
   }
 
   span {
@@ -64,6 +73,6 @@
   p {
     padding: 24px 16px;
     text-align: center;
-    font-size: em(14px);
+    font-size: em(20px);
   }
 }
