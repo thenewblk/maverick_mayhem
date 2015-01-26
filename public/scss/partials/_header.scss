@@ -15,6 +15,11 @@
 
 header {
   padding-top: 51px;
+  background-color: $black;
+
+  @include respond-to(mobile) {
+    padding-top: 37px;
+  }
 }
 
 .sport-type-avatar {

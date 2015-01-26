@@ -8,30 +8,57 @@
   border-bottom: 1px solid rgba($white, 0.1);
 }
 
+.nav--primary {
+  @include clearfix;
+}
+
 .nav__menu {
   @include horizontal-list;
   @include transition(all, 0.2s);
   float: left;
+  height: 100%;
 }
 
 .nav__item {
-  margin-right: em(16px);
-  line-height: em(48px);
+  line-height: 48px;
+  border-right: 1px solid rgba($white, 0.1);
+
+  @include respond-to(mobile) {
+    line-height: 36px;
+  }
 
   a {
+    @include transition(background-color 0.2s);
     display: block;
-    padding: 4px 8px;
+    padding: 0 16px;
     text-decoration: none;
+
+    @include respond-to(small) {
+      padding: 0 20px;
+    }
+
+    &:hover {
+      background-color: $brand_red;
+    }
   }
 }
 
 .nav__logo {
+  @include transition(background-color 0.2s);
   float: left;
   width: 64px;
   height: 48px;
   padding: 4px 8px;
-  margin-right: 16px;
   border-right: 1px solid rgba($white, 0.1);
+
+  @include respond-to(mobile) {
+    width: 52px;
+    height: 36px;
+  }
+
+  &:hover {
+    background-color: $brand_red;
+  }
 }
 
 .nav__menu-icon {
