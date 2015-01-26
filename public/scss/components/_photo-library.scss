@@ -12,6 +12,12 @@
   max-height: 420px;
   overflow: hidden;
 
+  @include respond-to(mobile) {
+    float: none;
+    width: 100%;
+    padding: 10px 0 0 0;
+  }
+
   &:nth-child(even) {
     padding-right: 0;
   }
