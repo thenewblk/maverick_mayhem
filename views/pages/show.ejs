@@ -60,7 +60,7 @@
               <thead>
                 <tr class="scoreboard__header">
                   <th class="team-name">&nbsp;</th>
-                  <% page.games.last.scores.us.forEach(function(score, index){ %>
+                  <% page.games.[0].scores.us.forEach(function(score, index){ %>
                     <th><%= page.games[0].getPeriod(index +1) %></th>
                   <% }); %>
                   <th class="score-total">Total</th>

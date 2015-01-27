@@ -32,7 +32,7 @@ var jshint = require('gulp-jshint'),
 //     //     .pipe(rename(folder+'.min.js'))
 //     //     .pipe(gulp.dest(destFolder));
 
-//     return browserify('./components/' + folder + '/new.jsx')
+//     return browserify('./components/' + flder o+ '/new.jsx')
 //         .transform(reactify)
 //         .bundle()
 //         .pipe(source(folder+'.js'))
@@ -53,18 +53,6 @@ gulp.task('build-reacts', function(){
         .pipe(rename('pages.min.js'))
         .pipe(gulp.dest('./public/js/'));
 });
-
-// gulp.task('scripts', function(){
-//   var bundler = browserify('./assets/js/main.js');
-
-//   return bundler
-//     .transform(reactify)
-//     .bundle({standalone: 'noscope'})
-//     .pipe(source('main.js'))
-//     .pipe(buffer())
-//     .pipe(uglify())
-//     .pipe(gulp.dest('./static/js'));
-// });
 
 
 // Lint Task
@@ -90,16 +78,6 @@ gulp.task('autoprefixer', function() {
             cascade: false
           }));
 });
-
-// Compile Our React Stuff
-// gulp.task('react', function() {
-//     // Browserify/bundle the JS.
-//     browserify('./public/js/raw/app.jsx')
-//         .transform(reactify)
-//         .bundle()
-//         .pipe(source('bundle.js'))
-//         .pipe(gulp.dest('public/js/'));
-// });
 
 // Concatenate JS
 gulp.task('build-scripts', function() {
