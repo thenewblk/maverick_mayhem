@@ -1,38 +1,5 @@
-<!doctype html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-
-    <title>Maverick Mayhem</title>
-    <meta name="description" content="">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link rel="stylesheet" href="/css/main.css">
-    <!-- Typekit -->
-    <script>
-      (function(d) {
-        var config = {
-          kitId: 'bwv0gog',
-          scriptTimeout: 3000
-        },
-        h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='//use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
-      })(document);
-    </script>
-  </head>
-  <body>
-    <div class="nav-container">
-      <nav class="nav--primary" role="navigation">
-        <a href="/" class="nav__logo">
-          <img src="img/icon-bull.svg" alt="UNO Maverics bull icon">
-        </a>
-        <ul class="nav__menu">
-          <li class="nav__item"><a href="">Basketball</a></li>
-          <li class="nav__item"><a href="">New Arena</a></li>
-        </ul>
-      </nav>
-      <!-- <span class="nav__menu-icon">Menu</span> -->
-    </div>
+<%- include ../../layouts/_site_header.ejs %>
+<%- include ../../layouts/_site_navigation.ejs %>
     <header role="banner">
       <div class="banner">
         <h1 class="banner__headline"><%= page.banner %></h1>
@@ -118,16 +85,8 @@
           <li class="photo-list__item"><img src="img/hockey/hockey2.jpg" alt="" class="photo"></li>
           <li class="photo-list__item"><img src="img/hockey/hockey3.jpg" alt="" class="photo"></li>
           <li class="photo-list__item"><img src="img/hockey/hockey4.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="img/hockey/hockey5.jpg" alt="" class="photo"></li>
         </ul>
       </div>
     </div> <!-- END #main -->
-    <footer>
-      <div class="container">
-        <p>Copyright &copy; 2015</p>
-      </div>
-    </footer>
-    <script src="/js/all.js" async></script>
-  </body>
-</html>
+<%- include ../../layouts/_site_footer.ejs %>
 
