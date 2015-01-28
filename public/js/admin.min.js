@@ -215,6 +215,7 @@ var Page = React.createClass({displayName: "Page",
         description = self.state.description;  
 
     var games = self.state.tmp_games.map(function(object) {
+      console.log('game: '+util.inspect(object));
       return React.createElement(Game, {
         name: object.name, 
         slug: object.slug, 
@@ -295,7 +296,7 @@ var DatePicker = require('react-date-picker');
 
 var Score = React.createClass({displayName: "Score",
   getInitialState: function() {
-    return { us: Number, them: Number, status: 'show' };
+    return { us: Number, them: Number };
   },
 
   componentWillMount: function(){
@@ -355,7 +356,7 @@ var Score = React.createClass({displayName: "Score",
           React.createElement("a", {className: "submit", onClick: this.submitContent}, "save")
         )
       )
-    } else if ( status == 'show' ) {
+    } else {
       return (
         React.createElement("div", {className: "score"}, 
           us, ", ", them, 
@@ -373,7 +374,10 @@ var Game = React.createClass({displayName: "Game",
 
   componentWillMount: function(){
     var self = this;
-    
+    console.log('self.props.slug: '+self.props.slug);
+    console.log('self.props.status: '+self.props.status);
+
+
     if( self.props.slug ) {
       request
         .get('/api/games/'+self.props.slug)
@@ -386,7 +390,12 @@ var Game = React.createClass({displayName: "Game",
           }
         }.bind(self));
 
-    } 
+    } else {
+      var tmp_game = {};
+          tmp_game.status = self.props.status,
+          tmp_game.identifier = self.props.identifier;
+      self.setState(tmp_game);
+    }
     // console.log(self.state.scores);
 
   },
@@ -615,6 +624,12 @@ var Game = React.createClass({displayName: "Game",
         )
       )
     } else {
+      var us_scores = scores.map(function(object) {
+        return React.createElement("span", null, object.us);
+      });
+      var them_scores = scores.map(function(object) {
+        return React.createElement("span", null, object.them);
+      });
       return (
         React.createElement("div", {className: "game"}, 
           React.createElement("h3", null, name), 
@@ -625,8 +640,8 @@ var Game = React.createClass({displayName: "Game",
             React.createElement("li", null, "Ticket Link: ", ticket), 
             React.createElement("li", null, "Location: ", location), 
             React.createElement("li", null, "Home?: ", home ? "True" : 'False'), 
-            React.createElement("li", null, "Us: ", scores.us), 
-            React.createElement("li", null, "Them: ", scores.them)
+            React.createElement("li", null, "Us: ", us_scores), 
+            React.createElement("li", null, "Them: ", them_scores)
           ), 
           React.createElement("div", {className: "half_buttons"}, 
             React.createElement("a", {className: "submit", onClick: self.handleEdit}, "edit"), 

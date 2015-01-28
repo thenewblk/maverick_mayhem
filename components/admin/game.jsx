@@ -6,7 +6,7 @@ var DatePicker = require('react-date-picker');
 
 var Score = React.createClass({
   getInitialState: function() {
-    return { us: Number, them: Number, status: 'show' };
+    return { us: Number, them: Number };
   },
 
   componentWillMount: function(){
@@ -66,7 +66,7 @@ var Score = React.createClass({
           <a className='submit' onClick={this.submitContent}>save</a>
         </div>
       )
-    } else if ( status == 'show' ) {
+    } else {
       return (
         <div className="score">
           {us}, {them}
@@ -84,7 +84,10 @@ var Game = React.createClass({
 
   componentWillMount: function(){
     var self = this;
-    
+    console.log('self.props.slug: '+self.props.slug);
+    console.log('self.props.status: '+self.props.status);
+
+
     if( self.props.slug ) {
       request
         .get('/api/games/'+self.props.slug)
@@ -97,7 +100,12 @@ var Game = React.createClass({
           }
         }.bind(self));
 
-    } 
+    } else {
+      var tmp_game = {};
+          tmp_game.status = self.props.status,
+          tmp_game.identifier = self.props.identifier;
+      self.setState(tmp_game);
+    }
     // console.log(self.state.scores);
 
   },
@@ -326,6 +334,12 @@ var Game = React.createClass({
         </div>
       )
     } else {
+      var us_scores = scores.map(function(object) {
+        return <span>{object.us}</span>;
+      });
+      var them_scores = scores.map(function(object) {
+        return <span>{object.them}</span>;
+      });
       return (
         <div className="game">
           <h3>{name}</h3>
@@ -336,8 +350,8 @@ var Game = React.createClass({
             <li>Ticket Link: {ticket}</li>
             <li>Location: {location}</li>
             <li>Home?: {home ? "True" : 'False'}</li>
-            <li>Us: {scores.us}</li>
-            <li>Them: {scores.them}</li>
+            <li>Us: {us_scores}</li>
+            <li>Them: {them_scores}</li>
           </ul>
           <div className='half_buttons'>
             <a className='submit' onClick={self.handleEdit}>edit</a> 

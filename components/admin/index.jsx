@@ -214,6 +214,7 @@ var Page = React.createClass({
         description = self.state.description;  
 
     var games = self.state.tmp_games.map(function(object) {
+      console.log('game: '+util.inspect(object));
       return <Game 
         name={object.name}
         slug={object.slug} 

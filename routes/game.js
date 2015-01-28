@@ -96,7 +96,7 @@ module.exports = function(app) {
 			.exec(function (err, game) {
 			  if (err) return console.log(err);
 
-				game.name 			= edit_game.name;
+				game.name 		= edit_game.name;
 				game.opponent 	= edit_game.opponent;
 				game.date     	= edit_game.date;
 				game.time     	= edit_game.time;
