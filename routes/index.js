@@ -65,10 +65,16 @@ module.exports = function(app, passport) {
 	});
 
 	app.get('/', function(req, res) {
-	  res.render('index', { 
+	  res.render('index', {
 	  	user: req.user
 	  });
 	});
+
+  app.get('/arena', function(req, res) {
+    res.render('arena', {
+      user: req.user
+    });
+  });
 
 	// app.get('*', function(req, res) {
 	//   res.render('index', { title: 'Hello World', user: req.user });
