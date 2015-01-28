@@ -30,7 +30,6 @@
     .btn--play_icon {
       background: url(../img/icon--play_hover.svg) no-repeat center center;
     }
-
   }
 
   .btn--play_icon {
@@ -38,6 +37,10 @@
     width: 320px;
     height: 334px;
     background: url(../img/icon--play.svg) no-repeat center center;
+
+    @include respond-to(mobile) {
+      width: 120px;
+    }
   }
 
 }

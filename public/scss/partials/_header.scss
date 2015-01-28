@@ -3,15 +3,31 @@
   padding: 40px 0;
   background: $black url(../img/bg--hockey_banner.jpg) no-repeat center top;
   background-size: cover;
+
+  @include respond-to(mobile) {
+    padding: 20px 0;
+  }
 }
 
 .banner__headline {
-  padding-left: 30px;
+  padding: 0 20px;
   margin: 0;
-  font-size: em(36px);
+  font-size: em(21px);
   line-height: 1;
   text-transform: uppercase;
   color: $white;
+
+  @include respond-to(mobile) {
+    font-size: em(21px);
+  }
+  @include respond-to(small) {
+    font-size: em(28px);
+    padding-left: 30px;
+    padding-right: 120px;
+  }
+  @include respond-to(medium) {
+    font-size: em(36px);
+  }
 }
 
 header {
@@ -26,9 +42,22 @@ header {
 .sport-type-avatar {
   position: absolute;
   right: 30px;
-  top: -20px;
+  top: 20px;
   z-index: 1010;
-  width: 140px;
+  width: 36px;
+
+  @include respond-to(mobile) {
+    display: none;
+  }
+
+  @include respond-to(small) {
+    width: 52px;
+  }
+
+  @include respond-to(medium) {
+    width: 66px;
+  }
+
   img {
     width: 100%;
     opacity: 1;
