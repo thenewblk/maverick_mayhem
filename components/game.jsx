@@ -2,25 +2,32 @@ var React = require('react'),
     request = require('superagent'),
     util = require('util');
 
+var DatePicker = require('react-date-picker');
+
 var Score = React.createClass({
   getInitialState: function() {
     return { us: Number, them: Number };
   },
+
   componentWillMount: function(){
     if(this.props.identifier) {
       this.setState({ identifier: this.props.identifier });
     }
   },
+
   handleUsChange: function(event) {
     this.setState({us: event.target.value});
   },
+
   handleThemChange: function(event) {
     this.setState({them: event.target.value});
   },
+
   submitContent: function(){
     var self = this;
     self.props.submit(self.state);
   },
+
   render: function () {
     var self = this;
 
@@ -47,24 +54,33 @@ var Score = React.createClass({
 
 var Game = React.createClass({
   getInitialState: function() {
-    return { name: '', type: '', opponent: '', date: '', time: '', ticket: '', location: '', home: false, scores: {}, tmp_scores: [], submitted: false };
+    return { name: '', status: 'show', opponent: '', date: '2015-01-01', time: '', ticket: '', location: '', home: false, scores: {}, tmp_scores: [] };
   },
+
   componentWillMount: function(){
     var self = this;
     var tmp_game = {};
     tmp_game.identifier = self.props.identifier,
     tmp_game.name = self.props.name,
+    tmp_game.slug = self.props.slug,
     tmp_game.opponent = self.props.opponent,
     tmp_game.date = self.props.date,
     tmp_game.time = self.props.time,
     tmp_game.ticket = self.props.ticket,
     tmp_game.location = self.props.location,
     tmp_game.home = self.props.home,
-    tmp_game.scores = self.props.scores;
+    tmp_game.scores = self.props.scores,
+    tmp_game.status = self.props.status;
     
     self.setState(tmp_game);
 
   },
+
+  componentDidMount: function(){
+
+  },
+
+
   handleNameChange: function(event) {
     this.setState({name: event.target.value});
   },
@@ -84,13 +100,13 @@ var Game = React.createClass({
     this.setState({location: event.target.value});
   },
   handleHomeChange: function(event) {
-    this.setState({home: event.target.value});
+    console.log('handleHomeChange: '+event.target.value);
+    this.setState({home: !this.state.home});
+    
   },
 
   handleScoreChange: function(content) {
-    console.log('handleGameChange');
     var current_scores = this.state.tmp_scores;
-    console.log(' '+util.inspect(current_scores));
 
     for(var i in current_scores) {
       if (current_scores[i].identifier == content.identifier){
@@ -127,6 +143,15 @@ var Game = React.createClass({
     this.setState({tmp_scores: new_scores});
 
   },
+
+  handleEdit: function(){
+    this.setState({status: "edit"})
+  },
+
+  handleRemove: function(){
+    this.props.remove_game({_id: this.state._id});
+  },
+
   submitContent: function(){
     var self = this;
     self.setState({submitted: true});
@@ -139,10 +164,40 @@ var Game = React.createClass({
           console.log('new game: '+res.text);
           var new_game = JSON.parse(res.text);
           new_game.identifier = self.state.identifier;
-          self.props.thing(new_game);
+          new_game.status = 'show';
+          self.props.new_game(new_game);
+          self.setState(new_game);
         }
       }.bind(self));
   },
+
+  editContent: function(){
+    var self = this;
+    // self.setState({submitted: true});
+    request
+      .post('/api/games/'+self.state.slug+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          console.log('new game: '+res.text);
+          var new_game = JSON.parse(res.text);
+          new_game.identifier = self.state.identifier;
+          new_game.status = 'show';
+          self.setState(new_game);
+        }
+      }.bind(self));
+  },
+
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
+
+  dateChange: function(moment, dateText) {
+    this.setState({date: dateText})
+  },
+
+
   render: function () {
     var self = this;
 
@@ -154,7 +209,10 @@ var Game = React.createClass({
         location = self.state.location,
         home = self.state.home,
         scores = self.state.tmp_scores,
-        actual_scores = self.state.scores;
+        actual_scores = self.state.scores,
+        status = self.state.status;
+
+        console.log('gome: '+home);
 
     var the_scores = scores.map(function(object) {
       return <Score
@@ -167,44 +225,87 @@ var Game = React.createClass({
         submit={self.handleScoreChange} />
     });
 
-    return (
-      <div>
-        { self.props.type == 'new' ?
-          <div className="game">
-            <h2>New Game</h2>
-            <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
-            <h5><input type="text" value={opponent} onChange={this.handleOpponentChange} placeholder="Oopponent" /></h5>
-            <h5><input type="text" value={date} onChange={this.handleDateChange} placeholder="Date" /></h5>
-            <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
-            <h5><input type="text" value={ticket} onChange={this.handleTicketChange} placeholder="Ticket" /></h5>
-            <h5><input type="text" value={location} onChange={this.handleLocationChange} placeholder="Location" /></h5>
-            <h5><input type="text" value={home} onChange={this.handleHomeChange} placeholder="Home" /></h5>
 
-            { the_scores ?
-              <div className="Scores">
-                {the_scores}
-              </div> 
-            : '' }
-            <h6 onClick={this.newScore}>New Score</h6>
+    if (status == 'new') {
+      return (
+        <div className="game">
+          <h3>New Game</h3>
+          <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
+          <h5><input type="text" value={opponent} onChange={this.handleOpponentChange} placeholder="Opponent" /></h5>
+          <h5><input type="text" className="game_date" value={date} onChange={this.handleDateChange} placeholder="Date" /></h5>
+          <DatePicker
+                  hideFooter={true}
+                  date={date} 
+                  onChange={self.dateChange}  />
+          <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
+          <h5><input type="text" value={ticket} onChange={this.handleTicketChange} placeholder="Ticket" /></h5>
+          <h5><input type="text" value={location} onChange={this.handleLocationChange} placeholder="Location" /></h5>
+          <h5 className="home">Home: <input type="checkbox" checked={home} onChange={this.handleHomeChange} /></h5>
 
-            {this.state.submitted ? <a className='submit'><span>submitted</span></a> : <a className='submit' onClick={this.submitContent}>submit</a> }
+          { the_scores ?
+            <div className="Scores">
+              {the_scores}
+            </div> 
+          : '' }
+          <h6 onClick={this.newScore}>New Score</h6>
+          
+          <div className='half_buttons'>
+            <a className='submit' onClick={self.submitContent}>save</a> 
+            <a className='submit' onClick={self.handleRemove}>cancel</a> 
           </div>
-          : 
-          <div className="game">
-            <h2>Existing Game</h2>
-            <p>{name}</p>
-            <p>{opponent}</p>
-            <p>{date}</p>
-            <p>{time}</p>
-            <p>{ticket}</p>
-            <p>{location}</p>
-            <p>{home}</p>
-            <p>Us: {actual_scores.us}</p>
-            <p>Them: {actual_scores.them}</p>
+         
+        </div>
+      )
+    } else if (status == 'edit') {
+      return (
+        <div className="game">
+          <h3>Edit Game</h3>
+          <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
+          <h5><input type="text" value={opponent} onChange={this.handleOpponentChange} placeholder="Opponent" /></h5>
+          <h5><input type="text" className="game_date" value={date} onChange={this.handleDateChange} placeholder="Date" /></h5>
+          <DatePicker
+                  hideFooter={true}
+                  date={date} 
+                  onChange={self.dateChange} />
+          <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
+          <h5><input type="text" value={ticket} onChange={this.handleTicketChange} placeholder="Ticket" /></h5>
+          <h5><input type="text" value={location} onChange={this.handleLocationChange} placeholder="Location" /></h5>
+          <h5 className="home">Home: <input type="checkbox" checked={home} onChange={this.handleHomeChange} /></h5>
+
+          { the_scores ?
+            <div className="Scores">
+              {the_scores}
+            </div> 
+          : '' }
+          <h6 onClick={this.newScore}>New Score</h6>
+          
+          <div className='half_buttons'>
+            <a className='submit' onClick={self.editContent}>save</a> 
+            <a className='submit' onClick={self.cancelEdit}>cancel</a> 
           </div>
-        }
-      </div>
-    );
+        </div>
+      )
+    } else {
+      return (
+        <div className="game">
+          <h3>{name}</h3>
+          <ul>
+            <li>Opponent: {opponent}</li>
+            <li>Date: {date}</li>
+            <li>Time: {time}</li>
+            <li>Ticket Link: {ticket}</li>
+            <li>Location: {location}</li>
+            <li>Home?: {home ? "True" : 'False'}</li>
+            <li>Us: {actual_scores.us}</li>
+            <li>Them: {actual_scores.them}</li>
+          </ul>
+          <div className='half_buttons'>
+            <a className='submit' onClick={self.handleEdit}>edit</a> 
+            <a className='submit' onClick={self.handleRemove}>remove</a> 
+          </div>
+        </div>
+      )
+    }
   }
 });
 

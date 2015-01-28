@@ -9,9 +9,27 @@
 	}
 }
 
-.game {
-	border: 1px solid #eee;
-	padding: 15px;
+.games {
+	margin: 15px 0;
+}
+#new_page {
+	.game {
+		border: 1px solid #eee;
+		padding: 15px;
+		width: 50%;
+		display: inline-block;
+		vertical-align: top;
+		h3 {
+			color: $brand_black;
+			text-align: center;
+		}
+		.home {
+			input[type="checkbox"] {
+				display: inline-block;
+				width: inherit;
+			}
+		}
+	}
 }
 
 .submit  {
@@ -34,3 +52,143 @@
 .sport-recap {
   margin-bottom: 80px;
 }
+
+.image-container {
+	background: #eee;
+	border: #ccc dashed 2px;
+	position: relative;
+	.image-uploader-label {
+		padding: 15px 0;
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+	}
+	.image-uploader {
+		position: relative;
+		background: #eee;
+		border: none;
+	}
+	.upload-icon {
+		font-size: 2em;
+		display: block;
+	}
+	p {
+		text-align: center;
+		display: table;
+		margin: auto;
+	}
+}
+
+.page_edit_title {
+	text-align: center;
+	color: $brand_black;
+}
+
+.photos {
+	margin: 15px 0;
+	background: #eee;
+	@include clearfix;
+	.photo {
+		width: 50%;
+		padding: 15px;
+		display: inline-block;
+		vertical-align: top;
+	}
+}
+
+.photo_edit {
+	position: relative;
+}
+
+.close_it {
+	position: absolute;
+	top: 0;
+	right: 0;
+	color: white;
+	font-size: 35px;
+	margin: 0;
+	padding: 0 6px;
+	line-height: 1;
+	cursor: pointer;
+	transition: 0.15s ease-out;
+}
+
+.close_it:hover {
+	color: $brand_red;
+}
+
+.description_input {
+	margin: 10px 0;
+}
+
+.half_buttons {
+	.submit {
+		width: 50%;
+		float: left;
+	}
+}
+
+.new_game {
+	width: 100%;
+	text-align: center;
+	background: #eee;
+	border: 2px dashed #ddd;
+	padding: 15px;
+	font-size: 15px;
+	cursor: pointer;
+	transition: 0.15s ease-out;
+	.fa {
+		display: block;
+		font-size: 22px;
+	}
+}
+
+.new_game:hover {
+	background: $brand_red;
+	color: white;
+	border: solid 2px $brand_red;
+}
+
+.date-picker {
+	border: #ccc solid 1px;
+	margin-bottom: 15px;
+	table {
+		width: 100%;
+		text-align: center;
+	}
+	.dp-nav-table {
+		height: 50px;
+		color: white;
+		background: $brand_black;
+	}
+
+	.dp-week-day-names {
+		height: 40px;
+		background: #eee;
+	}
+	.dp-value {
+		color: white;
+		background: $brand_red;
+	}
+	
+	.dp-day:hover {
+		background: #f3f3f3;
+	}
+	.dp-day {
+		border: 1px solid #ddd;
+	}
+	.dp-prev {
+		opacity: 0.3;
+	}
+	.dp-week .dp-day:first-child {
+		border-left: none;
+	}
+	.dp-nav-cell, .dp-day {
+		cursor: pointer;
+		transition: 0.15s ease-out;
+	}
+}
+
+@import "dropzone";

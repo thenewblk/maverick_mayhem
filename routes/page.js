@@ -36,7 +36,6 @@ module.exports = function(app, passport) {
 	app.get('/:slug/edit', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('games')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 				res.render('pages/edit', {
@@ -78,7 +77,7 @@ module.exports = function(app, passport) {
 	app.get('/api/pages/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('games')
+			.populate('games photos')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 				res.send(page);

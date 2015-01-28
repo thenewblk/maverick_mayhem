@@ -2,7 +2,7 @@ var mongoose = require( 'mongoose' );
 var tools = require('../lib/utils');
 
 var photoSchema = mongoose.Schema({
-	url    				: String,
+	url    			: String,
 	description		: String
 });
 

@@ -1,17 +1,32 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
-    util = require('util');
+    util = require('util'),
+    Dropzone = require('./dropzone.js');
 
 var Content = window.slug || {};
 
 var Game = require('./game.jsx');
-
 var Photo = require('./photo.jsx');
+var PhotosUploader = require('./photos_uploader.jsx');
 
 var Page = React.createClass({displayName: "Page",
   getInitialState: function() {
-    return { name: '', status: 'new', headline: '', banner: '', description: '', video: {}, icon: {}, games: [], tmp_games: [], photos: [], news: [], submitted: false };
+    return { 
+      name: '', 
+      status: 'new', 
+      headline: '', 
+      banner: '', 
+      description: '', 
+      video: {}, 
+      icon: {}, 
+      games: [], 
+      tmp_games: [], 
+      photos: [], 
+      tmp_photos: [], 
+      news: [], 
+      tmp_news: [],
+      submitted: false };
   },
   componentWillMount: function(){
     var self = this;
@@ -30,6 +45,13 @@ var Page = React.createClass({displayName: "Page",
             Page.games = [];
             for ( i in  Page.tmp_games) {
               Page.games[i] = Page.tmp_games[i]._id;
+            }
+
+            var tmp_photos = Page.photos;
+            Page.tmp_photos = tmp_photos;
+            Page.photos = [];
+            for ( i in  Page.tmp_photos) {
+              Page.photos[i] = Page.tmp_photos[i]._id;
             }
 
             self.setState(Page);
@@ -54,37 +76,108 @@ var Page = React.createClass({displayName: "Page",
     this.setState({description: event.target.value});
   },
 
-  handleGameChange: function(content) {
-    console.log('handleGameChange');
-    var current_games = this.state.tmp_games;
-    console.log(' '+util.inspect(current_games));
-    for(var i in current_games) {
-      if (current_games[i].identifier == content.identifier){
-        var new_games = current_games.splice(i,1);
-        break;
+
+  handleNewPhoto: function(photo) {
+    var self = this,
+        current_tmp_photos = self.state.tmp_photos,
+        current_photos = self.state.photos;
+
+    request
+      .post('/api/photos/new')
+      .send(photo)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          var new_tmp_photos = current_tmp_photos.concat(new_photo);
+          var new_photos = current_photos.concat(new_photo._id);
+          self.setState({tmp_photos: new_tmp_photos, photos: new_photos });
+        }
+      }.bind(self));
+  },
+
+  handleRemovePhoto: function(photo) {
+
+    var self = this,
+        current_tmp_photos = self.state.tmp_photos,
+        current_photos = self.state.photos;
+
+    var found_tmp_photo, found_photo;
+
+    for ( i in  current_tmp_photos) {
+      if ( current_tmp_photos[i]._id == photo._id ){
+        found_tmp_photo = i;
       }
     }
 
-    new_games = current_games.concat(content);
+    current_tmp_photos.splice(found_tmp_photo, 1);
 
-    var actual_games = [];
+    for ( i in  current_photos) {
+      if ( current_photos[i] == photo._id ){
+        found_photo = i;
+      }
+    }
+    current_photos.splice(found_photo, 1);
 
-    for (i in new_games) {
-      actual_games.push(new_games[i]._id);
+    self.setState({tmp_photos: current_tmp_photos, photos: current_photos });
+  },
+
+
+  handleRemoveGame: function(game) {
+
+    var self = this,
+        current_tmp_games = self.state.tmp_games,
+        current_games = self.state.games;
+
+    var found_tmp_game, found_game;
+    if (game._id) {
+      for ( i in  current_tmp_games) {
+        if ( current_tmp_games[i]._id == game._id ){
+          found_tmp_game = i;
+        }
+      }
+
+      current_tmp_games.splice(found_tmp_game, 1);
+
+      for ( i in  current_games) {
+        if ( current_games[i] == game._id ){
+          found_game = i;
+        }
+      }
+      current_games.splice(found_game, 1);
+
+      self.setState({tmp_games: current_tmp_games, games: current_games });      
+    } else {
+      for ( i in  current_tmp_games) {
+        if ( current_tmp_games[i].identifier == game.identifier ){
+          found_tmp_game = i;
+        }
+      }
+
+      current_tmp_games.splice(found_tmp_game, 1);
+
+      self.setState({tmp_games: current_tmp_games });
     }
 
-    console.log(' '+util.inspect(new_games));
-    this.setState({tmp_games: new_games, games: actual_games});
   },
+
+  newGameSaved: function(content) {
+    console.log('newGameSaved');
+    var current_games = this.state.games;
+
+    var new_games = current_games.concat(content._id);
+
+
+    this.setState({games: new_games});
+  },
+
+
 
   newGame: function() {
     console.log('newGame');
     var current_games = this.state.tmp_games;
-    console.log(' '+util.inspect(current_games));
-    var new_games = current_games.concat({type: 'new', identifier: Math.random()});
-    console.log(' '+util.inspect(new_games));
+    var new_games = current_games.concat({status: 'new', identifier: Math.random()});
     this.setState({tmp_games: new_games});
-
   },
 
   submitContent: function(){
@@ -118,13 +211,12 @@ var Page = React.createClass({displayName: "Page",
     var name = self.state.name,
         headline = self.state.headline,
         banner = self.state.banner,
-        description = self.state.description,
-        games = self.state.games;  
+        description = self.state.description;  
 
     var games = self.state.tmp_games.map(function(object) {
       return React.createElement(Game, {
         name: object.name, 
-        type: object.type, 
+        slug: object.slug, 
         opponent: object.opponent, 
         date: object.date, 
         time: object.time, 
@@ -132,27 +224,53 @@ var Page = React.createClass({displayName: "Page",
         location: object.location, 
         home: object.home, 
         scores: object.scores, 
+        status: object.status, 
+
+        remove_game: self.handleRemoveGame, 
 
         identifier: object.identifier, 
-        thing: self.handleGameChange})
+        new_game: self.newGameSaved})
+    }); 
+
+    var photos = self.state.tmp_photos.map(function(object) {
+      return React.createElement(Photo, {
+        url: object.url, 
+        _id: object._id, 
+
+        key: object._id, 
+
+        description: object.description, 
+        remove_photo: self.handleRemovePhoto, 
+
+        identifier: Math.random()})
     });
 
     return (
       React.createElement("div", {className: "page"}, 
 
-        React.createElement(Photo, {identifier: 5}), 
-
         React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
         React.createElement("h5", null, React.createElement("input", {type: "text", value: headline, onChange: this.handleHeadlineChange, placeholder: "Headline"})), 
         React.createElement("h5", null, React.createElement("input", {type: "text", value: banner, onChange: this.handleBannerChange, placeholder: "Banner"})), 
         React.createElement("h5", null, React.createElement("input", {type: "text", value: description, onChange: this.handleDescriptionChange, placeholder: "Description"})), 
+ 
+         photos ?
+          React.createElement("div", {className: "photos"}, 
+            React.createElement("h2", {className: "page_edit_title"}, "Photos"), 
+            photos
+          ) 
+          : '', 
+        
+
+        React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
+
 
          games ?
-          React.createElement("div", {className: "Games"}, 
+          React.createElement("div", {className: "games"}, 
+            React.createElement("h2", {className: "page_edit_title"}, "Games"), 
             games
           ) 
         : '', 
-        React.createElement("h6", {onClick: this.newGame}, "New Game"), 
+        React.createElement("h6", {className: "new_game", onClick: this.newGame}, React.createElement("span", {className: "fa fa-plus"}), "New Game"), 
 
         this.state.submitted ? React.createElement("a", {className: "submit"}, React.createElement("span", null, "submitted")) : React.createElement("a", {className: "submit", onClick: this.submitContent}, "submit")
       )
@@ -167,7 +285,7 @@ React.renderComponent(
  Page(Content),
   document.getElementById('new_page')
 )
-},{"./game.jsx":3,"./photo.jsx":4,"react":154,"superagent":155,"util":8}],2:[function(require,module,exports){
+},{"./dropzone.js":2,"./game.jsx":3,"./photo.jsx":4,"./photos_uploader.jsx":5,"react":172,"superagent":173,"util":9}],2:[function(require,module,exports){
 
 /*
  *
@@ -1893,25 +2011,32 @@ var React = require('react'),
     request = require('superagent'),
     util = require('util');
 
+var DatePicker = require('react-date-picker');
+
 var Score = React.createClass({displayName: "Score",
   getInitialState: function() {
     return { us: Number, them: Number };
   },
+
   componentWillMount: function(){
     if(this.props.identifier) {
       this.setState({ identifier: this.props.identifier });
     }
   },
+
   handleUsChange: function(event) {
     this.setState({us: event.target.value});
   },
+
   handleThemChange: function(event) {
     this.setState({them: event.target.value});
   },
+
   submitContent: function(){
     var self = this;
     self.props.submit(self.state);
   },
+
   render: function () {
     var self = this;
 
@@ -1938,24 +2063,33 @@ var Score = React.createClass({displayName: "Score",
 
 var Game = React.createClass({displayName: "Game",
   getInitialState: function() {
-    return { name: '', type: '', opponent: '', date: '', time: '', ticket: '', location: '', home: false, scores: {}, tmp_scores: [], submitted: false };
+    return { name: '', status: 'show', opponent: '', date: '2015-01-01', time: '', ticket: '', location: '', home: false, scores: {}, tmp_scores: [] };
   },
+
   componentWillMount: function(){
     var self = this;
     var tmp_game = {};
     tmp_game.identifier = self.props.identifier,
     tmp_game.name = self.props.name,
+    tmp_game.slug = self.props.slug,
     tmp_game.opponent = self.props.opponent,
     tmp_game.date = self.props.date,
     tmp_game.time = self.props.time,
     tmp_game.ticket = self.props.ticket,
     tmp_game.location = self.props.location,
     tmp_game.home = self.props.home,
-    tmp_game.scores = self.props.scores;
+    tmp_game.scores = self.props.scores,
+    tmp_game.status = self.props.status;
     
     self.setState(tmp_game);
 
   },
+
+  componentDidMount: function(){
+
+  },
+
+
   handleNameChange: function(event) {
     this.setState({name: event.target.value});
   },
@@ -1975,13 +2109,13 @@ var Game = React.createClass({displayName: "Game",
     this.setState({location: event.target.value});
   },
   handleHomeChange: function(event) {
-    this.setState({home: event.target.value});
+    console.log('handleHomeChange: '+event.target.value);
+    this.setState({home: !this.state.home});
+    
   },
 
   handleScoreChange: function(content) {
-    console.log('handleGameChange');
     var current_scores = this.state.tmp_scores;
-    console.log(' '+util.inspect(current_scores));
 
     for(var i in current_scores) {
       if (current_scores[i].identifier == content.identifier){
@@ -2018,6 +2152,15 @@ var Game = React.createClass({displayName: "Game",
     this.setState({tmp_scores: new_scores});
 
   },
+
+  handleEdit: function(){
+    this.setState({status: "edit"})
+  },
+
+  handleRemove: function(){
+    this.props.remove_game({_id: this.state._id});
+  },
+
   submitContent: function(){
     var self = this;
     self.setState({submitted: true});
@@ -2030,10 +2173,40 @@ var Game = React.createClass({displayName: "Game",
           console.log('new game: '+res.text);
           var new_game = JSON.parse(res.text);
           new_game.identifier = self.state.identifier;
-          self.props.thing(new_game);
+          new_game.status = 'show';
+          self.props.new_game(new_game);
+          self.setState(new_game);
         }
       }.bind(self));
   },
+
+  editContent: function(){
+    var self = this;
+    // self.setState({submitted: true});
+    request
+      .post('/api/games/'+self.state.slug+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          console.log('new game: '+res.text);
+          var new_game = JSON.parse(res.text);
+          new_game.identifier = self.state.identifier;
+          new_game.status = 'show';
+          self.setState(new_game);
+        }
+      }.bind(self));
+  },
+
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
+
+  dateChange: function(moment, dateText) {
+    this.setState({date: dateText})
+  },
+
+
   render: function () {
     var self = this;
 
@@ -2045,7 +2218,10 @@ var Game = React.createClass({displayName: "Game",
         location = self.state.location,
         home = self.state.home,
         scores = self.state.tmp_scores,
-        actual_scores = self.state.scores;
+        actual_scores = self.state.scores,
+        status = self.state.status;
+
+        console.log('gome: '+home);
 
     var the_scores = scores.map(function(object) {
       return React.createElement(Score, {
@@ -2058,49 +2234,92 @@ var Game = React.createClass({displayName: "Game",
         submit: self.handleScoreChange})
     });
 
-    return (
-      React.createElement("div", null, 
-         self.props.type == 'new' ?
-          React.createElement("div", {className: "game"}, 
-            React.createElement("h2", null, "New Game"), 
-            React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
-            React.createElement("h5", null, React.createElement("input", {type: "text", value: opponent, onChange: this.handleOpponentChange, placeholder: "Oopponent"})), 
-            React.createElement("h5", null, React.createElement("input", {type: "text", value: date, onChange: this.handleDateChange, placeholder: "Date"})), 
-            React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
-            React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket"})), 
-            React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
-            React.createElement("h5", null, React.createElement("input", {type: "text", value: home, onChange: this.handleHomeChange, placeholder: "Home"})), 
 
-             the_scores ?
-              React.createElement("div", {className: "Scores"}, 
-                the_scores
-              ) 
-            : '', 
-            React.createElement("h6", {onClick: this.newScore}, "New Score"), 
+    if (status == 'new') {
+      return (
+        React.createElement("div", {className: "game"}, 
+          React.createElement("h3", null, "New Game"), 
+          React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: opponent, onChange: this.handleOpponentChange, placeholder: "Opponent"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", className: "game_date", value: date, onChange: this.handleDateChange, placeholder: "Date"})), 
+          React.createElement(DatePicker, {
+                  hideFooter: true, 
+                  date: date, 
+                  onChange: self.dateChange}), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
+          React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
 
-            this.state.submitted ? React.createElement("a", {className: "submit"}, React.createElement("span", null, "submitted")) : React.createElement("a", {className: "submit", onClick: this.submitContent}, "submit")
+           the_scores ?
+            React.createElement("div", {className: "Scores"}, 
+              the_scores
+            ) 
+          : '', 
+          React.createElement("h6", {onClick: this.newScore}, "New Score"), 
+          
+          React.createElement("div", {className: "half_buttons"}, 
+            React.createElement("a", {className: "submit", onClick: self.submitContent}, "save"), 
+            React.createElement("a", {className: "submit", onClick: self.handleRemove}, "cancel")
           )
-          : 
-          React.createElement("div", {className: "game"}, 
-            React.createElement("h2", null, "Existing Game"), 
-            React.createElement("p", null, name), 
-            React.createElement("p", null, opponent), 
-            React.createElement("p", null, date), 
-            React.createElement("p", null, time), 
-            React.createElement("p", null, ticket), 
-            React.createElement("p", null, location), 
-            React.createElement("p", null, home), 
-            React.createElement("p", null, "Us: ", actual_scores.us), 
-            React.createElement("p", null, "Them: ", actual_scores.them)
-          )
-        
+         
+        )
       )
-    );
+    } else if (status == 'edit') {
+      return (
+        React.createElement("div", {className: "game"}, 
+          React.createElement("h3", null, "Edit Game"), 
+          React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: opponent, onChange: this.handleOpponentChange, placeholder: "Opponent"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", className: "game_date", value: date, onChange: this.handleDateChange, placeholder: "Date"})), 
+          React.createElement(DatePicker, {
+                  hideFooter: true, 
+                  date: date, 
+                  onChange: self.dateChange}), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
+          React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
+
+           the_scores ?
+            React.createElement("div", {className: "Scores"}, 
+              the_scores
+            ) 
+          : '', 
+          React.createElement("h6", {onClick: this.newScore}, "New Score"), 
+          
+          React.createElement("div", {className: "half_buttons"}, 
+            React.createElement("a", {className: "submit", onClick: self.editContent}, "save"), 
+            React.createElement("a", {className: "submit", onClick: self.cancelEdit}, "cancel")
+          )
+        )
+      )
+    } else {
+      return (
+        React.createElement("div", {className: "game"}, 
+          React.createElement("h3", null, name), 
+          React.createElement("ul", null, 
+            React.createElement("li", null, "Opponent: ", opponent), 
+            React.createElement("li", null, "Date: ", date), 
+            React.createElement("li", null, "Time: ", time), 
+            React.createElement("li", null, "Ticket Link: ", ticket), 
+            React.createElement("li", null, "Location: ", location), 
+            React.createElement("li", null, "Home?: ", home ? "True" : 'False'), 
+            React.createElement("li", null, "Us: ", actual_scores.us), 
+            React.createElement("li", null, "Them: ", actual_scores.them)
+          ), 
+          React.createElement("div", {className: "half_buttons"}, 
+            React.createElement("a", {className: "submit", onClick: self.handleEdit}, "edit"), 
+            React.createElement("a", {className: "submit", onClick: self.handleRemove}, "remove")
+          )
+        )
+      )
+    }
   }
 });
 
 module.exports = Game;
-},{"react":154,"superagent":155,"util":8}],4:[function(require,module,exports){
+},{"react":172,"react-date-picker":14,"superagent":173,"util":9}],4:[function(require,module,exports){
 /**
  * @jsx React.DOM
  */
@@ -2114,7 +2333,18 @@ var Dropzone = require('./dropzone.js');
 var Photo = React.createClass({displayName: "Photo",
 
   getInitialState: function() {
-    return { url: '', description: ''};
+    return { url: '', description: '', _id: '', status: 'show'};
+  },
+
+  componentWillMount: function() {
+    var self = this;
+    var tmp_photo = {};
+    tmp_photo.identifier = self.props.identifier;
+    tmp_photo.url = self.props.url;
+    tmp_photo._id = self.props._id;
+    tmp_photo.description = self.props.description;
+    
+    self.setState(tmp_photo);
   },
 
   handleDescriptionChange: function(event) {
@@ -2135,128 +2365,191 @@ var Photo = React.createClass({displayName: "Photo",
   },
 
   componentDidMount: function() {
-    var self = this;
-    var image = this.state.url;
-    if (!image) {
-      console.log('componentDidMount: '+ self.props.identifier);
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
 
-      // or if you need to access a Dropzone somewhere else:
+    if (!image) {
+      console.log('componentDidMount: '+ _id);
       Dropzone.autoDiscover = false;
-      var myDropzone = new Dropzone(".uploader", {
-        // autoProcessQueue: false,
+      var myDropzone = new Dropzone(".uploader-"+_id, {
         init: function() {
           var self = this;
           self.on("addedfile", function(file) {
             console.log('new file added ', file);
           });
         },
+        maxFiles: 1,
         url: "/upload"
       });
 
-      // myDropzone.on("addedfile", function(file) {
-      //   /* Maybe display some more file information on your page */
-      //   request
-      //     .post('/upload')
-      //     .send(file)
-      //     .end(function(res) {
-      //       console.log(res.text);
-      //     }.bind(self));
-      // });
-
-      // Dropzone.options.uploader({
-      //   init: function() {
-      //     this.on("error", function(file, message) { alert(message); });
-      //   },
-      //   url: "/upload", 
-      //   paramName: "file", 
-      //   maxFiles: 1
-      // });
       myDropzone.on("success", function(response) {
-        /* Maybe display some more file information on your page */
-        // var thing = JSON.parse(file.xhr.response);
-        // console.log('success: ' + thing.saved);
         console.log('success: ' + util.inspect(response.xhr.response));
-
-
         self.setState({url: response.xhr.response});
-        // self.setState({ active: true });
       });
-
-      // myDropzone.on("error", function(err) {
-        /* Maybe display some more file information on your page */
-        // console.log('error: ' + err);
-
-
-
-        // self.props.content({id: self.props.identifier, url: thing.saved  });
-        // self.setState({ active: true });
-      // });
     }
   },
 
-  // componentDidUpdate: function() {
-  //   var self = this;
-  //   var image = this.state.url;
-  //   if (!image) {
-  //     console.log('onScriptLoaded: '+ self.props.identifier);
+  componentDidUpdate: function() {
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
 
-  //     Dropzone.autoDiscover = false;
+    if (!image) {
+      console.log('componentDidMount: '+  _id);
+      Dropzone.autoDiscover = false;
+      var myDropzone = new Dropzone(".uploader-"+ _id, {
+        init: function() {
+          var self = this;
+          self.on("addedfile", function(file) {
+            console.log('new file added ', file);
+          });
+        },
+        maxFiles: 1,
+        url: "/upload"
+      });
 
-  //     var myDropzone = new Dropzone(".uploader-"+self.props.identifier, { url: "/upload", paramName: "file", maxFiles: 1, autoDiscover: false});
+      myDropzone.on("success", function(response) {
+        console.log('success: ' + util.inspect(response.xhr.response));
+        self.setState({url: response.xhr.response});
+      });
+    }
+  },
 
-  //     myDropzone.on("success", function(file) {
-  //       /* Maybe display some more file information on your page */
-  //       var thing = JSON.parse(file.xhr.response);
-  //       console.log('success: ' + thing.saved);
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
 
-        
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
 
-  //       // self.props.content({id: self.props.identifier, url: thing.saved  });
-  //       // self.setState({ active: true });
-  //     });
-  //   }
-  // },
+  removeUrl: function(){
+    this.setState({url: ''});
+  },
+
+  handleRemove: function(){
+    this.props.remove_photo({_id: this.state._id});
+  },
+
+  submitContent: function(){
+    var self = this;
+    console.log('self.state._id: '+self.state._id);
+    request
+      .post('/api/photos/'+self.state._id+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          new_photo.status = 'show';
+          self.setState(new_photo);
+        }
+      }.bind(self));
+  },
 
   render: function() {
     var self = this,
         url = self.state.url,
-        description = self.state.description;
+        description = self.state.description,
+        identifier = this.state.identifier,
+        _id = this.state._id,
+        status = this.state.status;
 
     var className = 'content-container';
-
-    return ( 
-      React.createElement("div", {className: className, ref: "contentwrapper"}, 
-        React.createElement("div", {className: "position-control"}, 
-          React.createElement("span", {className: "move up", onClick: this.handleSwapPrevious}), 
-          React.createElement("span", {className: "move down", onClick: this.handleSwapNext})
-        ), 
-        url ?  
-          React.createElement("div", {className: "uploaded-image"}, 
-            React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url})
-          ) 
-        : 
-          React.createElement("div", {className: "image-container"}, 
-            React.createElement("div", {className: "image-uploader-label image-uploader uploader", id: "uploader"}, 
-              React.createElement("p", {className: "fa fa-image upload-icon label-copy"}), 
-              React.createElement("br", null), 
-              React.createElement("p", {className: "label-copy"}, "Upload Image")
+    if (status == 'show') {
+      return ( 
+        React.createElement("div", {className: "photo", ref: "contentwrapper"}, 
+              url ? React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url})  : '', 
+              description ? React.createElement("p", null, description) : '', 
+              React.createElement("div", {className: "half_buttons"}, 
+                React.createElement("a", {className: "submit", onClick: self.handleEdit}, "Edit"), 
+                React.createElement("a", {className: "submit", onClick: self.handleRemove}, "delete")
+              )
+        ) )
+    } else if (status == 'edit'){
+      return ( 
+        React.createElement("div", {className: "photo image-container"}, 
+          url ? 
+            React.createElement("div", {className: "photo_edit"}, 
+              React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url}), 
+              React.createElement("span", {className: "close_it", onClick: self.removeUrl}, "×")
             )
-          ), 
-        // <form action="/upload" className="dropzone" method="post" enctype="multipart/form-data">
-        //   <div className="fallback">
-        //     <input name="file" type="file" />
-        //   </div>
-        // </form>
-        
-        React.createElement("input", {className: "caption-input", type: "text", placeholder: "Description", value: description, onChange: self.handleDescriptionChange}), 
-
-        React.createElement("a", {className: "close-link", onClick: self.handleClose}, "×")
-      ) )
+              :
+            React.createElement("div", null, 
+              React.createElement("div", {className: "image-uploader dropzone uploader-"+_id}, 
+                React.createElement("div", {className: "dz-default dz-message"}, React.createElement("span", {className: "fa fa-image upload-icon"}), React.createElement("span", null, "Drop files here to upload"))
+              )
+            ), 
+          
+          React.createElement("input", {className: "description_input", type: "text", placeholder: "Description", value: description, onChange: self.handleDescriptionChange}), 
+          React.createElement("div", {className: "half_buttons"}, 
+            React.createElement("a", {className: "submit", onClick: self.submitContent}, "save"), 
+            React.createElement("a", {className: "submit", onClick: self.cancelEdit}, "cancel")
+          )
+        )
+      )
+    }
   }
 });
 
 module.exports = Photo;
-},{"./dropzone.js":2,"react":154,"superagent":155,"util":8}],5:[function(require,module,exports){
+},{"./dropzone.js":2,"react":172,"superagent":173,"util":9}],5:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+
+var React = require('react'),
+    util = require('util'),
+    request = require('superagent');
+
+var Dropzone = require('./dropzone.js');
+
+var Photo = require('./photo.jsx');
+
+var PhotosUploader = React.createClass({displayName: "PhotosUploader",
+
+  componentDidMount: function() {
+    var self = this;
+    Dropzone.autoDiscover = false;
+    var myDropzone = new Dropzone(".photo-uploader", {
+      init: function() {
+        var self = this;
+        self.on("addedfile", function(file) {
+          console.log('new file added ', file);
+        });
+      },
+      url: "/upload"
+    });
+
+    myDropzone.on("success", function(response) {
+      console.log('success: ' + util.inspect(response.xhr.response));
+      self.props.photos({url: response.xhr.response});
+    });
+
+    myDropzone.on("complete", function(file) {
+      myDropzone.removeFile(file);
+    });
+  },
+
+
+  render: function() {
+    var self = this;
+
+    return ( 
+        React.createElement("div", {className: "image-container"}, 
+          React.createElement("div", {className: "image-uploader photo-uploader dropzone"}, 
+            React.createElement("div", {className: "dz-default dz-message"}, React.createElement("span", {className: "fa fa-image upload-icon"}), React.createElement("span", null, "Drop Photos Here to Upload"))
+          )
+        ) 
+      )
+  }
+});
+
+module.exports = PhotosUploader;
+},{"./dropzone.js":2,"./photo.jsx":4,"react":172,"superagent":173,"util":9}],6:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -2281,7 +2574,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2340,14 +2633,14 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -2937,7 +3230,4359 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":7,"_process":6,"inherits":5}],9:[function(require,module,exports){
+},{"./support/isBuffer":8,"_process":7,"inherits":6}],10:[function(require,module,exports){
+'use strict'
+
+var React  = require('react')
+var moment = require('moment')
+var copy   = require('copy-utils').copy
+
+var FORMAT   = require('./utils/format')
+var asConfig = require('./utils/asConfig')
+var toMoment = require('./toMoment')
+
+var TODAY
+
+function emptyFn(){}
+
+var DecadeView = React.createClass({
+
+    displayName: 'DecadeView',
+
+    getDefaultProps: function() {
+        return asConfig()
+    },
+
+    /**
+     * Returns all the years in the decade of the given value
+     *
+     * @param  {Moment/Date/Number} value
+     * @return {Moment[]}
+     */
+    getYearsInDecade: function(value){
+        var year = moment(value).get('year')
+        var offset = year % 10
+
+        year = year - offset - 1
+
+        var result = []
+        var i = 0
+
+        var start = moment(year, 'YYYY').startOf('year')
+
+        for (; i < 12; i++){
+            result.push(moment(start))
+            start.add(1, 'year')
+        }
+
+        return result
+    },
+
+    render: function() {
+
+        TODAY = +moment().startOf('day')
+
+        var viewMoment = this.props.viewMoment = moment(this.props.viewDate)
+
+        if (this.props.date){
+            this.props.moment = moment(this.props.date).startOf('year')
+        }
+
+        var yearsInView = this.getYearsInDecade(viewMoment)
+
+        return (
+            React.createElement("table", {className: "dp-table dp-decade-view"}, 
+                React.createElement("tbody", null, 
+                    this.renderYears(yearsInView)
+
+                )
+            )
+        )
+    },
+
+    /**
+     * Render the given array of days
+     * @param  {Moment[]} days
+     * @return {React.DOM}
+     */
+    renderYears: function(days) {
+        var nodes      = days.map(this.renderYear, this)
+        var len        = days.length
+        var buckets    = []
+        var bucketsLen = Math.ceil(len / 4)
+
+        var i = 0
+
+        for ( ; i < bucketsLen; i++){
+            buckets.push(nodes.slice(i * 4, (i + 1) * 4))
+        }
+
+        return buckets.map(function(bucket, i){
+            return React.createElement("tr", {key: "row" + i}, bucket)
+        })
+    },
+
+    renderYear: function(date, index, arr) {
+        var yearText = FORMAT.year(date)
+        var classes = ["dp-cell dp-year"]
+
+        var dateTimestamp = +date
+
+        if (dateTimestamp == this.props.moment){
+            classes.push('dp-value')
+        }
+
+        if (!index){
+            classes.push('dp-prev')
+        }
+
+        if (index == arr.length - 1){
+            classes.push('dp-next')
+        }
+
+        return (
+            React.createElement("td", {key: yearText, className: classes.join(' '), onClick: this.handleClick.bind(this, date)}, 
+                yearText
+            )
+        )
+    },
+
+    handleClick: function(date, event) {
+        event.target.value = date
+        ;(this.props.onSelect || emptyFn)(date, event)
+    }
+})
+
+copy({
+    getHeaderText: function(value) {
+        var year = moment(value).get('year')
+        var offset = year % 10
+
+        year = year - offset - 1
+
+        return year + ' - ' + (year + 11)
+    }
+}, DecadeView)
+
+module.exports = DecadeView
+},{"./toMoment":15,"./utils/asConfig":16,"./utils/format":17,"copy-utils":25,"moment":26,"react":172}],11:[function(require,module,exports){
+'use strict'
+
+var React  = require('react')
+var moment = require('moment')
+var copy   = require('copy-utils').copy
+
+var FORMAT   = require('./utils/format')
+var asConfig = require('./utils/asConfig')
+var toMoment = require('./toMoment')
+
+var TODAY
+
+function emptyFn(){}
+
+var MonthView = React.createClass({
+
+    displayName: 'MonthView',
+
+    /**
+     * Formats the given date in the specified format.
+     * @method format
+     *
+     * @param  {Date/String/Moment} value
+     * @param  {String} [format] If none specified, #dateFormat will be used
+     *
+     * @return {String}
+     */
+
+    formatAsDay: function(moment, dayDisplayFormat){
+        return moment.format(dayDisplayFormat || 'D')
+    },
+
+    getDefaultProps: function() {
+
+        return asConfig()
+    },
+
+    getWeekStartMoment: function(value){
+        var clone = moment(value).startOf('week')
+
+        // if (DEFAULT_WEEK_START_DAY != this.weekStartDay){
+        //     clone.add('days', this.weekStartDay - DEFAULT_WEEK_START_DAY)
+        // }
+
+        return clone
+    },
+
+    /**
+     * Returns all the days in the specified month.
+     *
+     * @param  {Moment/Date/Number} value
+     * @return {Moment[]}
+     */
+    getDaysInMonth: function(value){
+        var first = moment(value).startOf('month')
+        var start = this.getWeekStartMoment(first)
+        var result = []
+        var i = 0
+
+        if (first.add(-1, 'days').isBefore(start)){
+            //make sure the last day of prev month is included
+            start.add(-1, 'weeks')
+        }
+
+        for (; i < 42; i++){
+            result.push(moment(start))
+            start.add(1, 'days')
+        }
+
+        return result
+    },
+
+    render: function() {
+
+        TODAY = +moment().startOf('day')
+
+        var viewMoment = this.props.viewMoment = toMoment(this.props.viewDate, this.props.dateFormat)
+
+        this.props.minDate && (this.props.minDate = +toMoment(this.props.minDate, this.props.dateFormat))
+        this.props.maxDate && (this.props.maxDate = +toMoment(this.props.maxDate, this.props.dateFormat))
+
+        if (this.props.minDate){
+            // debugger
+        }
+
+        this.monthFirst = moment(viewMoment).startOf('month')
+        this.monthLast  = moment(viewMoment).endOf('month')
+
+        if (this.props.date){
+            this.props.moment = moment(this.props.date).startOf('day')
+        }
+
+        var daysInView = this.getDaysInMonth(viewMoment)
+
+        return (
+            React.createElement("table", {className: "dp-table dp-month-view"}, 
+                React.createElement("tbody", null, 
+                    this.renderWeekDayNames(), 
+
+                    this.renderDays(daysInView)
+
+                )
+            )
+        )
+    },
+
+    /**
+     * Render the given array of days
+     * @param  {Moment[]} days
+     * @return {React.DOM}
+     */
+    renderDays: function(days) {
+        var nodes      = days.map(this.renderDay, this)
+        var len        = days.length
+        var buckets    = []
+        var bucketsLen = Math.ceil(len / 7)
+
+        var i = 0
+
+        for ( ; i < bucketsLen; i++){
+            buckets.push(nodes.slice(i * 7, (i + 1) * 7))
+        }
+
+        return buckets.map(function(bucket, i){
+            return React.createElement("tr", {key: "row" + i, className: "dp-week dp-row"}, bucket)
+        })
+    },
+
+    renderDay: function(date) {
+        var dayText = FORMAT.day(date)
+        var classes = ["dp-cell dp-day"]
+
+        var dateTimestamp = +date
+
+        if (dateTimestamp == TODAY){
+            classes.push('dp-current')
+        } else if (dateTimestamp < this.monthFirst){
+            classes.push('dp-prev')
+        } else if (dateTimestamp > this.monthLast){
+            classes.push('dp-next')
+        }
+
+        if (this.props.minDate && date < this.props.minDate){
+            classes.push('dp-disabled dp-before-min')
+        }
+        if (this.props.maxDate && date > this.props.maxDate){
+            classes.push('dp-disabled dp-after-max')
+        }
+
+        if (dateTimestamp == this.props.moment){
+            classes.push('dp-value')
+        }
+
+        var renderDayProps = {
+            key      : dayText,
+            text     : dayText,
+            date     : date,
+            className: classes.join(' '),
+            style    : {},
+            onClick  : this.handleClick.bind(this, date, dateTimestamp),
+            children : dayText
+        }
+
+        if (typeof this.props.onRenderDay === 'function'){
+            renderDayProps = this.props.onRenderDay(renderDayProps)
+        }
+
+        var defaultRenderFunction = React.DOM.td
+        var renderFunction = this.props.renderDay || defaultRenderFunction
+
+        var result = renderFunction(renderDayProps)
+
+        if (result === undefined){
+            result = defaultRenderFunction(renderDayProps)
+        }
+
+        return result
+    },
+
+    renderWeekDayNames: function(){
+        var names = this.props.weekDayNames
+
+        return (
+            React.createElement("tr", {className: "dp-row dp-week-day-names"}, 
+                names.map(function(name)  {return React.createElement("td", {key: name, className: "dp-cell dp-week-day-name"}, name);})
+            )
+        )
+    },
+
+    handleClick: function(date, timestamp, event) {
+        if (this.props.minDate && timestamp < this.props.minDate){
+            return
+        }
+        if (this.props.maxDate && timestamp > this.props.maxDate){
+            return
+        }
+
+        event.target.value = date
+
+        ;(this.props.onChange || emptyFn)(date, event)
+    }
+})
+
+copy({
+    getHeaderText: function(moment) {
+        return toMoment(moment).format('MMMM YYYY')
+    }
+}, MonthView)
+
+module.exports = MonthView
+},{"./toMoment":15,"./utils/asConfig":16,"./utils/format":17,"copy-utils":25,"moment":26,"react":172}],12:[function(require,module,exports){
+'use strict'
+
+var React  = require('react')
+var moment = require('moment')
+var copy   = require('copy-utils').copy
+
+var FORMAT   = require('./utils/format')
+var asConfig = require('./utils/asConfig')
+var toMoment = require('./toMoment')
+
+var TODAY
+
+function emptyFn(){}
+
+var YearView = React.createClass({
+
+    displayName: 'YearView',
+
+    getDefaultProps: function() {
+
+        return asConfig()
+    },
+
+    /**
+     * Returns all the days in the specified month.
+     *
+     * @param  {Moment/Date/Number} value
+     * @return {Moment[]}
+     */
+    getMonthsInYear: function(value){
+        var start = moment(value).startOf('year')
+        var result = []
+        var i = 0
+
+        for (; i < 12; i++){
+            result.push(moment(start))
+            start.add(1, 'month')
+        }
+
+        return result
+    },
+
+    render: function() {
+
+        TODAY = +moment().startOf('day')
+
+        var viewMoment = this.props.viewMoment = moment(this.props.viewDate)
+
+        if (this.props.date){
+            this.props.moment = moment(this.props.date).startOf('month')
+        }
+
+        var monthsInView = this.getMonthsInYear(viewMoment)
+
+        return (
+            React.createElement("table", {className: "dp-table dp-year-view"}, 
+                React.createElement("tbody", null, 
+                    this.renderMonths(monthsInView)
+
+                )
+            )
+        )
+    },
+
+    /**
+     * Render the given array of days
+     * @param  {Moment[]} days
+     * @return {React.DOM}
+     */
+    renderMonths: function(days) {
+        var nodes      = days.map(this.renderMonth, this)
+        var len        = days.length
+        var buckets    = []
+        var bucketsLen = Math.ceil(len / 4)
+
+        var i = 0
+
+        for ( ; i < bucketsLen; i++){
+            buckets.push(nodes.slice(i * 4, (i + 1) * 4))
+        }
+
+        return buckets.map(function(bucket, i){
+            return React.createElement("tr", {key: "row" + i}, bucket)
+        })
+    },
+
+    renderMonth: function(date) {
+        var monthText = FORMAT.month(date)
+        var classes = ["dp-cell dp-month"]
+
+        var dateTimestamp = +date
+
+        if (dateTimestamp == this.props.moment){
+            classes.push('dp-value')
+        }
+
+        return (
+            React.createElement("td", {key: monthText, className: classes.join(' '), onClick: this.handleClick.bind(this, date)}, 
+                monthText
+            )
+        )
+    },
+
+    handleClick: function(date, event) {
+        event.target.value = date
+        ;(this.props.onSelect || emptyFn)(date, event)
+    }
+})
+
+copy({
+    getHeaderText: function(moment) {
+        return toMoment(moment).format('YYYY')
+    }
+}, YearView)
+
+module.exports = YearView
+},{"./toMoment":15,"./utils/asConfig":16,"./utils/format":17,"copy-utils":25,"moment":26,"react":172}],13:[function(require,module,exports){
+'use strict'
+
+var getWeekDayNames = require('./utils/getWeekDayNames')
+
+module.exports = {
+
+    //the names of week days to be displayed in month view - first should be sunday
+    weekDayNames: getWeekDayNames(),
+
+    //the day to display as first day of week. defaults to 0, which is sunday
+    weekStartDay: 0,
+
+    //the format in which days should be displayed in month view
+    dayFormat: 'D',
+
+    //the format in which months should be displayed in year view
+    monthFormat: 'MMMM',
+
+    //the format in which years should be displayed in decade view
+    yearFormat: 'YYYY',
+
+    //text for navigating to prev period
+    navPrev      : '‹',
+
+    //text for navigating to next period
+    navNext      : '›',
+
+    //the view to render initially. Possible values are: 'month', 'year', 'decade'
+    view: 'month',
+
+    //the date to mark as selected in the date picker.
+    //Can be a Date object, a moment object or a string.
+    //If it's a string, it will be parsed using dateFormat
+    date: null,
+
+    minDate: null,
+
+    maxDate: null,
+
+    //the date where to open the picker. defaults to today if no date and no viewDate specified
+    viewDate: null,
+
+    //if the date property is given as string, it will be parsed using this format
+    dateFormat: 'YYYY-MM-DD'
+}
+},{"./utils/getWeekDayNames":18}],14:[function(require,module,exports){
+'use strict'
+
+var React  = require('react')
+
+var moment    = require('moment')
+var copyUtils = require('copy-utils')
+var copy     = copyUtils.copy
+var copyList = copyUtils.copyList
+
+var asConfig = require('./utils/asConfig')
+
+var MonthView  = require('./MonthView')
+var YearView   = require('./YearView')
+var DecadeView = require('./DecadeView')
+
+// if (React.createFactory){
+//     MonthView  = React.createFactory(MonthView)
+//     YearView   = React.createFactory(YearView)
+//     DecadeView = React.createFactory(DecadeView)
+// }
+
+var Views = {
+    month : MonthView,
+    year  : YearView,
+    decade: DecadeView
+}
+
+var getWeekDayNames = require('./utils/getWeekDayNames')
+
+function emptyFn(){}
+
+var DatePicker = React.createClass({
+
+    displayName: 'DatePicker',
+
+    propTypes: {
+        todayText: React.PropTypes.string,
+        gotoSelectedText: React.PropTypes.string,
+
+        renderFooter: React.PropTypes.func,
+        onChange: React.PropTypes.func,
+
+        date: React.PropTypes.any,
+        viewDate: React.PropTypes.any
+    },
+
+    getInitialState: function() {
+        return {
+        }
+    },
+
+    getDefaultProps: function() {
+        return asConfig()
+    },
+
+    getViewName: function() {
+        return this.state.view || this.props.view || 'month'
+    },
+
+    getViewOrder: function() {
+        return ['month', 'year', 'decade']
+    },
+
+    addViewIndex: function(amount) {
+        var viewName = this.getViewName()
+
+        var order = this.getViewOrder()
+        var index = order.indexOf(viewName)
+
+        index += amount
+
+        return index % order.length
+    },
+
+    getNextViewName: function() {
+        return this.getViewOrder()[this.addViewIndex(1)]
+    },
+
+    getPrevViewName: function() {
+        return this.getViewOrder()[this.addViewIndex(-1)]
+    },
+
+    getView: function() {
+        return Views[this.getViewName()] || Views.month
+    },
+
+    getViewFactory: function() {
+        var view = this.getView()
+
+        if (React.createFactory){
+            view.__factory = view.__factory || React.createFactory(view)
+            view = view.__factory
+        }
+
+        return view
+    },
+
+    getViewDate: function() {
+        return this.state.viewMoment || this.props.viewDate || this.props.date || this.now
+    },
+
+    render: function() {
+
+        this.now = +new Date()
+
+        var view     = this.getViewFactory()
+        var props    = asConfig(this.props)
+
+        props.viewDate  = this.getViewDate()
+
+        props.renderDay = this.props.renderDay
+        props.onRenderDay = this.props.onRenderDay
+
+        props.onChange  = this.handleChange
+        props.onSelect  = this.handleSelect
+
+        var className = (this.props.className || '') + ' date-picker'
+
+        return (
+            React.createElement("div", React.__spread({className: className},  this.props), 
+                React.createElement("div", {className: "dp-inner"}, 
+                    this.renderHeader(view), 
+
+                    React.createElement("div", {className: "dp-body"}, 
+                        React.createElement("div", {className: "dp-anim-target"}, 
+                        view(props)
+                        )
+                    ), 
+
+                    this.renderFooter(props)
+                )
+            )
+        )
+    },
+
+    renderFooter: function(props) {
+        if (this.props.hideFooter){
+            return
+        }
+
+        if (this.props.today){
+            console.warn('Please use "todayText" prop instead of "today"!')
+        }
+        if (this.props.gotoSelected){
+            console.warn('Please use "gotoSelectedText" prop instead of "gotoSelected"!')
+        }
+
+        var todayText    = this.props.todayText || 'Today'
+        var gotoSelectedText = this.props.gotoSelectedText || 'Go to selected'
+
+        var footerProps = {
+            todayText          : todayText,
+            gotoSelectedText   : gotoSelectedText,
+            onTodayClick       : this.gotoNow,
+            onGotoSelectedClick: this.gotoSelected,
+            date               : props.date,
+            viewDate           : props.viewDate
+        }
+
+        var result
+        if (typeof this.props.renderFooter == 'function'){
+            result = this.props.renderFooter(footerProps)
+        }
+
+        if (result !== undefined){
+            return result
+        }
+
+        return (
+            React.createElement("div", {className: "dp-footer"}, 
+                React.createElement("div", {className: "dp-footer-today", onClick: this.gotoNow}, 
+                    todayText
+                ), 
+                React.createElement("div", {className: "dp-footer-selected", onClick: this.gotoSelected}, 
+                    gotoSelectedText
+                )
+            )
+        )
+    },
+
+    gotoNow: function() {
+        this.gotoDate(+new Date())
+    },
+
+    gotoSelected: function() {
+        this.gotoDate(this.props.date || +new Date())
+    },
+
+    gotoDate: function(value) {
+        this.setState({
+            view: 'month',
+            viewMoment: moment(value)
+        })
+    },
+
+    getViewColspan: function(){
+        var map = {
+            month : 5,
+            year  : 2,
+            decade: 2
+        }
+
+        return map[this.getViewName()]
+    },
+
+    renderHeader: function(view) {
+
+        var viewDate   = this.getViewDate()
+        var headerText = this.getView().getHeaderText(viewDate)
+
+        var colspan = this.getViewColspan()
+        var prev    = this.props.navPrev
+        var next    = this.props.navNext
+
+        return (
+            React.createElement("div", {className: "dp-header"}, 
+                React.createElement("table", {className: "dp-nav-table"}, React.createElement("tbody", null, 
+                    React.createElement("tr", {className: "dp-row"}, 
+                        React.createElement("td", {className: "dp-prev-nav dp-nav-cell dp-cell", onClick: this.handlePrevNav}, prev), 
+
+                        React.createElement("td", {className: "dp-nav-view dp-cell ", colSpan: colspan, onClick: this.handleViewChange}, headerText), 
+
+                        React.createElement("td", {className: "dp-next-nav dp-nav-cell dp-cell", onClick: this.handleNextNav}, next)
+                    )
+                ))
+            )
+        )
+    },
+
+    handleRenderDay: function (date) {
+        return (this.props.renderDay || emptyFn)(date) || []
+    },
+
+    handleViewChange: function() {
+        this.setState({
+            view: this.getNextViewName()
+        })
+    },
+
+    getNext: function() {
+        var current = this.getViewDate()
+
+        return ({
+            month: function() {
+                return moment(current).add(1, 'month')
+            },
+            year: function() {
+                return moment(current).add(1, 'year')
+            },
+            decade: function() {
+                return moment(current).add(10, 'year')
+            }
+        })[this.getViewName()]()
+    },
+
+    getPrev: function() {
+        var current = this.getViewDate()
+
+        return ({
+            month: function() {
+                return moment(current).add(-1, 'month')
+            },
+            year: function() {
+                return moment(current).add(-1, 'year')
+            },
+            decade: function() {
+                return moment(current).add(-10, 'year')
+            }
+        })[this.getViewName()]()
+    },
+
+    handlePrevNav: function(event) {
+        var viewMoment = this.getPrev()
+
+        this.setState({
+            viewMoment: viewMoment
+        })
+
+        if (typeof this.props.onNav === 'function'){
+            var text = viewMoment.format(this.props.dateFormat)
+            var view = this.getViewName()
+
+            this.props.onNav(viewMoment, text, view, -1, event)
+        }
+    },
+
+    handleNextNav: function(event) {
+        var viewMoment = this.getNext()
+
+        this.setState({
+            viewMoment: viewMoment
+        })
+
+        if (typeof this.props.onNav === 'function'){
+            var text = viewMoment.format(this.props.dateFormat)
+            var view = this.getViewName()
+
+            this.props.onNav(viewMoment, text, view, 1, event)
+        }
+    },
+
+    handleChange: function(date, event) {
+        date = moment(date)
+
+        var text = date.format(this.props.dateFormat)
+
+        ;(this.props.onChange || emptyFn)(date, text, event)
+    },
+
+    handleSelect: function(date, event) {
+        var viewName = this.getViewName()
+        var property = ({
+            decade: 'year',
+            year  : 'month'
+        })[viewName]
+
+        var value = date.get(property)
+        var viewMoment = moment(this.getViewDate()).set(property, value)
+        var view = this.getPrevViewName()
+
+        this.setState({
+            viewMoment: viewMoment,
+            view: view
+        })
+
+        if (typeof this.props.onSelect === 'function'){
+            var text = viewMoment.format(this.props.dateFormat)
+            this.props.onSelect(viewMoment, text, view, event)
+        }
+    }
+
+})
+
+DatePicker.locale = function(locale){
+    console.log(locale,'!')
+    require('moment/locale/' + locale)
+}
+
+module.exports = DatePicker
+},{"./DecadeView":10,"./MonthView":11,"./YearView":12,"./utils/asConfig":16,"./utils/getWeekDayNames":18,"copy-utils":25,"moment":26,"react":172}],15:[function(require,module,exports){
+'use strict'
+
+var moment = require('moment')
+var CONFIG = require('./config')
+
+/**
+ * This function will be used to convert a date to a moment.
+ *
+ * It accepts input as sring, date or moment
+ *
+ * @param  {String/Date/Moment} value
+ * @param  {String} [dateFormat] if value is string, it will be parsed to a moment using this format
+ * @param  {Object} [config]
+ * @param  {Boolean} [config.strict] whether to perform strict parsing on strings
+ * @return {Moment}
+ */
+module.exports = function(value, dateFormat, config){
+    var strict = !!(config && config.strict)
+
+    dateFormat = dateFormat || CONFIG.dateFormat
+
+    if (typeof value == 'string'){
+        return moment(value, dateFormat, strict)
+    }
+
+    return moment(value == null? new Date(): value)
+}
+},{"./config":13,"moment":26}],16:[function(require,module,exports){
+'use strict'
+
+var copyUtils = require('copy-utils')
+var copy      = copyUtils.copy
+var copyList  = copyUtils.copyList
+
+var CONFIG = require('../config')
+var KEYS   = Object.keys(CONFIG)
+
+/**
+ * Returns an object that copies from given source object
+ * on the resulting object only the properties also found in cfg.
+ *
+ * If no cfg specified, CONFIG is assumed
+ *
+ * @param  {object} source
+ * @param  {Object} [cfg] If not specied, CONFIG will be used
+ *
+ * @return {Object}
+ */
+module.exports = function asConfig(source, cfg){
+
+    var keys = KEYS
+
+    if (cfg){
+        keys = Object.keys(cfg)
+    }
+
+    cfg = cfg || CONFIG
+
+    if (!source){
+        return copy(cfg)
+    }
+
+    return copyList(source, copy(cfg), keys)
+}
+
+},{"../config":13,"copy-utils":25}],17:[function(require,module,exports){
+'use strict'
+
+var CONFIG   = require('../config')
+var toMoment = require('../toMoment')
+
+function f(mom, format){
+    return toMoment(mom).format(format)
+}
+
+module.exports = {
+    day: function(mom, format) {
+        return f(mom, format || CONFIG.dayFormat)
+    },
+
+    month: function(mom, format) {
+        return f(mom, format || CONFIG.monthFormat)
+    },
+
+    year: function(mom, format) {
+        return f(mom, format || CONFIG.yearFormat)
+    }
+}
+},{"../config":13,"../toMoment":15}],18:[function(require,module,exports){
+'use strict'
+
+var moment = require('moment')
+
+var DEFAULT_WEEK_START_DAY = moment().startOf('week').format('d') * 1
+
+module.exports = function getWeekDayNames(startDay){
+
+    var names = moment.weekdaysShort()
+    var index = startDay || DEFAULT_WEEK_START_DAY
+
+    while (index > 0){
+        names.push(names.shift())
+        index--
+    }
+
+    return names
+}
+},{"moment":26}],19:[function(require,module,exports){
+'use strict'
+
+var HAS_OWN       = Object.prototype.hasOwnProperty
+var STR_OBJECT    = 'object'
+
+/**
+ * Copies all properties from source to destination
+ *
+ *      copy({name: 'jon',age:5}, this);
+ *      // => this will have the 'name' and 'age' properties set to 'jon' and 5 respectively
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination){
+
+    destination = destination || {}
+
+    if (source != null && typeof source === STR_OBJECT ){
+
+        for (var i in source) if ( HAS_OWN.call(source, i) ) {
+            destination[i] = source[i]
+        }
+
+    }
+
+    return destination
+}
+},{}],20:[function(require,module,exports){
+'use strict'
+
+var HAS_OWN       = Object.prototype.hasOwnProperty
+var STR_OBJECT    = 'object'
+var STR_UNDEFINED = 'undefined'
+
+/**
+ * Copies all properties from source to destination, if the property does not exist into the destination
+ *
+ *      copyIf({name: 'jon',age:5}, {age:7})
+ *      // => { name: 'jon', age: 7}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination){
+    destination = destination || {}
+
+    if (source != null && typeof source === STR_OBJECT){
+
+        for (var i in source) if ( HAS_OWN.call(source, i) && (typeof destination[i] === STR_UNDEFINED) ) {
+
+            destination[i] = source[i]
+
+        }
+    }
+
+    return destination
+}
+},{}],21:[function(require,module,exports){
+'use strict'
+
+var STR_UNDEFINED = 'undefined'
+var STR_OBJECT    = 'object'
+var HAS_OWN       = Object.prototype.hasOwnProperty
+
+var copyList = require('./copyList')
+
+/**
+ * Copies all properties named in the namedKeys, from source to destination
+ *
+ *      copyKeys({name: 'jon',age:5, year: 2006, date: '2010/05/12'}, {}, {name:1 ,age: true, year: 'theYear'})
+ *      // => {name: 'jon', age: 5, theYear: 2006}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ * @param {Object} namedKeys an object with keys denoting the properties to be copied
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination, namedKeys){
+    if (arguments.length < 3 ){
+        namedKeys = destination
+        destination = null
+    }
+
+    destination = destination || {}
+
+    if (!namedKeys || Array.isArray(namedKeys)){
+        return copyList(source, destination, namedKeys)
+    }
+
+    if (
+           source != null && typeof source    === STR_OBJECT &&
+        namedKeys != null && typeof namedKeys === STR_OBJECT
+    ) {
+        var typeOfNamedProperty
+        var namedPropertyValue
+
+        for  (var propName in namedKeys) if ( HAS_OWN.call(namedKeys, propName) ) {
+            namedPropertyValue  = namedKeys[propName]
+            typeOfNamedProperty = typeof namedPropertyValue
+
+            if (typeof source[propName] !== STR_UNDEFINED){
+                destination[typeOfNamedProperty == 'string'? namedPropertyValue : propName] = source[propName]
+            }
+        }
+    }
+
+    return destination
+}
+},{"./copyList":23}],22:[function(require,module,exports){
+'use strict'
+
+var STR_UNDEFINED = 'undefined'
+var STR_OBJECT    = 'object'
+var HAS_OWN       = Object.prototype.hasOwnProperty
+
+var copyListIf = require('./copyListIf')
+
+/**
+ * Copies all properties named in the namedKeys, from source to destination,
+ * but only if the property does not already exist in the destination object
+ *
+ *      copyKeysIf({name: 'jon',age:5, year: 2006}, {aname: 'test'}, {name:'aname' ,age: true})
+ *      // => {aname: 'test', age: 5}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ * @param {Object} namedKeys an object with keys denoting the properties to be copied
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination, namedKeys){
+    if (arguments.length < 3 ){
+        namedKeys = destination
+        destination = null
+    }
+
+    destination = destination || {}
+
+    if (!namedKeys || Array.isArray(namedKeys)){
+        return copyListIf(source, destination, namedKeys)
+    }
+
+    if (
+               source != null && typeof source    === STR_OBJECT &&
+            namedKeys != null && typeof namedKeys === STR_OBJECT
+        ) {
+
+            var typeOfNamedProperty
+            var namedPropertyValue
+            var newPropertyName
+
+            for (var propName in namedKeys) if ( HAS_OWN.call(namedKeys, propName) ) {
+
+                namedPropertyValue  = namedKeys[propName]
+                typeOfNamedProperty = typeof namedPropertyValue
+                newPropertyName     = typeOfNamedProperty == 'string'? namedPropertyValue : propName
+
+                if (
+                        typeof      source[propName]        !== STR_UNDEFINED &&
+                        typeof destination[newPropertyName] === STR_UNDEFINED
+                    ) {
+                    destination[newPropertyName] = source[propName]
+                }
+
+            }
+        }
+
+    return destination
+}
+},{"./copyListIf":24}],23:[function(require,module,exports){
+'use strict'
+
+var STR_UNDEFINED = 'undefined'
+
+/**
+ * Copies all properties named in the list, from source to destination
+ *
+ *      copyList({name: 'jon',age:5, year: 2006}, {}, ['name','age'])
+ *      // => {name: 'jon', age: 5}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ * @param {Array} list the array with the names of the properties to copy
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination, list){
+    if (arguments.length < 3){
+        list = destination
+        destination = null
+    }
+
+    destination = destination || {}
+    list        = list || Object.keys(source)
+
+    var i   = 0
+    var len = list.length
+    var propName
+
+    for ( ; i < len; i++ ){
+        propName = list[i]
+
+        if ( typeof source[propName] !== STR_UNDEFINED ) {
+            destination[list[i]] = source[list[i]]
+        }
+    }
+
+    return destination
+}
+},{}],24:[function(require,module,exports){
+'use strict'
+
+var STR_UNDEFINED = 'undefined'
+
+/**
+ * Copies all properties named in the list, from source to destination, if the property does not exist into the destination
+ *
+ *      copyListIf({name: 'jon',age:5, year: 2006}, {age: 10}, ['name','age'])
+ *      // => {name: 'jon', age: 10}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ * @param {Array} list the array with the names of the properties to copy
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination, list){
+    if (arguments.length < 3){
+        list = destination
+        destination = null
+    }
+
+    destination = destination || {}
+    list        = list || Object.keys(source)
+
+    var i   = 0
+    var len = list.length
+    var propName
+
+    for ( ; i < len ; i++ ){
+        propName = list[i]
+        if (
+                (typeof source[propName]      !== STR_UNDEFINED) &&
+                (typeof destination[propName] === STR_UNDEFINED)
+            ){
+            destination[propName] = source[propName]
+        }
+    }
+
+    return destination
+}
+},{}],25:[function(require,module,exports){
+module.exports = function(){
+
+    'use strict'
+
+    var HAS_OWN       = Object.prototype.hasOwnProperty,
+        STR_OBJECT    = 'object',
+        STR_UNDEFINED = 'undefined'
+
+    return {
+
+        /**
+         * Copies all properties from source to destination
+         *
+         *      copy({name: 'jon',age:5}, this);
+         *      // => this will have the 'name' and 'age' properties set to 'jon' and 5 respectively
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         *
+         * @return {Object} destination
+         */
+        copy: require('./copy'),
+
+        /**
+         * Copies all properties from source to destination, if the property does not exist into the destination
+         *
+         *      copyIf({name: 'jon',age:5}, {age:7})
+         *      // => { name: 'jon', age: 7}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         *
+         * @return {Object} destination
+         */
+        copyIf: require('./copyIf'),
+
+        /**
+         * Copies all properties from source to a new object, with the given value. This object is returned
+         *
+         *      copyAs({name: 'jon',age:5})
+         *      // => the resulting object will have the 'name' and 'age' properties set to 1
+         *
+         * @param {Object} source
+         * @param {Object/Number/String} [value=1]
+         *
+         * @return {Object} destination
+         */
+        copyAs: function(source, value){
+
+            var destination = {}
+
+            value = value || 1
+
+            if (source != null && typeof source === STR_OBJECT ){
+
+                for (var i in source) if ( HAS_OWN.call(source, i) ) {
+                    destination[i] = value
+                }
+
+            }
+
+            return destination
+        },
+
+        /**
+         * Copies all properties named in the list, from source to destination
+         *
+         *      copyList({name: 'jon',age:5, year: 2006}, {}, ['name','age'])
+         *      // => {name: 'jon', age: 5}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         * @param {Array} list the array with the names of the properties to copy
+         *
+         * @return {Object} destination
+         */
+        copyList: require('./copyList'),
+
+        /**
+         * Copies all properties named in the list, from source to destination, if the property does not exist into the destination
+         *
+         *      copyListIf({name: 'jon',age:5, year: 2006}, {age: 10}, ['name','age'])
+         *      // => {name: 'jon', age: 10}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         * @param {Array} list the array with the names of the properties to copy
+         *
+         * @return {Object} destination
+         */
+        copyListIf: require('./copyListIf'),
+
+        /**
+         * Copies all properties named in the namedKeys, from source to destination
+         *
+         *      copyKeys({name: 'jon',age:5, year: 2006, date: '2010/05/12'}, {}, {name:1 ,age: true, year: 'theYear'})
+         *      // => {name: 'jon', age: 5, theYear: 2006}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         * @param {Object} namedKeys an object with keys denoting the properties to be copied
+         *
+         * @return {Object} destination
+         */
+        copyKeys: require('./copyKeys'),
+
+        /**
+         * Copies all properties named in the namedKeys, from source to destination,
+         * but only if the property does not already exist in the destination object
+         *
+         *      copyKeysIf({name: 'jon',age:5, year: 2006}, {aname: 'test'}, {name:'aname' ,age: true})
+         *      // => {aname: 'test', age: 5}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         * @param {Object} namedKeys an object with keys denoting the properties to be copied
+         *
+         * @return {Object} destination
+         */
+        copyKeysIf: require('./copyKeysIf'),
+
+        copyExceptKeys: function(source, destination, exceptKeys){
+            destination = destination || {}
+            exceptKeys  = exceptKeys  || {}
+
+            if (source != null && typeof source === STR_OBJECT ){
+
+                for (var i in source) if ( HAS_OWN.call(source, i) && !HAS_OWN.call(exceptKeys, i) ) {
+
+                    destination[i] = source[i]
+                }
+
+            }
+
+            return destination
+        },
+
+        /**
+         * Copies the named keys from source to destination.
+         * For the keys that are functions, copies the functions bound to the source
+         *
+         * @param  {Object} source      The source object
+         * @param  {Object} destination The target object
+         * @param  {Object} namedKeys   An object with the names of the keys to copy The values from the keys in this object
+         *                              need to be either numbers or booleans if you want to copy the property under the same name,
+         *                              or a string if you want to copy the property under a different name
+         * @return {Object}             Returns the destination object
+         */
+        bindCopyKeys: function(source, destination, namedKeys){
+            if (arguments.length == 2){
+                namedKeys = destination
+                destination = null
+            }
+
+            destination = destination || {}
+
+            if (
+                       source != null && typeof source    === STR_OBJECT &&
+                    namedKeys != null && typeof namedKeys === STR_OBJECT
+                ) {
+
+
+                var typeOfNamedProperty,
+                    namedPropertyValue,
+
+                    typeOfSourceProperty,
+                    propValue
+
+
+                for(var propName in namedKeys) if (HAS_OWN.call(namedKeys, propName)) {
+
+                    namedPropertyValue = namedKeys[propName]
+                    typeOfNamedProperty = typeof namedPropertyValue
+
+                    propValue = source[propName]
+                    typeOfSourceProperty = typeof propValue
+
+
+                    if ( typeOfSourceProperty !== STR_UNDEFINED ) {
+
+                        destination[
+                            typeOfNamedProperty == 'string'?
+                                            namedPropertyValue :
+                                            propName
+                            ] = typeOfSourceProperty == 'function' ?
+                                            propValue.bind(source):
+                                            propValue
+                    }
+                }
+            }
+
+            return destination
+        }
+    }
+
+}()
+},{"./copy":19,"./copyIf":20,"./copyKeys":21,"./copyKeysIf":22,"./copyList":23,"./copyListIf":24}],26:[function(require,module,exports){
+(function (global){
+//! moment.js
+//! version : 2.8.4
+//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
+//! license : MIT
+//! momentjs.com
+
+(function (undefined) {
+    /************************************
+        Constants
+    ************************************/
+
+    var moment,
+        VERSION = '2.8.4',
+        // the global-scope this is NOT the global object in Node.js
+        globalScope = typeof global !== 'undefined' ? global : this,
+        oldGlobalMoment,
+        round = Math.round,
+        hasOwnProperty = Object.prototype.hasOwnProperty,
+        i,
+
+        YEAR = 0,
+        MONTH = 1,
+        DATE = 2,
+        HOUR = 3,
+        MINUTE = 4,
+        SECOND = 5,
+        MILLISECOND = 6,
+
+        // internal storage for locale config files
+        locales = {},
+
+        // extra moment internal properties (plugins register props here)
+        momentProperties = [],
+
+        // check for nodeJS
+        hasModule = (typeof module !== 'undefined' && module && module.exports),
+
+        // ASP.NET json date format regex
+        aspNetJsonRegex = /^\/?Date\((\-?\d+)/i,
+        aspNetTimeSpanJsonRegex = /(\-)?(?:(\d*)\.)?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?)?/,
+
+        // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
+        // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
+        isoDurationRegex = /^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/,
+
+        // format tokens
+        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Q|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|x|X|zz?|ZZ?|.)/g,
+        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
+
+        // parsing token regexes
+        parseTokenOneOrTwoDigits = /\d\d?/, // 0 - 99
+        parseTokenOneToThreeDigits = /\d{1,3}/, // 0 - 999
+        parseTokenOneToFourDigits = /\d{1,4}/, // 0 - 9999
+        parseTokenOneToSixDigits = /[+\-]?\d{1,6}/, // -999,999 - 999,999
+        parseTokenDigits = /\d+/, // nonzero number of digits
+        parseTokenWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i, // any word (or two) characters or numbers including two/three word month in arabic.
+        parseTokenTimezone = /Z|[\+\-]\d\d:?\d\d/gi, // +00:00 -00:00 +0000 -0000 or Z
+        parseTokenT = /T/i, // T (ISO separator)
+        parseTokenOffsetMs = /[\+\-]?\d+/, // 1234567890123
+        parseTokenTimestampMs = /[\+\-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
+
+        //strict parsing regexes
+        parseTokenOneDigit = /\d/, // 0 - 9
+        parseTokenTwoDigits = /\d\d/, // 00 - 99
+        parseTokenThreeDigits = /\d{3}/, // 000 - 999
+        parseTokenFourDigits = /\d{4}/, // 0000 - 9999
+        parseTokenSixDigits = /[+-]?\d{6}/, // -999,999 - 999,999
+        parseTokenSignedNumber = /[+-]?\d+/, // -inf - inf
+
+        // iso 8601 regex
+        // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
+        isoRegex = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
+
+        isoFormat = 'YYYY-MM-DDTHH:mm:ssZ',
+
+        isoDates = [
+            ['YYYYYY-MM-DD', /[+-]\d{6}-\d{2}-\d{2}/],
+            ['YYYY-MM-DD', /\d{4}-\d{2}-\d{2}/],
+            ['GGGG-[W]WW-E', /\d{4}-W\d{2}-\d/],
+            ['GGGG-[W]WW', /\d{4}-W\d{2}/],
+            ['YYYY-DDD', /\d{4}-\d{3}/]
+        ],
+
+        // iso time formats and regexes
+        isoTimes = [
+            ['HH:mm:ss.SSSS', /(T| )\d\d:\d\d:\d\d\.\d+/],
+            ['HH:mm:ss', /(T| )\d\d:\d\d:\d\d/],
+            ['HH:mm', /(T| )\d\d:\d\d/],
+            ['HH', /(T| )\d\d/]
+        ],
+
+        // timezone chunker '+10:00' > ['10', '00'] or '-1530' > ['-15', '30']
+        parseTimezoneChunker = /([\+\-]|\d\d)/gi,
+
+        // getter and setter names
+        proxyGettersAndSetters = 'Date|Hours|Minutes|Seconds|Milliseconds'.split('|'),
+        unitMillisecondFactors = {
+            'Milliseconds' : 1,
+            'Seconds' : 1e3,
+            'Minutes' : 6e4,
+            'Hours' : 36e5,
+            'Days' : 864e5,
+            'Months' : 2592e6,
+            'Years' : 31536e6
+        },
+
+        unitAliases = {
+            ms : 'millisecond',
+            s : 'second',
+            m : 'minute',
+            h : 'hour',
+            d : 'day',
+            D : 'date',
+            w : 'week',
+            W : 'isoWeek',
+            M : 'month',
+            Q : 'quarter',
+            y : 'year',
+            DDD : 'dayOfYear',
+            e : 'weekday',
+            E : 'isoWeekday',
+            gg: 'weekYear',
+            GG: 'isoWeekYear'
+        },
+
+        camelFunctions = {
+            dayofyear : 'dayOfYear',
+            isoweekday : 'isoWeekday',
+            isoweek : 'isoWeek',
+            weekyear : 'weekYear',
+            isoweekyear : 'isoWeekYear'
+        },
+
+        // format function strings
+        formatFunctions = {},
+
+        // default relative time thresholds
+        relativeTimeThresholds = {
+            s: 45,  // seconds to minute
+            m: 45,  // minutes to hour
+            h: 22,  // hours to day
+            d: 26,  // days to month
+            M: 11   // months to year
+        },
+
+        // tokens to ordinalize and pad
+        ordinalizeTokens = 'DDD w W M D d'.split(' '),
+        paddedTokens = 'M D H h m s w W'.split(' '),
+
+        formatTokenFunctions = {
+            M    : function () {
+                return this.month() + 1;
+            },
+            MMM  : function (format) {
+                return this.localeData().monthsShort(this, format);
+            },
+            MMMM : function (format) {
+                return this.localeData().months(this, format);
+            },
+            D    : function () {
+                return this.date();
+            },
+            DDD  : function () {
+                return this.dayOfYear();
+            },
+            d    : function () {
+                return this.day();
+            },
+            dd   : function (format) {
+                return this.localeData().weekdaysMin(this, format);
+            },
+            ddd  : function (format) {
+                return this.localeData().weekdaysShort(this, format);
+            },
+            dddd : function (format) {
+                return this.localeData().weekdays(this, format);
+            },
+            w    : function () {
+                return this.week();
+            },
+            W    : function () {
+                return this.isoWeek();
+            },
+            YY   : function () {
+                return leftZeroFill(this.year() % 100, 2);
+            },
+            YYYY : function () {
+                return leftZeroFill(this.year(), 4);
+            },
+            YYYYY : function () {
+                return leftZeroFill(this.year(), 5);
+            },
+            YYYYYY : function () {
+                var y = this.year(), sign = y >= 0 ? '+' : '-';
+                return sign + leftZeroFill(Math.abs(y), 6);
+            },
+            gg   : function () {
+                return leftZeroFill(this.weekYear() % 100, 2);
+            },
+            gggg : function () {
+                return leftZeroFill(this.weekYear(), 4);
+            },
+            ggggg : function () {
+                return leftZeroFill(this.weekYear(), 5);
+            },
+            GG   : function () {
+                return leftZeroFill(this.isoWeekYear() % 100, 2);
+            },
+            GGGG : function () {
+                return leftZeroFill(this.isoWeekYear(), 4);
+            },
+            GGGGG : function () {
+                return leftZeroFill(this.isoWeekYear(), 5);
+            },
+            e : function () {
+                return this.weekday();
+            },
+            E : function () {
+                return this.isoWeekday();
+            },
+            a    : function () {
+                return this.localeData().meridiem(this.hours(), this.minutes(), true);
+            },
+            A    : function () {
+                return this.localeData().meridiem(this.hours(), this.minutes(), false);
+            },
+            H    : function () {
+                return this.hours();
+            },
+            h    : function () {
+                return this.hours() % 12 || 12;
+            },
+            m    : function () {
+                return this.minutes();
+            },
+            s    : function () {
+                return this.seconds();
+            },
+            S    : function () {
+                return toInt(this.milliseconds() / 100);
+            },
+            SS   : function () {
+                return leftZeroFill(toInt(this.milliseconds() / 10), 2);
+            },
+            SSS  : function () {
+                return leftZeroFill(this.milliseconds(), 3);
+            },
+            SSSS : function () {
+                return leftZeroFill(this.milliseconds(), 3);
+            },
+            Z    : function () {
+                var a = -this.zone(),
+                    b = '+';
+                if (a < 0) {
+                    a = -a;
+                    b = '-';
+                }
+                return b + leftZeroFill(toInt(a / 60), 2) + ':' + leftZeroFill(toInt(a) % 60, 2);
+            },
+            ZZ   : function () {
+                var a = -this.zone(),
+                    b = '+';
+                if (a < 0) {
+                    a = -a;
+                    b = '-';
+                }
+                return b + leftZeroFill(toInt(a / 60), 2) + leftZeroFill(toInt(a) % 60, 2);
+            },
+            z : function () {
+                return this.zoneAbbr();
+            },
+            zz : function () {
+                return this.zoneName();
+            },
+            x    : function () {
+                return this.valueOf();
+            },
+            X    : function () {
+                return this.unix();
+            },
+            Q : function () {
+                return this.quarter();
+            }
+        },
+
+        deprecations = {},
+
+        lists = ['months', 'monthsShort', 'weekdays', 'weekdaysShort', 'weekdaysMin'];
+
+    // Pick the first defined of two or three arguments. dfl comes from
+    // default.
+    function dfl(a, b, c) {
+        switch (arguments.length) {
+            case 2: return a != null ? a : b;
+            case 3: return a != null ? a : b != null ? b : c;
+            default: throw new Error('Implement me');
+        }
+    }
+
+    function hasOwnProp(a, b) {
+        return hasOwnProperty.call(a, b);
+    }
+
+    function defaultParsingFlags() {
+        // We need to deep clone this object, and es5 standard is not very
+        // helpful.
+        return {
+            empty : false,
+            unusedTokens : [],
+            unusedInput : [],
+            overflow : -2,
+            charsLeftOver : 0,
+            nullInput : false,
+            invalidMonth : null,
+            invalidFormat : false,
+            userInvalidated : false,
+            iso: false
+        };
+    }
+
+    function printMsg(msg) {
+        if (moment.suppressDeprecationWarnings === false &&
+                typeof console !== 'undefined' && console.warn) {
+            console.warn('Deprecation warning: ' + msg);
+        }
+    }
+
+    function deprecate(msg, fn) {
+        var firstTime = true;
+        return extend(function () {
+            if (firstTime) {
+                printMsg(msg);
+                firstTime = false;
+            }
+            return fn.apply(this, arguments);
+        }, fn);
+    }
+
+    function deprecateSimple(name, msg) {
+        if (!deprecations[name]) {
+            printMsg(msg);
+            deprecations[name] = true;
+        }
+    }
+
+    function padToken(func, count) {
+        return function (a) {
+            return leftZeroFill(func.call(this, a), count);
+        };
+    }
+    function ordinalizeToken(func, period) {
+        return function (a) {
+            return this.localeData().ordinal(func.call(this, a), period);
+        };
+    }
+
+    while (ordinalizeTokens.length) {
+        i = ordinalizeTokens.pop();
+        formatTokenFunctions[i + 'o'] = ordinalizeToken(formatTokenFunctions[i], i);
+    }
+    while (paddedTokens.length) {
+        i = paddedTokens.pop();
+        formatTokenFunctions[i + i] = padToken(formatTokenFunctions[i], 2);
+    }
+    formatTokenFunctions.DDDD = padToken(formatTokenFunctions.DDD, 3);
+
+
+    /************************************
+        Constructors
+    ************************************/
+
+    function Locale() {
+    }
+
+    // Moment prototype object
+    function Moment(config, skipOverflow) {
+        if (skipOverflow !== false) {
+            checkOverflow(config);
+        }
+        copyConfig(this, config);
+        this._d = new Date(+config._d);
+    }
+
+    // Duration Constructor
+    function Duration(duration) {
+        var normalizedInput = normalizeObjectUnits(duration),
+            years = normalizedInput.year || 0,
+            quarters = normalizedInput.quarter || 0,
+            months = normalizedInput.month || 0,
+            weeks = normalizedInput.week || 0,
+            days = normalizedInput.day || 0,
+            hours = normalizedInput.hour || 0,
+            minutes = normalizedInput.minute || 0,
+            seconds = normalizedInput.second || 0,
+            milliseconds = normalizedInput.millisecond || 0;
+
+        // representation for dateAddRemove
+        this._milliseconds = +milliseconds +
+            seconds * 1e3 + // 1000
+            minutes * 6e4 + // 1000 * 60
+            hours * 36e5; // 1000 * 60 * 60
+        // Because of dateAddRemove treats 24 hours as different from a
+        // day when working around DST, we need to store them separately
+        this._days = +days +
+            weeks * 7;
+        // It is impossible translate months into days without knowing
+        // which months you are are talking about, so we have to store
+        // it separately.
+        this._months = +months +
+            quarters * 3 +
+            years * 12;
+
+        this._data = {};
+
+        this._locale = moment.localeData();
+
+        this._bubble();
+    }
+
+    /************************************
+        Helpers
+    ************************************/
+
+
+    function extend(a, b) {
+        for (var i in b) {
+            if (hasOwnProp(b, i)) {
+                a[i] = b[i];
+            }
+        }
+
+        if (hasOwnProp(b, 'toString')) {
+            a.toString = b.toString;
+        }
+
+        if (hasOwnProp(b, 'valueOf')) {
+            a.valueOf = b.valueOf;
+        }
+
+        return a;
+    }
+
+    function copyConfig(to, from) {
+        var i, prop, val;
+
+        if (typeof from._isAMomentObject !== 'undefined') {
+            to._isAMomentObject = from._isAMomentObject;
+        }
+        if (typeof from._i !== 'undefined') {
+            to._i = from._i;
+        }
+        if (typeof from._f !== 'undefined') {
+            to._f = from._f;
+        }
+        if (typeof from._l !== 'undefined') {
+            to._l = from._l;
+        }
+        if (typeof from._strict !== 'undefined') {
+            to._strict = from._strict;
+        }
+        if (typeof from._tzm !== 'undefined') {
+            to._tzm = from._tzm;
+        }
+        if (typeof from._isUTC !== 'undefined') {
+            to._isUTC = from._isUTC;
+        }
+        if (typeof from._offset !== 'undefined') {
+            to._offset = from._offset;
+        }
+        if (typeof from._pf !== 'undefined') {
+            to._pf = from._pf;
+        }
+        if (typeof from._locale !== 'undefined') {
+            to._locale = from._locale;
+        }
+
+        if (momentProperties.length > 0) {
+            for (i in momentProperties) {
+                prop = momentProperties[i];
+                val = from[prop];
+                if (typeof val !== 'undefined') {
+                    to[prop] = val;
+                }
+            }
+        }
+
+        return to;
+    }
+
+    function absRound(number) {
+        if (number < 0) {
+            return Math.ceil(number);
+        } else {
+            return Math.floor(number);
+        }
+    }
+
+    // left zero fill a number
+    // see http://jsperf.com/left-zero-filling for performance comparison
+    function leftZeroFill(number, targetLength, forceSign) {
+        var output = '' + Math.abs(number),
+            sign = number >= 0;
+
+        while (output.length < targetLength) {
+            output = '0' + output;
+        }
+        return (sign ? (forceSign ? '+' : '') : '-') + output;
+    }
+
+    function positiveMomentsDifference(base, other) {
+        var res = {milliseconds: 0, months: 0};
+
+        res.months = other.month() - base.month() +
+            (other.year() - base.year()) * 12;
+        if (base.clone().add(res.months, 'M').isAfter(other)) {
+            --res.months;
+        }
+
+        res.milliseconds = +other - +(base.clone().add(res.months, 'M'));
+
+        return res;
+    }
+
+    function momentsDifference(base, other) {
+        var res;
+        other = makeAs(other, base);
+        if (base.isBefore(other)) {
+            res = positiveMomentsDifference(base, other);
+        } else {
+            res = positiveMomentsDifference(other, base);
+            res.milliseconds = -res.milliseconds;
+            res.months = -res.months;
+        }
+
+        return res;
+    }
+
+    // TODO: remove 'name' arg after deprecation is removed
+    function createAdder(direction, name) {
+        return function (val, period) {
+            var dur, tmp;
+            //invert the arguments, but complain about it
+            if (period !== null && !isNaN(+period)) {
+                deprecateSimple(name, 'moment().' + name  + '(period, number) is deprecated. Please use moment().' + name + '(number, period).');
+                tmp = val; val = period; period = tmp;
+            }
+
+            val = typeof val === 'string' ? +val : val;
+            dur = moment.duration(val, period);
+            addOrSubtractDurationFromMoment(this, dur, direction);
+            return this;
+        };
+    }
+
+    function addOrSubtractDurationFromMoment(mom, duration, isAdding, updateOffset) {
+        var milliseconds = duration._milliseconds,
+            days = duration._days,
+            months = duration._months;
+        updateOffset = updateOffset == null ? true : updateOffset;
+
+        if (milliseconds) {
+            mom._d.setTime(+mom._d + milliseconds * isAdding);
+        }
+        if (days) {
+            rawSetter(mom, 'Date', rawGetter(mom, 'Date') + days * isAdding);
+        }
+        if (months) {
+            rawMonthSetter(mom, rawGetter(mom, 'Month') + months * isAdding);
+        }
+        if (updateOffset) {
+            moment.updateOffset(mom, days || months);
+        }
+    }
+
+    // check if is an array
+    function isArray(input) {
+        return Object.prototype.toString.call(input) === '[object Array]';
+    }
+
+    function isDate(input) {
+        return Object.prototype.toString.call(input) === '[object Date]' ||
+            input instanceof Date;
+    }
+
+    // compare two arrays, return the number of differences
+    function compareArrays(array1, array2, dontConvert) {
+        var len = Math.min(array1.length, array2.length),
+            lengthDiff = Math.abs(array1.length - array2.length),
+            diffs = 0,
+            i;
+        for (i = 0; i < len; i++) {
+            if ((dontConvert && array1[i] !== array2[i]) ||
+                (!dontConvert && toInt(array1[i]) !== toInt(array2[i]))) {
+                diffs++;
+            }
+        }
+        return diffs + lengthDiff;
+    }
+
+    function normalizeUnits(units) {
+        if (units) {
+            var lowered = units.toLowerCase().replace(/(.)s$/, '$1');
+            units = unitAliases[units] || camelFunctions[lowered] || lowered;
+        }
+        return units;
+    }
+
+    function normalizeObjectUnits(inputObject) {
+        var normalizedInput = {},
+            normalizedProp,
+            prop;
+
+        for (prop in inputObject) {
+            if (hasOwnProp(inputObject, prop)) {
+                normalizedProp = normalizeUnits(prop);
+                if (normalizedProp) {
+                    normalizedInput[normalizedProp] = inputObject[prop];
+                }
+            }
+        }
+
+        return normalizedInput;
+    }
+
+    function makeList(field) {
+        var count, setter;
+
+        if (field.indexOf('week') === 0) {
+            count = 7;
+            setter = 'day';
+        }
+        else if (field.indexOf('month') === 0) {
+            count = 12;
+            setter = 'month';
+        }
+        else {
+            return;
+        }
+
+        moment[field] = function (format, index) {
+            var i, getter,
+                method = moment._locale[field],
+                results = [];
+
+            if (typeof format === 'number') {
+                index = format;
+                format = undefined;
+            }
+
+            getter = function (i) {
+                var m = moment().utc().set(setter, i);
+                return method.call(moment._locale, m, format || '');
+            };
+
+            if (index != null) {
+                return getter(index);
+            }
+            else {
+                for (i = 0; i < count; i++) {
+                    results.push(getter(i));
+                }
+                return results;
+            }
+        };
+    }
+
+    function toInt(argumentForCoercion) {
+        var coercedNumber = +argumentForCoercion,
+            value = 0;
+
+        if (coercedNumber !== 0 && isFinite(coercedNumber)) {
+            if (coercedNumber >= 0) {
+                value = Math.floor(coercedNumber);
+            } else {
+                value = Math.ceil(coercedNumber);
+            }
+        }
+
+        return value;
+    }
+
+    function daysInMonth(year, month) {
+        return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    }
+
+    function weeksInYear(year, dow, doy) {
+        return weekOfYear(moment([year, 11, 31 + dow - doy]), dow, doy).week;
+    }
+
+    function daysInYear(year) {
+        return isLeapYear(year) ? 366 : 365;
+    }
+
+    function isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    }
+
+    function checkOverflow(m) {
+        var overflow;
+        if (m._a && m._pf.overflow === -2) {
+            overflow =
+                m._a[MONTH] < 0 || m._a[MONTH] > 11 ? MONTH :
+                m._a[DATE] < 1 || m._a[DATE] > daysInMonth(m._a[YEAR], m._a[MONTH]) ? DATE :
+                m._a[HOUR] < 0 || m._a[HOUR] > 24 ||
+                    (m._a[HOUR] === 24 && (m._a[MINUTE] !== 0 ||
+                                           m._a[SECOND] !== 0 ||
+                                           m._a[MILLISECOND] !== 0)) ? HOUR :
+                m._a[MINUTE] < 0 || m._a[MINUTE] > 59 ? MINUTE :
+                m._a[SECOND] < 0 || m._a[SECOND] > 59 ? SECOND :
+                m._a[MILLISECOND] < 0 || m._a[MILLISECOND] > 999 ? MILLISECOND :
+                -1;
+
+            if (m._pf._overflowDayOfYear && (overflow < YEAR || overflow > DATE)) {
+                overflow = DATE;
+            }
+
+            m._pf.overflow = overflow;
+        }
+    }
+
+    function isValid(m) {
+        if (m._isValid == null) {
+            m._isValid = !isNaN(m._d.getTime()) &&
+                m._pf.overflow < 0 &&
+                !m._pf.empty &&
+                !m._pf.invalidMonth &&
+                !m._pf.nullInput &&
+                !m._pf.invalidFormat &&
+                !m._pf.userInvalidated;
+
+            if (m._strict) {
+                m._isValid = m._isValid &&
+                    m._pf.charsLeftOver === 0 &&
+                    m._pf.unusedTokens.length === 0 &&
+                    m._pf.bigHour === undefined;
+            }
+        }
+        return m._isValid;
+    }
+
+    function normalizeLocale(key) {
+        return key ? key.toLowerCase().replace('_', '-') : key;
+    }
+
+    // pick the locale from the array
+    // try ['en-au', 'en-gb'] as 'en-au', 'en-gb', 'en', as in move through the list trying each
+    // substring from most specific to least, but move to the next array item if it's a more specific variant than the current root
+    function chooseLocale(names) {
+        var i = 0, j, next, locale, split;
+
+        while (i < names.length) {
+            split = normalizeLocale(names[i]).split('-');
+            j = split.length;
+            next = normalizeLocale(names[i + 1]);
+            next = next ? next.split('-') : null;
+            while (j > 0) {
+                locale = loadLocale(split.slice(0, j).join('-'));
+                if (locale) {
+                    return locale;
+                }
+                if (next && next.length >= j && compareArrays(split, next, true) >= j - 1) {
+                    //the next array item is better than a shallower substring of this one
+                    break;
+                }
+                j--;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    function loadLocale(name) {
+        var oldLocale = null;
+        if (!locales[name] && hasModule) {
+            try {
+                oldLocale = moment.locale();
+                require('./locale/' + name);
+                // because defineLocale currently also sets the global locale, we want to undo that for lazy loaded locales
+                moment.locale(oldLocale);
+            } catch (e) { }
+        }
+        return locales[name];
+    }
+
+    // Return a moment from input, that is local/utc/zone equivalent to model.
+    function makeAs(input, model) {
+        var res, diff;
+        if (model._isUTC) {
+            res = model.clone();
+            diff = (moment.isMoment(input) || isDate(input) ?
+                    +input : +moment(input)) - (+res);
+            // Use low-level api, because this fn is low-level api.
+            res._d.setTime(+res._d + diff);
+            moment.updateOffset(res, false);
+            return res;
+        } else {
+            return moment(input).local();
+        }
+    }
+
+    /************************************
+        Locale
+    ************************************/
+
+
+    extend(Locale.prototype, {
+
+        set : function (config) {
+            var prop, i;
+            for (i in config) {
+                prop = config[i];
+                if (typeof prop === 'function') {
+                    this[i] = prop;
+                } else {
+                    this['_' + i] = prop;
+                }
+            }
+            // Lenient ordinal parsing accepts just a number in addition to
+            // number + (possibly) stuff coming from _ordinalParseLenient.
+            this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + /\d{1,2}/.source);
+        },
+
+        _months : 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
+        months : function (m) {
+            return this._months[m.month()];
+        },
+
+        _monthsShort : 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+        monthsShort : function (m) {
+            return this._monthsShort[m.month()];
+        },
+
+        monthsParse : function (monthName, format, strict) {
+            var i, mom, regex;
+
+            if (!this._monthsParse) {
+                this._monthsParse = [];
+                this._longMonthsParse = [];
+                this._shortMonthsParse = [];
+            }
+
+            for (i = 0; i < 12; i++) {
+                // make the regex if we don't have it already
+                mom = moment.utc([2000, i]);
+                if (strict && !this._longMonthsParse[i]) {
+                    this._longMonthsParse[i] = new RegExp('^' + this.months(mom, '').replace('.', '') + '$', 'i');
+                    this._shortMonthsParse[i] = new RegExp('^' + this.monthsShort(mom, '').replace('.', '') + '$', 'i');
+                }
+                if (!strict && !this._monthsParse[i]) {
+                    regex = '^' + this.months(mom, '') + '|^' + this.monthsShort(mom, '');
+                    this._monthsParse[i] = new RegExp(regex.replace('.', ''), 'i');
+                }
+                // test the regex
+                if (strict && format === 'MMMM' && this._longMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (strict && format === 'MMM' && this._shortMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (!strict && this._monthsParse[i].test(monthName)) {
+                    return i;
+                }
+            }
+        },
+
+        _weekdays : 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+        weekdays : function (m) {
+            return this._weekdays[m.day()];
+        },
+
+        _weekdaysShort : 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+        weekdaysShort : function (m) {
+            return this._weekdaysShort[m.day()];
+        },
+
+        _weekdaysMin : 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
+        weekdaysMin : function (m) {
+            return this._weekdaysMin[m.day()];
+        },
+
+        weekdaysParse : function (weekdayName) {
+            var i, mom, regex;
+
+            if (!this._weekdaysParse) {
+                this._weekdaysParse = [];
+            }
+
+            for (i = 0; i < 7; i++) {
+                // make the regex if we don't have it already
+                if (!this._weekdaysParse[i]) {
+                    mom = moment([2000, 1]).day(i);
+                    regex = '^' + this.weekdays(mom, '') + '|^' + this.weekdaysShort(mom, '') + '|^' + this.weekdaysMin(mom, '');
+                    this._weekdaysParse[i] = new RegExp(regex.replace('.', ''), 'i');
+                }
+                // test the regex
+                if (this._weekdaysParse[i].test(weekdayName)) {
+                    return i;
+                }
+            }
+        },
+
+        _longDateFormat : {
+            LTS : 'h:mm:ss A',
+            LT : 'h:mm A',
+            L : 'MM/DD/YYYY',
+            LL : 'MMMM D, YYYY',
+            LLL : 'MMMM D, YYYY LT',
+            LLLL : 'dddd, MMMM D, YYYY LT'
+        },
+        longDateFormat : function (key) {
+            var output = this._longDateFormat[key];
+            if (!output && this._longDateFormat[key.toUpperCase()]) {
+                output = this._longDateFormat[key.toUpperCase()].replace(/MMMM|MM|DD|dddd/g, function (val) {
+                    return val.slice(1);
+                });
+                this._longDateFormat[key] = output;
+            }
+            return output;
+        },
+
+        isPM : function (input) {
+            // IE8 Quirks Mode & IE7 Standards Mode do not allow accessing strings like arrays
+            // Using charAt should be more compatible.
+            return ((input + '').toLowerCase().charAt(0) === 'p');
+        },
+
+        _meridiemParse : /[ap]\.?m?\.?/i,
+        meridiem : function (hours, minutes, isLower) {
+            if (hours > 11) {
+                return isLower ? 'pm' : 'PM';
+            } else {
+                return isLower ? 'am' : 'AM';
+            }
+        },
+
+        _calendar : {
+            sameDay : '[Today at] LT',
+            nextDay : '[Tomorrow at] LT',
+            nextWeek : 'dddd [at] LT',
+            lastDay : '[Yesterday at] LT',
+            lastWeek : '[Last] dddd [at] LT',
+            sameElse : 'L'
+        },
+        calendar : function (key, mom, now) {
+            var output = this._calendar[key];
+            return typeof output === 'function' ? output.apply(mom, [now]) : output;
+        },
+
+        _relativeTime : {
+            future : 'in %s',
+            past : '%s ago',
+            s : 'a few seconds',
+            m : 'a minute',
+            mm : '%d minutes',
+            h : 'an hour',
+            hh : '%d hours',
+            d : 'a day',
+            dd : '%d days',
+            M : 'a month',
+            MM : '%d months',
+            y : 'a year',
+            yy : '%d years'
+        },
+
+        relativeTime : function (number, withoutSuffix, string, isFuture) {
+            var output = this._relativeTime[string];
+            return (typeof output === 'function') ?
+                output(number, withoutSuffix, string, isFuture) :
+                output.replace(/%d/i, number);
+        },
+
+        pastFuture : function (diff, output) {
+            var format = this._relativeTime[diff > 0 ? 'future' : 'past'];
+            return typeof format === 'function' ? format(output) : format.replace(/%s/i, output);
+        },
+
+        ordinal : function (number) {
+            return this._ordinal.replace('%d', number);
+        },
+        _ordinal : '%d',
+        _ordinalParse : /\d{1,2}/,
+
+        preparse : function (string) {
+            return string;
+        },
+
+        postformat : function (string) {
+            return string;
+        },
+
+        week : function (mom) {
+            return weekOfYear(mom, this._week.dow, this._week.doy).week;
+        },
+
+        _week : {
+            dow : 0, // Sunday is the first day of the week.
+            doy : 6  // The week that contains Jan 1st is the first week of the year.
+        },
+
+        _invalidDate: 'Invalid date',
+        invalidDate: function () {
+            return this._invalidDate;
+        }
+    });
+
+    /************************************
+        Formatting
+    ************************************/
+
+
+    function removeFormattingTokens(input) {
+        if (input.match(/\[[\s\S]/)) {
+            return input.replace(/^\[|\]$/g, '');
+        }
+        return input.replace(/\\/g, '');
+    }
+
+    function makeFormatFunction(format) {
+        var array = format.match(formattingTokens), i, length;
+
+        for (i = 0, length = array.length; i < length; i++) {
+            if (formatTokenFunctions[array[i]]) {
+                array[i] = formatTokenFunctions[array[i]];
+            } else {
+                array[i] = removeFormattingTokens(array[i]);
+            }
+        }
+
+        return function (mom) {
+            var output = '';
+            for (i = 0; i < length; i++) {
+                output += array[i] instanceof Function ? array[i].call(mom, format) : array[i];
+            }
+            return output;
+        };
+    }
+
+    // format date using native date object
+    function formatMoment(m, format) {
+        if (!m.isValid()) {
+            return m.localeData().invalidDate();
+        }
+
+        format = expandFormat(format, m.localeData());
+
+        if (!formatFunctions[format]) {
+            formatFunctions[format] = makeFormatFunction(format);
+        }
+
+        return formatFunctions[format](m);
+    }
+
+    function expandFormat(format, locale) {
+        var i = 5;
+
+        function replaceLongDateFormatTokens(input) {
+            return locale.longDateFormat(input) || input;
+        }
+
+        localFormattingTokens.lastIndex = 0;
+        while (i >= 0 && localFormattingTokens.test(format)) {
+            format = format.replace(localFormattingTokens, replaceLongDateFormatTokens);
+            localFormattingTokens.lastIndex = 0;
+            i -= 1;
+        }
+
+        return format;
+    }
+
+
+    /************************************
+        Parsing
+    ************************************/
+
+
+    // get the regex to find the next token
+    function getParseRegexForToken(token, config) {
+        var a, strict = config._strict;
+        switch (token) {
+        case 'Q':
+            return parseTokenOneDigit;
+        case 'DDDD':
+            return parseTokenThreeDigits;
+        case 'YYYY':
+        case 'GGGG':
+        case 'gggg':
+            return strict ? parseTokenFourDigits : parseTokenOneToFourDigits;
+        case 'Y':
+        case 'G':
+        case 'g':
+            return parseTokenSignedNumber;
+        case 'YYYYYY':
+        case 'YYYYY':
+        case 'GGGGG':
+        case 'ggggg':
+            return strict ? parseTokenSixDigits : parseTokenOneToSixDigits;
+        case 'S':
+            if (strict) {
+                return parseTokenOneDigit;
+            }
+            /* falls through */
+        case 'SS':
+            if (strict) {
+                return parseTokenTwoDigits;
+            }
+            /* falls through */
+        case 'SSS':
+            if (strict) {
+                return parseTokenThreeDigits;
+            }
+            /* falls through */
+        case 'DDD':
+            return parseTokenOneToThreeDigits;
+        case 'MMM':
+        case 'MMMM':
+        case 'dd':
+        case 'ddd':
+        case 'dddd':
+            return parseTokenWord;
+        case 'a':
+        case 'A':
+            return config._locale._meridiemParse;
+        case 'x':
+            return parseTokenOffsetMs;
+        case 'X':
+            return parseTokenTimestampMs;
+        case 'Z':
+        case 'ZZ':
+            return parseTokenTimezone;
+        case 'T':
+            return parseTokenT;
+        case 'SSSS':
+            return parseTokenDigits;
+        case 'MM':
+        case 'DD':
+        case 'YY':
+        case 'GG':
+        case 'gg':
+        case 'HH':
+        case 'hh':
+        case 'mm':
+        case 'ss':
+        case 'ww':
+        case 'WW':
+            return strict ? parseTokenTwoDigits : parseTokenOneOrTwoDigits;
+        case 'M':
+        case 'D':
+        case 'd':
+        case 'H':
+        case 'h':
+        case 'm':
+        case 's':
+        case 'w':
+        case 'W':
+        case 'e':
+        case 'E':
+            return parseTokenOneOrTwoDigits;
+        case 'Do':
+            return strict ? config._locale._ordinalParse : config._locale._ordinalParseLenient;
+        default :
+            a = new RegExp(regexpEscape(unescapeFormat(token.replace('\\', '')), 'i'));
+            return a;
+        }
+    }
+
+    function timezoneMinutesFromString(string) {
+        string = string || '';
+        var possibleTzMatches = (string.match(parseTokenTimezone) || []),
+            tzChunk = possibleTzMatches[possibleTzMatches.length - 1] || [],
+            parts = (tzChunk + '').match(parseTimezoneChunker) || ['-', 0, 0],
+            minutes = +(parts[1] * 60) + toInt(parts[2]);
+
+        return parts[0] === '+' ? -minutes : minutes;
+    }
+
+    // function to convert string input to date
+    function addTimeToArrayFromToken(token, input, config) {
+        var a, datePartArray = config._a;
+
+        switch (token) {
+        // QUARTER
+        case 'Q':
+            if (input != null) {
+                datePartArray[MONTH] = (toInt(input) - 1) * 3;
+            }
+            break;
+        // MONTH
+        case 'M' : // fall through to MM
+        case 'MM' :
+            if (input != null) {
+                datePartArray[MONTH] = toInt(input) - 1;
+            }
+            break;
+        case 'MMM' : // fall through to MMMM
+        case 'MMMM' :
+            a = config._locale.monthsParse(input, token, config._strict);
+            // if we didn't find a month name, mark the date as invalid.
+            if (a != null) {
+                datePartArray[MONTH] = a;
+            } else {
+                config._pf.invalidMonth = input;
+            }
+            break;
+        // DAY OF MONTH
+        case 'D' : // fall through to DD
+        case 'DD' :
+            if (input != null) {
+                datePartArray[DATE] = toInt(input);
+            }
+            break;
+        case 'Do' :
+            if (input != null) {
+                datePartArray[DATE] = toInt(parseInt(
+                            input.match(/\d{1,2}/)[0], 10));
+            }
+            break;
+        // DAY OF YEAR
+        case 'DDD' : // fall through to DDDD
+        case 'DDDD' :
+            if (input != null) {
+                config._dayOfYear = toInt(input);
+            }
+
+            break;
+        // YEAR
+        case 'YY' :
+            datePartArray[YEAR] = moment.parseTwoDigitYear(input);
+            break;
+        case 'YYYY' :
+        case 'YYYYY' :
+        case 'YYYYYY' :
+            datePartArray[YEAR] = toInt(input);
+            break;
+        // AM / PM
+        case 'a' : // fall through to A
+        case 'A' :
+            config._isPm = config._locale.isPM(input);
+            break;
+        // HOUR
+        case 'h' : // fall through to hh
+        case 'hh' :
+            config._pf.bigHour = true;
+            /* falls through */
+        case 'H' : // fall through to HH
+        case 'HH' :
+            datePartArray[HOUR] = toInt(input);
+            break;
+        // MINUTE
+        case 'm' : // fall through to mm
+        case 'mm' :
+            datePartArray[MINUTE] = toInt(input);
+            break;
+        // SECOND
+        case 's' : // fall through to ss
+        case 'ss' :
+            datePartArray[SECOND] = toInt(input);
+            break;
+        // MILLISECOND
+        case 'S' :
+        case 'SS' :
+        case 'SSS' :
+        case 'SSSS' :
+            datePartArray[MILLISECOND] = toInt(('0.' + input) * 1000);
+            break;
+        // UNIX OFFSET (MILLISECONDS)
+        case 'x':
+            config._d = new Date(toInt(input));
+            break;
+        // UNIX TIMESTAMP WITH MS
+        case 'X':
+            config._d = new Date(parseFloat(input) * 1000);
+            break;
+        // TIMEZONE
+        case 'Z' : // fall through to ZZ
+        case 'ZZ' :
+            config._useUTC = true;
+            config._tzm = timezoneMinutesFromString(input);
+            break;
+        // WEEKDAY - human
+        case 'dd':
+        case 'ddd':
+        case 'dddd':
+            a = config._locale.weekdaysParse(input);
+            // if we didn't get a weekday name, mark the date as invalid
+            if (a != null) {
+                config._w = config._w || {};
+                config._w['d'] = a;
+            } else {
+                config._pf.invalidWeekday = input;
+            }
+            break;
+        // WEEK, WEEK DAY - numeric
+        case 'w':
+        case 'ww':
+        case 'W':
+        case 'WW':
+        case 'd':
+        case 'e':
+        case 'E':
+            token = token.substr(0, 1);
+            /* falls through */
+        case 'gggg':
+        case 'GGGG':
+        case 'GGGGG':
+            token = token.substr(0, 2);
+            if (input) {
+                config._w = config._w || {};
+                config._w[token] = toInt(input);
+            }
+            break;
+        case 'gg':
+        case 'GG':
+            config._w = config._w || {};
+            config._w[token] = moment.parseTwoDigitYear(input);
+        }
+    }
+
+    function dayOfYearFromWeekInfo(config) {
+        var w, weekYear, week, weekday, dow, doy, temp;
+
+        w = config._w;
+        if (w.GG != null || w.W != null || w.E != null) {
+            dow = 1;
+            doy = 4;
+
+            // TODO: We need to take the current isoWeekYear, but that depends on
+            // how we interpret now (local, utc, fixed offset). So create
+            // a now version of current config (take local/utc/offset flags, and
+            // create now).
+            weekYear = dfl(w.GG, config._a[YEAR], weekOfYear(moment(), 1, 4).year);
+            week = dfl(w.W, 1);
+            weekday = dfl(w.E, 1);
+        } else {
+            dow = config._locale._week.dow;
+            doy = config._locale._week.doy;
+
+            weekYear = dfl(w.gg, config._a[YEAR], weekOfYear(moment(), dow, doy).year);
+            week = dfl(w.w, 1);
+
+            if (w.d != null) {
+                // weekday -- low day numbers are considered next week
+                weekday = w.d;
+                if (weekday < dow) {
+                    ++week;
+                }
+            } else if (w.e != null) {
+                // local weekday -- counting starts from begining of week
+                weekday = w.e + dow;
+            } else {
+                // default to begining of week
+                weekday = dow;
+            }
+        }
+        temp = dayOfYearFromWeeks(weekYear, week, weekday, doy, dow);
+
+        config._a[YEAR] = temp.year;
+        config._dayOfYear = temp.dayOfYear;
+    }
+
+    // convert an array to a date.
+    // the array should mirror the parameters below
+    // note: all values past the year are optional and will default to the lowest possible value.
+    // [year, month, day , hour, minute, second, millisecond]
+    function dateFromConfig(config) {
+        var i, date, input = [], currentDate, yearToUse;
+
+        if (config._d) {
+            return;
+        }
+
+        currentDate = currentDateArray(config);
+
+        //compute day of the year from weeks and weekdays
+        if (config._w && config._a[DATE] == null && config._a[MONTH] == null) {
+            dayOfYearFromWeekInfo(config);
+        }
+
+        //if the day of the year is set, figure out what it is
+        if (config._dayOfYear) {
+            yearToUse = dfl(config._a[YEAR], currentDate[YEAR]);
+
+            if (config._dayOfYear > daysInYear(yearToUse)) {
+                config._pf._overflowDayOfYear = true;
+            }
+
+            date = makeUTCDate(yearToUse, 0, config._dayOfYear);
+            config._a[MONTH] = date.getUTCMonth();
+            config._a[DATE] = date.getUTCDate();
+        }
+
+        // Default to current date.
+        // * if no year, month, day of month are given, default to today
+        // * if day of month is given, default month and year
+        // * if month is given, default only year
+        // * if year is given, don't default anything
+        for (i = 0; i < 3 && config._a[i] == null; ++i) {
+            config._a[i] = input[i] = currentDate[i];
+        }
+
+        // Zero out whatever was not defaulted, including time
+        for (; i < 7; i++) {
+            config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
+        }
+
+        // Check for 24:00:00.000
+        if (config._a[HOUR] === 24 &&
+                config._a[MINUTE] === 0 &&
+                config._a[SECOND] === 0 &&
+                config._a[MILLISECOND] === 0) {
+            config._nextDay = true;
+            config._a[HOUR] = 0;
+        }
+
+        config._d = (config._useUTC ? makeUTCDate : makeDate).apply(null, input);
+        // Apply timezone offset from input. The actual zone can be changed
+        // with parseZone.
+        if (config._tzm != null) {
+            config._d.setUTCMinutes(config._d.getUTCMinutes() + config._tzm);
+        }
+
+        if (config._nextDay) {
+            config._a[HOUR] = 24;
+        }
+    }
+
+    function dateFromObject(config) {
+        var normalizedInput;
+
+        if (config._d) {
+            return;
+        }
+
+        normalizedInput = normalizeObjectUnits(config._i);
+        config._a = [
+            normalizedInput.year,
+            normalizedInput.month,
+            normalizedInput.day || normalizedInput.date,
+            normalizedInput.hour,
+            normalizedInput.minute,
+            normalizedInput.second,
+            normalizedInput.millisecond
+        ];
+
+        dateFromConfig(config);
+    }
+
+    function currentDateArray(config) {
+        var now = new Date();
+        if (config._useUTC) {
+            return [
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate()
+            ];
+        } else {
+            return [now.getFullYear(), now.getMonth(), now.getDate()];
+        }
+    }
+
+    // date from string and format string
+    function makeDateFromStringAndFormat(config) {
+        if (config._f === moment.ISO_8601) {
+            parseISO(config);
+            return;
+        }
+
+        config._a = [];
+        config._pf.empty = true;
+
+        // This array is used to make a Date, either with `new Date` or `Date.UTC`
+        var string = '' + config._i,
+            i, parsedInput, tokens, token, skipped,
+            stringLength = string.length,
+            totalParsedInputLength = 0;
+
+        tokens = expandFormat(config._f, config._locale).match(formattingTokens) || [];
+
+        for (i = 0; i < tokens.length; i++) {
+            token = tokens[i];
+            parsedInput = (string.match(getParseRegexForToken(token, config)) || [])[0];
+            if (parsedInput) {
+                skipped = string.substr(0, string.indexOf(parsedInput));
+                if (skipped.length > 0) {
+                    config._pf.unusedInput.push(skipped);
+                }
+                string = string.slice(string.indexOf(parsedInput) + parsedInput.length);
+                totalParsedInputLength += parsedInput.length;
+            }
+            // don't parse if it's not a known token
+            if (formatTokenFunctions[token]) {
+                if (parsedInput) {
+                    config._pf.empty = false;
+                }
+                else {
+                    config._pf.unusedTokens.push(token);
+                }
+                addTimeToArrayFromToken(token, parsedInput, config);
+            }
+            else if (config._strict && !parsedInput) {
+                config._pf.unusedTokens.push(token);
+            }
+        }
+
+        // add remaining unparsed input length to the string
+        config._pf.charsLeftOver = stringLength - totalParsedInputLength;
+        if (string.length > 0) {
+            config._pf.unusedInput.push(string);
+        }
+
+        // clear _12h flag if hour is <= 12
+        if (config._pf.bigHour === true && config._a[HOUR] <= 12) {
+            config._pf.bigHour = undefined;
+        }
+        // handle am pm
+        if (config._isPm && config._a[HOUR] < 12) {
+            config._a[HOUR] += 12;
+        }
+        // if is 12 am, change hours to 0
+        if (config._isPm === false && config._a[HOUR] === 12) {
+            config._a[HOUR] = 0;
+        }
+        dateFromConfig(config);
+        checkOverflow(config);
+    }
+
+    function unescapeFormat(s) {
+        return s.replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (matched, p1, p2, p3, p4) {
+            return p1 || p2 || p3 || p4;
+        });
+    }
+
+    // Code from http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+    function regexpEscape(s) {
+        return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    }
+
+    // date from string and array of format strings
+    function makeDateFromStringAndArray(config) {
+        var tempConfig,
+            bestMoment,
+
+            scoreToBeat,
+            i,
+            currentScore;
+
+        if (config._f.length === 0) {
+            config._pf.invalidFormat = true;
+            config._d = new Date(NaN);
+            return;
+        }
+
+        for (i = 0; i < config._f.length; i++) {
+            currentScore = 0;
+            tempConfig = copyConfig({}, config);
+            if (config._useUTC != null) {
+                tempConfig._useUTC = config._useUTC;
+            }
+            tempConfig._pf = defaultParsingFlags();
+            tempConfig._f = config._f[i];
+            makeDateFromStringAndFormat(tempConfig);
+
+            if (!isValid(tempConfig)) {
+                continue;
+            }
+
+            // if there is any input that was not parsed add a penalty for that format
+            currentScore += tempConfig._pf.charsLeftOver;
+
+            //or tokens
+            currentScore += tempConfig._pf.unusedTokens.length * 10;
+
+            tempConfig._pf.score = currentScore;
+
+            if (scoreToBeat == null || currentScore < scoreToBeat) {
+                scoreToBeat = currentScore;
+                bestMoment = tempConfig;
+            }
+        }
+
+        extend(config, bestMoment || tempConfig);
+    }
+
+    // date from iso format
+    function parseISO(config) {
+        var i, l,
+            string = config._i,
+            match = isoRegex.exec(string);
+
+        if (match) {
+            config._pf.iso = true;
+            for (i = 0, l = isoDates.length; i < l; i++) {
+                if (isoDates[i][1].exec(string)) {
+                    // match[5] should be 'T' or undefined
+                    config._f = isoDates[i][0] + (match[6] || ' ');
+                    break;
+                }
+            }
+            for (i = 0, l = isoTimes.length; i < l; i++) {
+                if (isoTimes[i][1].exec(string)) {
+                    config._f += isoTimes[i][0];
+                    break;
+                }
+            }
+            if (string.match(parseTokenTimezone)) {
+                config._f += 'Z';
+            }
+            makeDateFromStringAndFormat(config);
+        } else {
+            config._isValid = false;
+        }
+    }
+
+    // date from iso format or fallback
+    function makeDateFromString(config) {
+        parseISO(config);
+        if (config._isValid === false) {
+            delete config._isValid;
+            moment.createFromInputFallback(config);
+        }
+    }
+
+    function map(arr, fn) {
+        var res = [], i;
+        for (i = 0; i < arr.length; ++i) {
+            res.push(fn(arr[i], i));
+        }
+        return res;
+    }
+
+    function makeDateFromInput(config) {
+        var input = config._i, matched;
+        if (input === undefined) {
+            config._d = new Date();
+        } else if (isDate(input)) {
+            config._d = new Date(+input);
+        } else if ((matched = aspNetJsonRegex.exec(input)) !== null) {
+            config._d = new Date(+matched[1]);
+        } else if (typeof input === 'string') {
+            makeDateFromString(config);
+        } else if (isArray(input)) {
+            config._a = map(input.slice(0), function (obj) {
+                return parseInt(obj, 10);
+            });
+            dateFromConfig(config);
+        } else if (typeof(input) === 'object') {
+            dateFromObject(config);
+        } else if (typeof(input) === 'number') {
+            // from milliseconds
+            config._d = new Date(input);
+        } else {
+            moment.createFromInputFallback(config);
+        }
+    }
+
+    function makeDate(y, m, d, h, M, s, ms) {
+        //can't just apply() to create a date:
+        //http://stackoverflow.com/questions/181348/instantiating-a-javascript-object-by-calling-prototype-constructor-apply
+        var date = new Date(y, m, d, h, M, s, ms);
+
+        //the date constructor doesn't accept years < 1970
+        if (y < 1970) {
+            date.setFullYear(y);
+        }
+        return date;
+    }
+
+    function makeUTCDate(y) {
+        var date = new Date(Date.UTC.apply(null, arguments));
+        if (y < 1970) {
+            date.setUTCFullYear(y);
+        }
+        return date;
+    }
+
+    function parseWeekday(input, locale) {
+        if (typeof input === 'string') {
+            if (!isNaN(input)) {
+                input = parseInt(input, 10);
+            }
+            else {
+                input = locale.weekdaysParse(input);
+                if (typeof input !== 'number') {
+                    return null;
+                }
+            }
+        }
+        return input;
+    }
+
+    /************************************
+        Relative Time
+    ************************************/
+
+
+    // helper function for moment.fn.from, moment.fn.fromNow, and moment.duration.fn.humanize
+    function substituteTimeAgo(string, number, withoutSuffix, isFuture, locale) {
+        return locale.relativeTime(number || 1, !!withoutSuffix, string, isFuture);
+    }
+
+    function relativeTime(posNegDuration, withoutSuffix, locale) {
+        var duration = moment.duration(posNegDuration).abs(),
+            seconds = round(duration.as('s')),
+            minutes = round(duration.as('m')),
+            hours = round(duration.as('h')),
+            days = round(duration.as('d')),
+            months = round(duration.as('M')),
+            years = round(duration.as('y')),
+
+            args = seconds < relativeTimeThresholds.s && ['s', seconds] ||
+                minutes === 1 && ['m'] ||
+                minutes < relativeTimeThresholds.m && ['mm', minutes] ||
+                hours === 1 && ['h'] ||
+                hours < relativeTimeThresholds.h && ['hh', hours] ||
+                days === 1 && ['d'] ||
+                days < relativeTimeThresholds.d && ['dd', days] ||
+                months === 1 && ['M'] ||
+                months < relativeTimeThresholds.M && ['MM', months] ||
+                years === 1 && ['y'] || ['yy', years];
+
+        args[2] = withoutSuffix;
+        args[3] = +posNegDuration > 0;
+        args[4] = locale;
+        return substituteTimeAgo.apply({}, args);
+    }
+
+
+    /************************************
+        Week of Year
+    ************************************/
+
+
+    // firstDayOfWeek       0 = sun, 6 = sat
+    //                      the day of the week that starts the week
+    //                      (usually sunday or monday)
+    // firstDayOfWeekOfYear 0 = sun, 6 = sat
+    //                      the first week is the week that contains the first
+    //                      of this day of the week
+    //                      (eg. ISO weeks use thursday (4))
+    function weekOfYear(mom, firstDayOfWeek, firstDayOfWeekOfYear) {
+        var end = firstDayOfWeekOfYear - firstDayOfWeek,
+            daysToDayOfWeek = firstDayOfWeekOfYear - mom.day(),
+            adjustedMoment;
+
+
+        if (daysToDayOfWeek > end) {
+            daysToDayOfWeek -= 7;
+        }
+
+        if (daysToDayOfWeek < end - 7) {
+            daysToDayOfWeek += 7;
+        }
+
+        adjustedMoment = moment(mom).add(daysToDayOfWeek, 'd');
+        return {
+            week: Math.ceil(adjustedMoment.dayOfYear() / 7),
+            year: adjustedMoment.year()
+        };
+    }
+
+    //http://en.wikipedia.org/wiki/ISO_week_date#Calculating_a_date_given_the_year.2C_week_number_and_weekday
+    function dayOfYearFromWeeks(year, week, weekday, firstDayOfWeekOfYear, firstDayOfWeek) {
+        var d = makeUTCDate(year, 0, 1).getUTCDay(), daysToAdd, dayOfYear;
+
+        d = d === 0 ? 7 : d;
+        weekday = weekday != null ? weekday : firstDayOfWeek;
+        daysToAdd = firstDayOfWeek - d + (d > firstDayOfWeekOfYear ? 7 : 0) - (d < firstDayOfWeek ? 7 : 0);
+        dayOfYear = 7 * (week - 1) + (weekday - firstDayOfWeek) + daysToAdd + 1;
+
+        return {
+            year: dayOfYear > 0 ? year : year - 1,
+            dayOfYear: dayOfYear > 0 ?  dayOfYear : daysInYear(year - 1) + dayOfYear
+        };
+    }
+
+    /************************************
+        Top Level Functions
+    ************************************/
+
+    function makeMoment(config) {
+        var input = config._i,
+            format = config._f,
+            res;
+
+        config._locale = config._locale || moment.localeData(config._l);
+
+        if (input === null || (format === undefined && input === '')) {
+            return moment.invalid({nullInput: true});
+        }
+
+        if (typeof input === 'string') {
+            config._i = input = config._locale.preparse(input);
+        }
+
+        if (moment.isMoment(input)) {
+            return new Moment(input, true);
+        } else if (format) {
+            if (isArray(format)) {
+                makeDateFromStringAndArray(config);
+            } else {
+                makeDateFromStringAndFormat(config);
+            }
+        } else {
+            makeDateFromInput(config);
+        }
+
+        res = new Moment(config);
+        if (res._nextDay) {
+            // Adding is smart enough around DST
+            res.add(1, 'd');
+            res._nextDay = undefined;
+        }
+
+        return res;
+    }
+
+    moment = function (input, format, locale, strict) {
+        var c;
+
+        if (typeof(locale) === 'boolean') {
+            strict = locale;
+            locale = undefined;
+        }
+        // object construction must be done this way.
+        // https://github.com/moment/moment/issues/1423
+        c = {};
+        c._isAMomentObject = true;
+        c._i = input;
+        c._f = format;
+        c._l = locale;
+        c._strict = strict;
+        c._isUTC = false;
+        c._pf = defaultParsingFlags();
+
+        return makeMoment(c);
+    };
+
+    moment.suppressDeprecationWarnings = false;
+
+    moment.createFromInputFallback = deprecate(
+        'moment construction falls back to js Date. This is ' +
+        'discouraged and will be removed in upcoming major ' +
+        'release. Please refer to ' +
+        'https://github.com/moment/moment/issues/1407 for more info.',
+        function (config) {
+            config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
+        }
+    );
+
+    // Pick a moment m from moments so that m[fn](other) is true for all
+    // other. This relies on the function fn to be transitive.
+    //
+    // moments should either be an array of moment objects or an array, whose
+    // first element is an array of moment objects.
+    function pickBy(fn, moments) {
+        var res, i;
+        if (moments.length === 1 && isArray(moments[0])) {
+            moments = moments[0];
+        }
+        if (!moments.length) {
+            return moment();
+        }
+        res = moments[0];
+        for (i = 1; i < moments.length; ++i) {
+            if (moments[i][fn](res)) {
+                res = moments[i];
+            }
+        }
+        return res;
+    }
+
+    moment.min = function () {
+        var args = [].slice.call(arguments, 0);
+
+        return pickBy('isBefore', args);
+    };
+
+    moment.max = function () {
+        var args = [].slice.call(arguments, 0);
+
+        return pickBy('isAfter', args);
+    };
+
+    // creating with utc
+    moment.utc = function (input, format, locale, strict) {
+        var c;
+
+        if (typeof(locale) === 'boolean') {
+            strict = locale;
+            locale = undefined;
+        }
+        // object construction must be done this way.
+        // https://github.com/moment/moment/issues/1423
+        c = {};
+        c._isAMomentObject = true;
+        c._useUTC = true;
+        c._isUTC = true;
+        c._l = locale;
+        c._i = input;
+        c._f = format;
+        c._strict = strict;
+        c._pf = defaultParsingFlags();
+
+        return makeMoment(c).utc();
+    };
+
+    // creating with unix timestamp (in seconds)
+    moment.unix = function (input) {
+        return moment(input * 1000);
+    };
+
+    // duration
+    moment.duration = function (input, key) {
+        var duration = input,
+            // matching against regexp is expensive, do it on demand
+            match = null,
+            sign,
+            ret,
+            parseIso,
+            diffRes;
+
+        if (moment.isDuration(input)) {
+            duration = {
+                ms: input._milliseconds,
+                d: input._days,
+                M: input._months
+            };
+        } else if (typeof input === 'number') {
+            duration = {};
+            if (key) {
+                duration[key] = input;
+            } else {
+                duration.milliseconds = input;
+            }
+        } else if (!!(match = aspNetTimeSpanJsonRegex.exec(input))) {
+            sign = (match[1] === '-') ? -1 : 1;
+            duration = {
+                y: 0,
+                d: toInt(match[DATE]) * sign,
+                h: toInt(match[HOUR]) * sign,
+                m: toInt(match[MINUTE]) * sign,
+                s: toInt(match[SECOND]) * sign,
+                ms: toInt(match[MILLISECOND]) * sign
+            };
+        } else if (!!(match = isoDurationRegex.exec(input))) {
+            sign = (match[1] === '-') ? -1 : 1;
+            parseIso = function (inp) {
+                // We'd normally use ~~inp for this, but unfortunately it also
+                // converts floats to ints.
+                // inp may be undefined, so careful calling replace on it.
+                var res = inp && parseFloat(inp.replace(',', '.'));
+                // apply sign while we're at it
+                return (isNaN(res) ? 0 : res) * sign;
+            };
+            duration = {
+                y: parseIso(match[2]),
+                M: parseIso(match[3]),
+                d: parseIso(match[4]),
+                h: parseIso(match[5]),
+                m: parseIso(match[6]),
+                s: parseIso(match[7]),
+                w: parseIso(match[8])
+            };
+        } else if (typeof duration === 'object' &&
+                ('from' in duration || 'to' in duration)) {
+            diffRes = momentsDifference(moment(duration.from), moment(duration.to));
+
+            duration = {};
+            duration.ms = diffRes.milliseconds;
+            duration.M = diffRes.months;
+        }
+
+        ret = new Duration(duration);
+
+        if (moment.isDuration(input) && hasOwnProp(input, '_locale')) {
+            ret._locale = input._locale;
+        }
+
+        return ret;
+    };
+
+    // version number
+    moment.version = VERSION;
+
+    // default format
+    moment.defaultFormat = isoFormat;
+
+    // constant that refers to the ISO standard
+    moment.ISO_8601 = function () {};
+
+    // Plugins that add properties should also add the key here (null value),
+    // so we can properly clone ourselves.
+    moment.momentProperties = momentProperties;
+
+    // This function will be called whenever a moment is mutated.
+    // It is intended to keep the offset in sync with the timezone.
+    moment.updateOffset = function () {};
+
+    // This function allows you to set a threshold for relative time strings
+    moment.relativeTimeThreshold = function (threshold, limit) {
+        if (relativeTimeThresholds[threshold] === undefined) {
+            return false;
+        }
+        if (limit === undefined) {
+            return relativeTimeThresholds[threshold];
+        }
+        relativeTimeThresholds[threshold] = limit;
+        return true;
+    };
+
+    moment.lang = deprecate(
+        'moment.lang is deprecated. Use moment.locale instead.',
+        function (key, value) {
+            return moment.locale(key, value);
+        }
+    );
+
+    // This function will load locale and then set the global locale.  If
+    // no arguments are passed in, it will simply return the current global
+    // locale key.
+    moment.locale = function (key, values) {
+        var data;
+        if (key) {
+            if (typeof(values) !== 'undefined') {
+                data = moment.defineLocale(key, values);
+            }
+            else {
+                data = moment.localeData(key);
+            }
+
+            if (data) {
+                moment.duration._locale = moment._locale = data;
+            }
+        }
+
+        return moment._locale._abbr;
+    };
+
+    moment.defineLocale = function (name, values) {
+        if (values !== null) {
+            values.abbr = name;
+            if (!locales[name]) {
+                locales[name] = new Locale();
+            }
+            locales[name].set(values);
+
+            // backwards compat for now: also set the locale
+            moment.locale(name);
+
+            return locales[name];
+        } else {
+            // useful for testing
+            delete locales[name];
+            return null;
+        }
+    };
+
+    moment.langData = deprecate(
+        'moment.langData is deprecated. Use moment.localeData instead.',
+        function (key) {
+            return moment.localeData(key);
+        }
+    );
+
+    // returns locale data
+    moment.localeData = function (key) {
+        var locale;
+
+        if (key && key._locale && key._locale._abbr) {
+            key = key._locale._abbr;
+        }
+
+        if (!key) {
+            return moment._locale;
+        }
+
+        if (!isArray(key)) {
+            //short-circuit everything else
+            locale = loadLocale(key);
+            if (locale) {
+                return locale;
+            }
+            key = [key];
+        }
+
+        return chooseLocale(key);
+    };
+
+    // compare moment object
+    moment.isMoment = function (obj) {
+        return obj instanceof Moment ||
+            (obj != null && hasOwnProp(obj, '_isAMomentObject'));
+    };
+
+    // for typechecking Duration objects
+    moment.isDuration = function (obj) {
+        return obj instanceof Duration;
+    };
+
+    for (i = lists.length - 1; i >= 0; --i) {
+        makeList(lists[i]);
+    }
+
+    moment.normalizeUnits = function (units) {
+        return normalizeUnits(units);
+    };
+
+    moment.invalid = function (flags) {
+        var m = moment.utc(NaN);
+        if (flags != null) {
+            extend(m._pf, flags);
+        }
+        else {
+            m._pf.userInvalidated = true;
+        }
+
+        return m;
+    };
+
+    moment.parseZone = function () {
+        return moment.apply(null, arguments).parseZone();
+    };
+
+    moment.parseTwoDigitYear = function (input) {
+        return toInt(input) + (toInt(input) > 68 ? 1900 : 2000);
+    };
+
+    /************************************
+        Moment Prototype
+    ************************************/
+
+
+    extend(moment.fn = Moment.prototype, {
+
+        clone : function () {
+            return moment(this);
+        },
+
+        valueOf : function () {
+            return +this._d + ((this._offset || 0) * 60000);
+        },
+
+        unix : function () {
+            return Math.floor(+this / 1000);
+        },
+
+        toString : function () {
+            return this.clone().locale('en').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+        },
+
+        toDate : function () {
+            return this._offset ? new Date(+this) : this._d;
+        },
+
+        toISOString : function () {
+            var m = moment(this).utc();
+            if (0 < m.year() && m.year() <= 9999) {
+                if ('function' === typeof Date.prototype.toISOString) {
+                    // native implementation is ~50x faster, use it when we can
+                    return this.toDate().toISOString();
+                } else {
+                    return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+                }
+            } else {
+                return formatMoment(m, 'YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+            }
+        },
+
+        toArray : function () {
+            var m = this;
+            return [
+                m.year(),
+                m.month(),
+                m.date(),
+                m.hours(),
+                m.minutes(),
+                m.seconds(),
+                m.milliseconds()
+            ];
+        },
+
+        isValid : function () {
+            return isValid(this);
+        },
+
+        isDSTShifted : function () {
+            if (this._a) {
+                return this.isValid() && compareArrays(this._a, (this._isUTC ? moment.utc(this._a) : moment(this._a)).toArray()) > 0;
+            }
+
+            return false;
+        },
+
+        parsingFlags : function () {
+            return extend({}, this._pf);
+        },
+
+        invalidAt: function () {
+            return this._pf.overflow;
+        },
+
+        utc : function (keepLocalTime) {
+            return this.zone(0, keepLocalTime);
+        },
+
+        local : function (keepLocalTime) {
+            if (this._isUTC) {
+                this.zone(0, keepLocalTime);
+                this._isUTC = false;
+
+                if (keepLocalTime) {
+                    this.add(this._dateTzOffset(), 'm');
+                }
+            }
+            return this;
+        },
+
+        format : function (inputString) {
+            var output = formatMoment(this, inputString || moment.defaultFormat);
+            return this.localeData().postformat(output);
+        },
+
+        add : createAdder(1, 'add'),
+
+        subtract : createAdder(-1, 'subtract'),
+
+        diff : function (input, units, asFloat) {
+            var that = makeAs(input, this),
+                zoneDiff = (this.zone() - that.zone()) * 6e4,
+                diff, output, daysAdjust;
+
+            units = normalizeUnits(units);
+
+            if (units === 'year' || units === 'month') {
+                // average number of days in the months in the given dates
+                diff = (this.daysInMonth() + that.daysInMonth()) * 432e5; // 24 * 60 * 60 * 1000 / 2
+                // difference in months
+                output = ((this.year() - that.year()) * 12) + (this.month() - that.month());
+                // adjust by taking difference in days, average number of days
+                // and dst in the given months.
+                daysAdjust = (this - moment(this).startOf('month')) -
+                    (that - moment(that).startOf('month'));
+                // same as above but with zones, to negate all dst
+                daysAdjust -= ((this.zone() - moment(this).startOf('month').zone()) -
+                        (that.zone() - moment(that).startOf('month').zone())) * 6e4;
+                output += daysAdjust / diff;
+                if (units === 'year') {
+                    output = output / 12;
+                }
+            } else {
+                diff = (this - that);
+                output = units === 'second' ? diff / 1e3 : // 1000
+                    units === 'minute' ? diff / 6e4 : // 1000 * 60
+                    units === 'hour' ? diff / 36e5 : // 1000 * 60 * 60
+                    units === 'day' ? (diff - zoneDiff) / 864e5 : // 1000 * 60 * 60 * 24, negate dst
+                    units === 'week' ? (diff - zoneDiff) / 6048e5 : // 1000 * 60 * 60 * 24 * 7, negate dst
+                    diff;
+            }
+            return asFloat ? output : absRound(output);
+        },
+
+        from : function (time, withoutSuffix) {
+            return moment.duration({to: this, from: time}).locale(this.locale()).humanize(!withoutSuffix);
+        },
+
+        fromNow : function (withoutSuffix) {
+            return this.from(moment(), withoutSuffix);
+        },
+
+        calendar : function (time) {
+            // We want to compare the start of today, vs this.
+            // Getting start-of-today depends on whether we're zone'd or not.
+            var now = time || moment(),
+                sod = makeAs(now, this).startOf('day'),
+                diff = this.diff(sod, 'days', true),
+                format = diff < -6 ? 'sameElse' :
+                    diff < -1 ? 'lastWeek' :
+                    diff < 0 ? 'lastDay' :
+                    diff < 1 ? 'sameDay' :
+                    diff < 2 ? 'nextDay' :
+                    diff < 7 ? 'nextWeek' : 'sameElse';
+            return this.format(this.localeData().calendar(format, this, moment(now)));
+        },
+
+        isLeapYear : function () {
+            return isLeapYear(this.year());
+        },
+
+        isDST : function () {
+            return (this.zone() < this.clone().month(0).zone() ||
+                this.zone() < this.clone().month(5).zone());
+        },
+
+        day : function (input) {
+            var day = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
+            if (input != null) {
+                input = parseWeekday(input, this.localeData());
+                return this.add(input - day, 'd');
+            } else {
+                return day;
+            }
+        },
+
+        month : makeAccessor('Month', true),
+
+        startOf : function (units) {
+            units = normalizeUnits(units);
+            // the following switch intentionally omits break keywords
+            // to utilize falling through the cases.
+            switch (units) {
+            case 'year':
+                this.month(0);
+                /* falls through */
+            case 'quarter':
+            case 'month':
+                this.date(1);
+                /* falls through */
+            case 'week':
+            case 'isoWeek':
+            case 'day':
+                this.hours(0);
+                /* falls through */
+            case 'hour':
+                this.minutes(0);
+                /* falls through */
+            case 'minute':
+                this.seconds(0);
+                /* falls through */
+            case 'second':
+                this.milliseconds(0);
+                /* falls through */
+            }
+
+            // weeks are a special case
+            if (units === 'week') {
+                this.weekday(0);
+            } else if (units === 'isoWeek') {
+                this.isoWeekday(1);
+            }
+
+            // quarters are also special
+            if (units === 'quarter') {
+                this.month(Math.floor(this.month() / 3) * 3);
+            }
+
+            return this;
+        },
+
+        endOf: function (units) {
+            units = normalizeUnits(units);
+            if (units === undefined || units === 'millisecond') {
+                return this;
+            }
+            return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
+        },
+
+        isAfter: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this > +input;
+            } else {
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return inputMs < +this.clone().startOf(units);
+            }
+        },
+
+        isBefore: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this < +input;
+            } else {
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return +this.clone().endOf(units) < inputMs;
+            }
+        },
+
+        isSame: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(units || 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this === +input;
+            } else {
+                inputMs = +moment(input);
+                return +(this.clone().startOf(units)) <= inputMs && inputMs <= +(this.clone().endOf(units));
+            }
+        },
+
+        min: deprecate(
+                 'moment().min is deprecated, use moment.min instead. https://github.com/moment/moment/issues/1548',
+                 function (other) {
+                     other = moment.apply(null, arguments);
+                     return other < this ? this : other;
+                 }
+         ),
+
+        max: deprecate(
+                'moment().max is deprecated, use moment.max instead. https://github.com/moment/moment/issues/1548',
+                function (other) {
+                    other = moment.apply(null, arguments);
+                    return other > this ? this : other;
+                }
+        ),
+
+        // keepLocalTime = true means only change the timezone, without
+        // affecting the local hour. So 5:31:26 +0300 --[zone(2, true)]-->
+        // 5:31:26 +0200 It is possible that 5:31:26 doesn't exist int zone
+        // +0200, so we adjust the time as needed, to be valid.
+        //
+        // Keeping the time actually adds/subtracts (one hour)
+        // from the actual represented time. That is why we call updateOffset
+        // a second time. In case it wants us to change the offset again
+        // _changeInProgress == true case, then we have to adjust, because
+        // there is no such time in the given timezone.
+        zone : function (input, keepLocalTime) {
+            var offset = this._offset || 0,
+                localAdjust;
+            if (input != null) {
+                if (typeof input === 'string') {
+                    input = timezoneMinutesFromString(input);
+                }
+                if (Math.abs(input) < 16) {
+                    input = input * 60;
+                }
+                if (!this._isUTC && keepLocalTime) {
+                    localAdjust = this._dateTzOffset();
+                }
+                this._offset = input;
+                this._isUTC = true;
+                if (localAdjust != null) {
+                    this.subtract(localAdjust, 'm');
+                }
+                if (offset !== input) {
+                    if (!keepLocalTime || this._changeInProgress) {
+                        addOrSubtractDurationFromMoment(this,
+                                moment.duration(offset - input, 'm'), 1, false);
+                    } else if (!this._changeInProgress) {
+                        this._changeInProgress = true;
+                        moment.updateOffset(this, true);
+                        this._changeInProgress = null;
+                    }
+                }
+            } else {
+                return this._isUTC ? offset : this._dateTzOffset();
+            }
+            return this;
+        },
+
+        zoneAbbr : function () {
+            return this._isUTC ? 'UTC' : '';
+        },
+
+        zoneName : function () {
+            return this._isUTC ? 'Coordinated Universal Time' : '';
+        },
+
+        parseZone : function () {
+            if (this._tzm) {
+                this.zone(this._tzm);
+            } else if (typeof this._i === 'string') {
+                this.zone(this._i);
+            }
+            return this;
+        },
+
+        hasAlignedHourOffset : function (input) {
+            if (!input) {
+                input = 0;
+            }
+            else {
+                input = moment(input).zone();
+            }
+
+            return (this.zone() - input) % 60 === 0;
+        },
+
+        daysInMonth : function () {
+            return daysInMonth(this.year(), this.month());
+        },
+
+        dayOfYear : function (input) {
+            var dayOfYear = round((moment(this).startOf('day') - moment(this).startOf('year')) / 864e5) + 1;
+            return input == null ? dayOfYear : this.add((input - dayOfYear), 'd');
+        },
+
+        quarter : function (input) {
+            return input == null ? Math.ceil((this.month() + 1) / 3) : this.month((input - 1) * 3 + this.month() % 3);
+        },
+
+        weekYear : function (input) {
+            var year = weekOfYear(this, this.localeData()._week.dow, this.localeData()._week.doy).year;
+            return input == null ? year : this.add((input - year), 'y');
+        },
+
+        isoWeekYear : function (input) {
+            var year = weekOfYear(this, 1, 4).year;
+            return input == null ? year : this.add((input - year), 'y');
+        },
+
+        week : function (input) {
+            var week = this.localeData().week(this);
+            return input == null ? week : this.add((input - week) * 7, 'd');
+        },
+
+        isoWeek : function (input) {
+            var week = weekOfYear(this, 1, 4).week;
+            return input == null ? week : this.add((input - week) * 7, 'd');
+        },
+
+        weekday : function (input) {
+            var weekday = (this.day() + 7 - this.localeData()._week.dow) % 7;
+            return input == null ? weekday : this.add(input - weekday, 'd');
+        },
+
+        isoWeekday : function (input) {
+            // behaves the same as moment#day except
+            // as a getter, returns 7 instead of 0 (1-7 range instead of 0-6)
+            // as a setter, sunday should belong to the previous week.
+            return input == null ? this.day() || 7 : this.day(this.day() % 7 ? input : input - 7);
+        },
+
+        isoWeeksInYear : function () {
+            return weeksInYear(this.year(), 1, 4);
+        },
+
+        weeksInYear : function () {
+            var weekInfo = this.localeData()._week;
+            return weeksInYear(this.year(), weekInfo.dow, weekInfo.doy);
+        },
+
+        get : function (units) {
+            units = normalizeUnits(units);
+            return this[units]();
+        },
+
+        set : function (units, value) {
+            units = normalizeUnits(units);
+            if (typeof this[units] === 'function') {
+                this[units](value);
+            }
+            return this;
+        },
+
+        // If passed a locale key, it will set the locale for this
+        // instance.  Otherwise, it will return the locale configuration
+        // variables for this instance.
+        locale : function (key) {
+            var newLocaleData;
+
+            if (key === undefined) {
+                return this._locale._abbr;
+            } else {
+                newLocaleData = moment.localeData(key);
+                if (newLocaleData != null) {
+                    this._locale = newLocaleData;
+                }
+                return this;
+            }
+        },
+
+        lang : deprecate(
+            'moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.',
+            function (key) {
+                if (key === undefined) {
+                    return this.localeData();
+                } else {
+                    return this.locale(key);
+                }
+            }
+        ),
+
+        localeData : function () {
+            return this._locale;
+        },
+
+        _dateTzOffset : function () {
+            // On Firefox.24 Date#getTimezoneOffset returns a floating point.
+            // https://github.com/moment/moment/pull/1871
+            return Math.round(this._d.getTimezoneOffset() / 15) * 15;
+        }
+    });
+
+    function rawMonthSetter(mom, value) {
+        var dayOfMonth;
+
+        // TODO: Move this out of here!
+        if (typeof value === 'string') {
+            value = mom.localeData().monthsParse(value);
+            // TODO: Another silent failure?
+            if (typeof value !== 'number') {
+                return mom;
+            }
+        }
+
+        dayOfMonth = Math.min(mom.date(),
+                daysInMonth(mom.year(), value));
+        mom._d['set' + (mom._isUTC ? 'UTC' : '') + 'Month'](value, dayOfMonth);
+        return mom;
+    }
+
+    function rawGetter(mom, unit) {
+        return mom._d['get' + (mom._isUTC ? 'UTC' : '') + unit]();
+    }
+
+    function rawSetter(mom, unit, value) {
+        if (unit === 'Month') {
+            return rawMonthSetter(mom, value);
+        } else {
+            return mom._d['set' + (mom._isUTC ? 'UTC' : '') + unit](value);
+        }
+    }
+
+    function makeAccessor(unit, keepTime) {
+        return function (value) {
+            if (value != null) {
+                rawSetter(this, unit, value);
+                moment.updateOffset(this, keepTime);
+                return this;
+            } else {
+                return rawGetter(this, unit);
+            }
+        };
+    }
+
+    moment.fn.millisecond = moment.fn.milliseconds = makeAccessor('Milliseconds', false);
+    moment.fn.second = moment.fn.seconds = makeAccessor('Seconds', false);
+    moment.fn.minute = moment.fn.minutes = makeAccessor('Minutes', false);
+    // Setting the hour should keep the time, because the user explicitly
+    // specified which hour he wants. So trying to maintain the same hour (in
+    // a new timezone) makes sense. Adding/subtracting hours does not follow
+    // this rule.
+    moment.fn.hour = moment.fn.hours = makeAccessor('Hours', true);
+    // moment.fn.month is defined separately
+    moment.fn.date = makeAccessor('Date', true);
+    moment.fn.dates = deprecate('dates accessor is deprecated. Use date instead.', makeAccessor('Date', true));
+    moment.fn.year = makeAccessor('FullYear', true);
+    moment.fn.years = deprecate('years accessor is deprecated. Use year instead.', makeAccessor('FullYear', true));
+
+    // add plural methods
+    moment.fn.days = moment.fn.day;
+    moment.fn.months = moment.fn.month;
+    moment.fn.weeks = moment.fn.week;
+    moment.fn.isoWeeks = moment.fn.isoWeek;
+    moment.fn.quarters = moment.fn.quarter;
+
+    // add aliased format methods
+    moment.fn.toJSON = moment.fn.toISOString;
+
+    /************************************
+        Duration Prototype
+    ************************************/
+
+
+    function daysToYears (days) {
+        // 400 years have 146097 days (taking into account leap year rules)
+        return days * 400 / 146097;
+    }
+
+    function yearsToDays (years) {
+        // years * 365 + absRound(years / 4) -
+        //     absRound(years / 100) + absRound(years / 400);
+        return years * 146097 / 400;
+    }
+
+    extend(moment.duration.fn = Duration.prototype, {
+
+        _bubble : function () {
+            var milliseconds = this._milliseconds,
+                days = this._days,
+                months = this._months,
+                data = this._data,
+                seconds, minutes, hours, years = 0;
+
+            // The following code bubbles up values, see the tests for
+            // examples of what that means.
+            data.milliseconds = milliseconds % 1000;
+
+            seconds = absRound(milliseconds / 1000);
+            data.seconds = seconds % 60;
+
+            minutes = absRound(seconds / 60);
+            data.minutes = minutes % 60;
+
+            hours = absRound(minutes / 60);
+            data.hours = hours % 24;
+
+            days += absRound(hours / 24);
+
+            // Accurately convert days to years, assume start from year 0.
+            years = absRound(daysToYears(days));
+            days -= absRound(yearsToDays(years));
+
+            // 30 days to a month
+            // TODO (iskren): Use anchor date (like 1st Jan) to compute this.
+            months += absRound(days / 30);
+            days %= 30;
+
+            // 12 months -> 1 year
+            years += absRound(months / 12);
+            months %= 12;
+
+            data.days = days;
+            data.months = months;
+            data.years = years;
+        },
+
+        abs : function () {
+            this._milliseconds = Math.abs(this._milliseconds);
+            this._days = Math.abs(this._days);
+            this._months = Math.abs(this._months);
+
+            this._data.milliseconds = Math.abs(this._data.milliseconds);
+            this._data.seconds = Math.abs(this._data.seconds);
+            this._data.minutes = Math.abs(this._data.minutes);
+            this._data.hours = Math.abs(this._data.hours);
+            this._data.months = Math.abs(this._data.months);
+            this._data.years = Math.abs(this._data.years);
+
+            return this;
+        },
+
+        weeks : function () {
+            return absRound(this.days() / 7);
+        },
+
+        valueOf : function () {
+            return this._milliseconds +
+              this._days * 864e5 +
+              (this._months % 12) * 2592e6 +
+              toInt(this._months / 12) * 31536e6;
+        },
+
+        humanize : function (withSuffix) {
+            var output = relativeTime(this, !withSuffix, this.localeData());
+
+            if (withSuffix) {
+                output = this.localeData().pastFuture(+this, output);
+            }
+
+            return this.localeData().postformat(output);
+        },
+
+        add : function (input, val) {
+            // supports only 2.0-style add(1, 's') or add(moment)
+            var dur = moment.duration(input, val);
+
+            this._milliseconds += dur._milliseconds;
+            this._days += dur._days;
+            this._months += dur._months;
+
+            this._bubble();
+
+            return this;
+        },
+
+        subtract : function (input, val) {
+            var dur = moment.duration(input, val);
+
+            this._milliseconds -= dur._milliseconds;
+            this._days -= dur._days;
+            this._months -= dur._months;
+
+            this._bubble();
+
+            return this;
+        },
+
+        get : function (units) {
+            units = normalizeUnits(units);
+            return this[units.toLowerCase() + 's']();
+        },
+
+        as : function (units) {
+            var days, months;
+            units = normalizeUnits(units);
+
+            if (units === 'month' || units === 'year') {
+                days = this._days + this._milliseconds / 864e5;
+                months = this._months + daysToYears(days) * 12;
+                return units === 'month' ? months : months / 12;
+            } else {
+                // handle milliseconds separately because of floating point math errors (issue #1867)
+                days = this._days + Math.round(yearsToDays(this._months / 12));
+                switch (units) {
+                    case 'week': return days / 7 + this._milliseconds / 6048e5;
+                    case 'day': return days + this._milliseconds / 864e5;
+                    case 'hour': return days * 24 + this._milliseconds / 36e5;
+                    case 'minute': return days * 24 * 60 + this._milliseconds / 6e4;
+                    case 'second': return days * 24 * 60 * 60 + this._milliseconds / 1000;
+                    // Math.floor prevents floating point math errors here
+                    case 'millisecond': return Math.floor(days * 24 * 60 * 60 * 1000) + this._milliseconds;
+                    default: throw new Error('Unknown unit ' + units);
+                }
+            }
+        },
+
+        lang : moment.fn.lang,
+        locale : moment.fn.locale,
+
+        toIsoString : deprecate(
+            'toIsoString() is deprecated. Please use toISOString() instead ' +
+            '(notice the capitals)',
+            function () {
+                return this.toISOString();
+            }
+        ),
+
+        toISOString : function () {
+            // inspired by https://github.com/dordille/moment-isoduration/blob/master/moment.isoduration.js
+            var years = Math.abs(this.years()),
+                months = Math.abs(this.months()),
+                days = Math.abs(this.days()),
+                hours = Math.abs(this.hours()),
+                minutes = Math.abs(this.minutes()),
+                seconds = Math.abs(this.seconds() + this.milliseconds() / 1000);
+
+            if (!this.asSeconds()) {
+                // this is the same as C#'s (Noda) and python (isodate)...
+                // but not other JS (goog.date)
+                return 'P0D';
+            }
+
+            return (this.asSeconds() < 0 ? '-' : '') +
+                'P' +
+                (years ? years + 'Y' : '') +
+                (months ? months + 'M' : '') +
+                (days ? days + 'D' : '') +
+                ((hours || minutes || seconds) ? 'T' : '') +
+                (hours ? hours + 'H' : '') +
+                (minutes ? minutes + 'M' : '') +
+                (seconds ? seconds + 'S' : '');
+        },
+
+        localeData : function () {
+            return this._locale;
+        }
+    });
+
+    moment.duration.fn.toString = moment.duration.fn.toISOString;
+
+    function makeDurationGetter(name) {
+        moment.duration.fn[name] = function () {
+            return this._data[name];
+        };
+    }
+
+    for (i in unitMillisecondFactors) {
+        if (hasOwnProp(unitMillisecondFactors, i)) {
+            makeDurationGetter(i.toLowerCase());
+        }
+    }
+
+    moment.duration.fn.asMilliseconds = function () {
+        return this.as('ms');
+    };
+    moment.duration.fn.asSeconds = function () {
+        return this.as('s');
+    };
+    moment.duration.fn.asMinutes = function () {
+        return this.as('m');
+    };
+    moment.duration.fn.asHours = function () {
+        return this.as('h');
+    };
+    moment.duration.fn.asDays = function () {
+        return this.as('d');
+    };
+    moment.duration.fn.asWeeks = function () {
+        return this.as('weeks');
+    };
+    moment.duration.fn.asMonths = function () {
+        return this.as('M');
+    };
+    moment.duration.fn.asYears = function () {
+        return this.as('y');
+    };
+
+    /************************************
+        Default Locale
+    ************************************/
+
+
+    // Set default locale, other locale will inherit from English.
+    moment.locale('en', {
+        ordinalParse: /\d{1,2}(th|st|nd|rd)/,
+        ordinal : function (number) {
+            var b = number % 10,
+                output = (toInt(number % 100 / 10) === 1) ? 'th' :
+                (b === 1) ? 'st' :
+                (b === 2) ? 'nd' :
+                (b === 3) ? 'rd' : 'th';
+            return number + output;
+        }
+    });
+
+    /* EMBED_LOCALES */
+
+    /************************************
+        Exposing Moment
+    ************************************/
+
+    function makeGlobal(shouldDeprecate) {
+        /*global ender:false */
+        if (typeof ender !== 'undefined') {
+            return;
+        }
+        oldGlobalMoment = globalScope.moment;
+        if (shouldDeprecate) {
+            globalScope.moment = deprecate(
+                    'Accessing Moment through the global scope is ' +
+                    'deprecated, and will be removed in an upcoming ' +
+                    'release.',
+                    moment);
+        } else {
+            globalScope.moment = moment;
+        }
+    }
+
+    // CommonJS module is defined
+    if (hasModule) {
+        module.exports = moment;
+    } else if (typeof define === 'function' && define.amd) {
+        define('moment', function (require, exports, module) {
+            if (module.config && module.config() && module.config().noGlobal === true) {
+                // release the global variable
+                globalScope.moment = oldGlobalMoment;
+            }
+
+            return moment;
+        });
+        makeGlobal(true);
+    } else {
+        makeGlobal();
+    }
+}).call(this);
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],27:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -2964,7 +7609,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":119}],10:[function(require,module,exports){
+},{"./focusNode":137}],28:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -3186,7 +7831,7 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":23,"./EventPropagators":28,"./ExecutionEnvironment":29,"./SyntheticInputEvent":97,"./keyOf":141}],11:[function(require,module,exports){
+},{"./EventConstants":41,"./EventPropagators":46,"./ExecutionEnvironment":47,"./SyntheticInputEvent":115,"./keyOf":159}],29:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -3305,7 +7950,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],12:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -3440,7 +8085,7 @@ var CSSPropertyOperations = {
 module.exports = CSSPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./CSSProperty":11,"./ExecutionEnvironment":29,"./camelizeStyleName":108,"./dangerousStyleValue":113,"./hyphenateStyleName":132,"./memoizeStringOnly":143,"./warning":153,"_process":6}],13:[function(require,module,exports){
+},{"./CSSProperty":29,"./ExecutionEnvironment":47,"./camelizeStyleName":126,"./dangerousStyleValue":131,"./hyphenateStyleName":150,"./memoizeStringOnly":161,"./warning":171,"_process":7}],31:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -3540,7 +8185,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":34,"./PooledClass":35,"./invariant":134,"_process":6}],14:[function(require,module,exports){
+},{"./Object.assign":52,"./PooledClass":53,"./invariant":152,"_process":7}],32:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -3922,7 +8567,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":23,"./EventPluginHub":25,"./EventPropagators":28,"./ExecutionEnvironment":29,"./ReactUpdates":87,"./SyntheticEvent":95,"./isEventSupported":135,"./isTextInputElement":137,"./keyOf":141}],15:[function(require,module,exports){
+},{"./EventConstants":41,"./EventPluginHub":43,"./EventPropagators":46,"./ExecutionEnvironment":47,"./ReactUpdates":105,"./SyntheticEvent":113,"./isEventSupported":153,"./isTextInputElement":155,"./keyOf":159}],33:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -3947,7 +8592,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],16:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -4206,7 +8851,7 @@ var CompositionEventPlugin = {
 
 module.exports = CompositionEventPlugin;
 
-},{"./EventConstants":23,"./EventPropagators":28,"./ExecutionEnvironment":29,"./ReactInputSelection":67,"./SyntheticCompositionEvent":93,"./getTextContentAccessor":129,"./keyOf":141}],17:[function(require,module,exports){
+},{"./EventConstants":41,"./EventPropagators":46,"./ExecutionEnvironment":47,"./ReactInputSelection":85,"./SyntheticCompositionEvent":111,"./getTextContentAccessor":147,"./keyOf":159}],35:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -4381,7 +9026,7 @@ var DOMChildrenOperations = {
 module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
-},{"./Danger":20,"./ReactMultiChildUpdateTypes":73,"./getTextContentAccessor":129,"./invariant":134,"_process":6}],18:[function(require,module,exports){
+},{"./Danger":38,"./ReactMultiChildUpdateTypes":91,"./getTextContentAccessor":147,"./invariant":152,"_process":7}],36:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -4680,7 +9325,7 @@ var DOMProperty = {
 module.exports = DOMProperty;
 
 }).call(this,require('_process'))
-},{"./invariant":134,"_process":6}],19:[function(require,module,exports){
+},{"./invariant":152,"_process":7}],37:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -4877,7 +9522,7 @@ var DOMPropertyOperations = {
 module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":18,"./escapeTextForBrowser":117,"./memoizeStringOnly":143,"./warning":153,"_process":6}],20:[function(require,module,exports){
+},{"./DOMProperty":36,"./escapeTextForBrowser":135,"./memoizeStringOnly":161,"./warning":171,"_process":7}],38:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -5063,7 +9708,7 @@ var Danger = {
 module.exports = Danger;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":29,"./createNodesFromMarkup":112,"./emptyFunction":115,"./getMarkupWrap":126,"./invariant":134,"_process":6}],21:[function(require,module,exports){
+},{"./ExecutionEnvironment":47,"./createNodesFromMarkup":130,"./emptyFunction":133,"./getMarkupWrap":144,"./invariant":152,"_process":7}],39:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -5103,7 +9748,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":141}],22:[function(require,module,exports){
+},{"./keyOf":159}],40:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -5243,7 +9888,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":23,"./EventPropagators":28,"./ReactMount":71,"./SyntheticMouseEvent":99,"./keyOf":141}],23:[function(require,module,exports){
+},{"./EventConstants":41,"./EventPropagators":46,"./ReactMount":89,"./SyntheticMouseEvent":117,"./keyOf":159}],41:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -5315,7 +9960,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":140}],24:[function(require,module,exports){
+},{"./keyMirror":158}],42:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -5405,7 +10050,7 @@ var EventListener = {
 module.exports = EventListener;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":115,"_process":6}],25:[function(require,module,exports){
+},{"./emptyFunction":133,"_process":7}],43:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -5681,7 +10326,7 @@ var EventPluginHub = {
 module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":26,"./EventPluginUtils":27,"./accumulateInto":105,"./forEachAccumulated":120,"./invariant":134,"_process":6}],26:[function(require,module,exports){
+},{"./EventPluginRegistry":44,"./EventPluginUtils":45,"./accumulateInto":123,"./forEachAccumulated":138,"./invariant":152,"_process":7}],44:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -5961,7 +10606,7 @@ var EventPluginRegistry = {
 module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
-},{"./invariant":134,"_process":6}],27:[function(require,module,exports){
+},{"./invariant":152,"_process":7}],45:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -6182,7 +10827,7 @@ var EventPluginUtils = {
 module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
-},{"./EventConstants":23,"./invariant":134,"_process":6}],28:[function(require,module,exports){
+},{"./EventConstants":41,"./invariant":152,"_process":7}],46:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -6324,7 +10969,7 @@ var EventPropagators = {
 module.exports = EventPropagators;
 
 }).call(this,require('_process'))
-},{"./EventConstants":23,"./EventPluginHub":25,"./accumulateInto":105,"./forEachAccumulated":120,"_process":6}],29:[function(require,module,exports){
+},{"./EventConstants":41,"./EventPluginHub":43,"./accumulateInto":123,"./forEachAccumulated":138,"_process":7}],47:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -6369,7 +11014,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],30:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -6561,7 +11206,7 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":18,"./ExecutionEnvironment":29}],31:[function(require,module,exports){
+},{"./DOMProperty":36,"./ExecutionEnvironment":47}],49:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -6717,7 +11362,7 @@ var LinkedValueUtils = {
 module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
-},{"./ReactPropTypes":80,"./invariant":134,"_process":6}],32:[function(require,module,exports){
+},{"./ReactPropTypes":98,"./invariant":152,"_process":7}],50:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -6767,7 +11412,7 @@ var LocalEventTrapMixin = {
 module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserEventEmitter":38,"./accumulateInto":105,"./forEachAccumulated":120,"./invariant":134,"_process":6}],33:[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":56,"./accumulateInto":123,"./forEachAccumulated":138,"./invariant":152,"_process":7}],51:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -6825,7 +11470,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":23,"./emptyFunction":115}],34:[function(require,module,exports){
+},{"./EventConstants":41,"./emptyFunction":133}],52:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -6872,7 +11517,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],35:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -6988,7 +11633,7 @@ var PooledClass = {
 module.exports = PooledClass;
 
 }).call(this,require('_process'))
-},{"./invariant":134,"_process":6}],36:[function(require,module,exports){
+},{"./invariant":152,"_process":7}],54:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -7176,7 +11821,7 @@ React.version = '0.12.2';
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./DOMPropertyOperations":19,"./EventPluginUtils":27,"./ExecutionEnvironment":29,"./Object.assign":34,"./ReactChildren":39,"./ReactComponent":40,"./ReactCompositeComponent":42,"./ReactContext":43,"./ReactCurrentOwner":44,"./ReactDOM":45,"./ReactDOMComponent":47,"./ReactDefaultInjection":57,"./ReactElement":60,"./ReactElementValidator":61,"./ReactInstanceHandles":68,"./ReactLegacyElement":69,"./ReactMount":71,"./ReactMultiChild":72,"./ReactPerf":76,"./ReactPropTypes":80,"./ReactServerRendering":84,"./ReactTextComponent":86,"./deprecated":114,"./onlyChild":145,"_process":6}],37:[function(require,module,exports){
+},{"./DOMPropertyOperations":37,"./EventPluginUtils":45,"./ExecutionEnvironment":47,"./Object.assign":52,"./ReactChildren":57,"./ReactComponent":58,"./ReactCompositeComponent":60,"./ReactContext":61,"./ReactCurrentOwner":62,"./ReactDOM":63,"./ReactDOMComponent":65,"./ReactDefaultInjection":75,"./ReactElement":78,"./ReactElementValidator":79,"./ReactInstanceHandles":86,"./ReactLegacyElement":87,"./ReactMount":89,"./ReactMultiChild":90,"./ReactPerf":94,"./ReactPropTypes":98,"./ReactServerRendering":102,"./ReactTextComponent":104,"./deprecated":132,"./onlyChild":163,"_process":7}],55:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -7219,7 +11864,7 @@ var ReactBrowserComponentMixin = {
 module.exports = ReactBrowserComponentMixin;
 
 }).call(this,require('_process'))
-},{"./ReactEmptyComponent":62,"./ReactMount":71,"./invariant":134,"_process":6}],38:[function(require,module,exports){
+},{"./ReactEmptyComponent":80,"./ReactMount":89,"./invariant":152,"_process":7}],56:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7574,7 +12219,7 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":23,"./EventPluginHub":25,"./EventPluginRegistry":26,"./Object.assign":34,"./ReactEventEmitterMixin":64,"./ViewportMetrics":104,"./isEventSupported":135}],39:[function(require,module,exports){
+},{"./EventConstants":41,"./EventPluginHub":43,"./EventPluginRegistry":44,"./Object.assign":52,"./ReactEventEmitterMixin":82,"./ViewportMetrics":122,"./isEventSupported":153}],57:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -7724,7 +12369,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 }).call(this,require('_process'))
-},{"./PooledClass":35,"./traverseAllChildren":152,"./warning":153,"_process":6}],40:[function(require,module,exports){
+},{"./PooledClass":53,"./traverseAllChildren":170,"./warning":171,"_process":7}],58:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -8167,7 +12812,7 @@ var ReactComponent = {
 module.exports = ReactComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":34,"./ReactElement":60,"./ReactOwner":75,"./ReactUpdates":87,"./invariant":134,"./keyMirror":140,"_process":6}],41:[function(require,module,exports){
+},{"./Object.assign":52,"./ReactElement":78,"./ReactOwner":93,"./ReactUpdates":105,"./invariant":152,"./keyMirror":158,"_process":7}],59:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -8289,7 +12934,7 @@ var ReactComponentBrowserEnvironment = {
 module.exports = ReactComponentBrowserEnvironment;
 
 }).call(this,require('_process'))
-},{"./ReactDOMIDOperations":49,"./ReactMarkupChecksum":70,"./ReactMount":71,"./ReactPerf":76,"./ReactReconcileTransaction":82,"./getReactRootElementInContainer":128,"./invariant":134,"./setInnerHTML":148,"_process":6}],42:[function(require,module,exports){
+},{"./ReactDOMIDOperations":67,"./ReactMarkupChecksum":88,"./ReactMount":89,"./ReactPerf":94,"./ReactReconcileTransaction":100,"./getReactRootElementInContainer":146,"./invariant":152,"./setInnerHTML":166,"_process":7}],60:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -9729,7 +14374,7 @@ var ReactCompositeComponent = {
 module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":34,"./ReactComponent":40,"./ReactContext":43,"./ReactCurrentOwner":44,"./ReactElement":60,"./ReactElementValidator":61,"./ReactEmptyComponent":62,"./ReactErrorUtils":63,"./ReactLegacyElement":69,"./ReactOwner":75,"./ReactPerf":76,"./ReactPropTransferer":77,"./ReactPropTypeLocationNames":78,"./ReactPropTypeLocations":79,"./ReactUpdates":87,"./instantiateReactComponent":133,"./invariant":134,"./keyMirror":140,"./keyOf":141,"./mapObject":142,"./monitorCodeUse":144,"./shouldUpdateReactComponent":150,"./warning":153,"_process":6}],43:[function(require,module,exports){
+},{"./Object.assign":52,"./ReactComponent":58,"./ReactContext":61,"./ReactCurrentOwner":62,"./ReactElement":78,"./ReactElementValidator":79,"./ReactEmptyComponent":80,"./ReactErrorUtils":81,"./ReactLegacyElement":87,"./ReactOwner":93,"./ReactPerf":94,"./ReactPropTransferer":95,"./ReactPropTypeLocationNames":96,"./ReactPropTypeLocations":97,"./ReactUpdates":105,"./instantiateReactComponent":151,"./invariant":152,"./keyMirror":158,"./keyOf":159,"./mapObject":160,"./monitorCodeUse":162,"./shouldUpdateReactComponent":168,"./warning":171,"_process":7}],61:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9791,7 +14436,7 @@ var ReactContext = {
 
 module.exports = ReactContext;
 
-},{"./Object.assign":34}],44:[function(require,module,exports){
+},{"./Object.assign":52}],62:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9825,7 +14470,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],45:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10008,7 +14653,7 @@ var ReactDOM = mapObject({
 module.exports = ReactDOM;
 
 }).call(this,require('_process'))
-},{"./ReactElement":60,"./ReactElementValidator":61,"./ReactLegacyElement":69,"./mapObject":142,"_process":6}],46:[function(require,module,exports){
+},{"./ReactElement":78,"./ReactElementValidator":79,"./ReactLegacyElement":87,"./mapObject":160,"_process":7}],64:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10073,7 +14718,7 @@ var ReactDOMButton = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":9,"./ReactBrowserComponentMixin":37,"./ReactCompositeComponent":42,"./ReactDOM":45,"./ReactElement":60,"./keyMirror":140}],47:[function(require,module,exports){
+},{"./AutoFocusMixin":27,"./ReactBrowserComponentMixin":55,"./ReactCompositeComponent":60,"./ReactDOM":63,"./ReactElement":78,"./keyMirror":158}],65:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10560,7 +15205,7 @@ assign(
 module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":12,"./DOMProperty":18,"./DOMPropertyOperations":19,"./Object.assign":34,"./ReactBrowserComponentMixin":37,"./ReactBrowserEventEmitter":38,"./ReactComponent":40,"./ReactMount":71,"./ReactMultiChild":72,"./ReactPerf":76,"./escapeTextForBrowser":117,"./invariant":134,"./isEventSupported":135,"./keyOf":141,"./monitorCodeUse":144,"_process":6}],48:[function(require,module,exports){
+},{"./CSSPropertyOperations":30,"./DOMProperty":36,"./DOMPropertyOperations":37,"./Object.assign":52,"./ReactBrowserComponentMixin":55,"./ReactBrowserEventEmitter":56,"./ReactComponent":58,"./ReactMount":89,"./ReactMultiChild":90,"./ReactPerf":94,"./escapeTextForBrowser":135,"./invariant":152,"./isEventSupported":153,"./keyOf":159,"./monitorCodeUse":162,"_process":7}],66:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10610,7 +15255,7 @@ var ReactDOMForm = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":23,"./LocalEventTrapMixin":32,"./ReactBrowserComponentMixin":37,"./ReactCompositeComponent":42,"./ReactDOM":45,"./ReactElement":60}],49:[function(require,module,exports){
+},{"./EventConstants":41,"./LocalEventTrapMixin":50,"./ReactBrowserComponentMixin":55,"./ReactCompositeComponent":60,"./ReactDOM":63,"./ReactElement":78}],67:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10796,7 +15441,7 @@ var ReactDOMIDOperations = {
 module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":12,"./DOMChildrenOperations":17,"./DOMPropertyOperations":19,"./ReactMount":71,"./ReactPerf":76,"./invariant":134,"./setInnerHTML":148,"_process":6}],50:[function(require,module,exports){
+},{"./CSSPropertyOperations":30,"./DOMChildrenOperations":35,"./DOMPropertyOperations":37,"./ReactMount":89,"./ReactPerf":94,"./invariant":152,"./setInnerHTML":166,"_process":7}],68:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10844,7 +15489,7 @@ var ReactDOMImg = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":23,"./LocalEventTrapMixin":32,"./ReactBrowserComponentMixin":37,"./ReactCompositeComponent":42,"./ReactDOM":45,"./ReactElement":60}],51:[function(require,module,exports){
+},{"./EventConstants":41,"./LocalEventTrapMixin":50,"./ReactBrowserComponentMixin":55,"./ReactCompositeComponent":60,"./ReactDOM":63,"./ReactElement":78}],69:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11022,7 +15667,7 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":9,"./DOMPropertyOperations":19,"./LinkedValueUtils":31,"./Object.assign":34,"./ReactBrowserComponentMixin":37,"./ReactCompositeComponent":42,"./ReactDOM":45,"./ReactElement":60,"./ReactMount":71,"./ReactUpdates":87,"./invariant":134,"_process":6}],52:[function(require,module,exports){
+},{"./AutoFocusMixin":27,"./DOMPropertyOperations":37,"./LinkedValueUtils":49,"./Object.assign":52,"./ReactBrowserComponentMixin":55,"./ReactCompositeComponent":60,"./ReactDOM":63,"./ReactElement":78,"./ReactMount":89,"./ReactUpdates":105,"./invariant":152,"_process":7}],70:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11075,7 +15720,7 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserComponentMixin":37,"./ReactCompositeComponent":42,"./ReactDOM":45,"./ReactElement":60,"./warning":153,"_process":6}],53:[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":55,"./ReactCompositeComponent":60,"./ReactDOM":63,"./ReactElement":78,"./warning":171,"_process":7}],71:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11259,7 +15904,7 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":9,"./LinkedValueUtils":31,"./Object.assign":34,"./ReactBrowserComponentMixin":37,"./ReactCompositeComponent":42,"./ReactDOM":45,"./ReactElement":60,"./ReactUpdates":87}],54:[function(require,module,exports){
+},{"./AutoFocusMixin":27,"./LinkedValueUtils":49,"./Object.assign":52,"./ReactBrowserComponentMixin":55,"./ReactCompositeComponent":60,"./ReactDOM":63,"./ReactElement":78,"./ReactUpdates":105}],72:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11468,7 +16113,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":29,"./getNodeForCharacterOffset":127,"./getTextContentAccessor":129}],55:[function(require,module,exports){
+},{"./ExecutionEnvironment":47,"./getNodeForCharacterOffset":145,"./getTextContentAccessor":147}],73:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11609,7 +16254,7 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":9,"./DOMPropertyOperations":19,"./LinkedValueUtils":31,"./Object.assign":34,"./ReactBrowserComponentMixin":37,"./ReactCompositeComponent":42,"./ReactDOM":45,"./ReactElement":60,"./ReactUpdates":87,"./invariant":134,"./warning":153,"_process":6}],56:[function(require,module,exports){
+},{"./AutoFocusMixin":27,"./DOMPropertyOperations":37,"./LinkedValueUtils":49,"./Object.assign":52,"./ReactBrowserComponentMixin":55,"./ReactCompositeComponent":60,"./ReactDOM":63,"./ReactElement":78,"./ReactUpdates":105,"./invariant":152,"./warning":171,"_process":7}],74:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11682,7 +16327,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./Object.assign":34,"./ReactUpdates":87,"./Transaction":103,"./emptyFunction":115}],57:[function(require,module,exports){
+},{"./Object.assign":52,"./ReactUpdates":105,"./Transaction":121,"./emptyFunction":133}],75:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11811,7 +16456,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./BeforeInputEventPlugin":10,"./ChangeEventPlugin":14,"./ClientReactRootIndex":15,"./CompositionEventPlugin":16,"./DefaultEventPluginOrder":21,"./EnterLeaveEventPlugin":22,"./ExecutionEnvironment":29,"./HTMLDOMPropertyConfig":30,"./MobileSafariClickEventPlugin":33,"./ReactBrowserComponentMixin":37,"./ReactComponentBrowserEnvironment":41,"./ReactDOMButton":46,"./ReactDOMComponent":47,"./ReactDOMForm":48,"./ReactDOMImg":50,"./ReactDOMInput":51,"./ReactDOMOption":52,"./ReactDOMSelect":53,"./ReactDOMTextarea":55,"./ReactDefaultBatchingStrategy":56,"./ReactDefaultPerf":58,"./ReactEventListener":65,"./ReactInjection":66,"./ReactInstanceHandles":68,"./ReactMount":71,"./SVGDOMPropertyConfig":88,"./SelectEventPlugin":89,"./ServerReactRootIndex":90,"./SimpleEventPlugin":91,"./createFullPageComponent":111,"_process":6}],58:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":28,"./ChangeEventPlugin":32,"./ClientReactRootIndex":33,"./CompositionEventPlugin":34,"./DefaultEventPluginOrder":39,"./EnterLeaveEventPlugin":40,"./ExecutionEnvironment":47,"./HTMLDOMPropertyConfig":48,"./MobileSafariClickEventPlugin":51,"./ReactBrowserComponentMixin":55,"./ReactComponentBrowserEnvironment":59,"./ReactDOMButton":64,"./ReactDOMComponent":65,"./ReactDOMForm":66,"./ReactDOMImg":68,"./ReactDOMInput":69,"./ReactDOMOption":70,"./ReactDOMSelect":71,"./ReactDOMTextarea":73,"./ReactDefaultBatchingStrategy":74,"./ReactDefaultPerf":76,"./ReactEventListener":83,"./ReactInjection":84,"./ReactInstanceHandles":86,"./ReactMount":89,"./SVGDOMPropertyConfig":106,"./SelectEventPlugin":107,"./ServerReactRootIndex":108,"./SimpleEventPlugin":109,"./createFullPageComponent":129,"_process":7}],76:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12071,7 +16716,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":18,"./ReactDefaultPerfAnalysis":59,"./ReactMount":71,"./ReactPerf":76,"./performanceNow":147}],59:[function(require,module,exports){
+},{"./DOMProperty":36,"./ReactDefaultPerfAnalysis":77,"./ReactMount":89,"./ReactPerf":94,"./performanceNow":165}],77:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12277,7 +16922,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./Object.assign":34}],60:[function(require,module,exports){
+},{"./Object.assign":52}],78:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -12523,7 +17168,7 @@ ReactElement.isValidElement = function(object) {
 module.exports = ReactElement;
 
 }).call(this,require('_process'))
-},{"./ReactContext":43,"./ReactCurrentOwner":44,"./warning":153,"_process":6}],61:[function(require,module,exports){
+},{"./ReactContext":61,"./ReactCurrentOwner":62,"./warning":171,"_process":7}],79:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -12805,7 +17450,7 @@ var ReactElementValidator = {
 module.exports = ReactElementValidator;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":44,"./ReactElement":60,"./ReactPropTypeLocations":79,"./monitorCodeUse":144,"./warning":153,"_process":6}],62:[function(require,module,exports){
+},{"./ReactCurrentOwner":62,"./ReactElement":78,"./ReactPropTypeLocations":97,"./monitorCodeUse":162,"./warning":171,"_process":7}],80:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -12882,7 +17527,7 @@ var ReactEmptyComponent = {
 module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":60,"./invariant":134,"_process":6}],63:[function(require,module,exports){
+},{"./ReactElement":78,"./invariant":152,"_process":7}],81:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12914,7 +17559,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],64:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12964,7 +17609,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":25}],65:[function(require,module,exports){
+},{"./EventPluginHub":43}],83:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13148,7 +17793,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":24,"./ExecutionEnvironment":29,"./Object.assign":34,"./PooledClass":35,"./ReactInstanceHandles":68,"./ReactMount":71,"./ReactUpdates":87,"./getEventTarget":125,"./getUnboundedScrollPosition":130}],66:[function(require,module,exports){
+},{"./EventListener":42,"./ExecutionEnvironment":47,"./Object.assign":52,"./PooledClass":53,"./ReactInstanceHandles":86,"./ReactMount":89,"./ReactUpdates":105,"./getEventTarget":143,"./getUnboundedScrollPosition":148}],84:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13188,7 +17833,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":18,"./EventPluginHub":25,"./ReactBrowserEventEmitter":38,"./ReactComponent":40,"./ReactCompositeComponent":42,"./ReactEmptyComponent":62,"./ReactNativeComponent":74,"./ReactPerf":76,"./ReactRootIndex":83,"./ReactUpdates":87}],67:[function(require,module,exports){
+},{"./DOMProperty":36,"./EventPluginHub":43,"./ReactBrowserEventEmitter":56,"./ReactComponent":58,"./ReactCompositeComponent":60,"./ReactEmptyComponent":80,"./ReactNativeComponent":92,"./ReactPerf":94,"./ReactRootIndex":101,"./ReactUpdates":105}],85:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13324,7 +17969,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":54,"./containsNode":109,"./focusNode":119,"./getActiveElement":121}],68:[function(require,module,exports){
+},{"./ReactDOMSelection":72,"./containsNode":127,"./focusNode":137,"./getActiveElement":139}],86:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13659,7 +18304,7 @@ var ReactInstanceHandles = {
 module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
-},{"./ReactRootIndex":83,"./invariant":134,"_process":6}],69:[function(require,module,exports){
+},{"./ReactRootIndex":101,"./invariant":152,"_process":7}],87:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -13906,7 +18551,7 @@ ReactLegacyElementFactory._isLegacyCallWarningEnabled = true;
 module.exports = ReactLegacyElementFactory;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":44,"./invariant":134,"./monitorCodeUse":144,"./warning":153,"_process":6}],70:[function(require,module,exports){
+},{"./ReactCurrentOwner":62,"./invariant":152,"./monitorCodeUse":162,"./warning":171,"_process":7}],88:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13954,7 +18599,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":106}],71:[function(require,module,exports){
+},{"./adler32":124}],89:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14652,7 +19297,7 @@ ReactMount.renderComponent = deprecated(
 module.exports = ReactMount;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":18,"./ReactBrowserEventEmitter":38,"./ReactCurrentOwner":44,"./ReactElement":60,"./ReactInstanceHandles":68,"./ReactLegacyElement":69,"./ReactPerf":76,"./containsNode":109,"./deprecated":114,"./getReactRootElementInContainer":128,"./instantiateReactComponent":133,"./invariant":134,"./shouldUpdateReactComponent":150,"./warning":153,"_process":6}],72:[function(require,module,exports){
+},{"./DOMProperty":36,"./ReactBrowserEventEmitter":56,"./ReactCurrentOwner":62,"./ReactElement":78,"./ReactInstanceHandles":86,"./ReactLegacyElement":87,"./ReactPerf":94,"./containsNode":127,"./deprecated":132,"./getReactRootElementInContainer":146,"./instantiateReactComponent":151,"./invariant":152,"./shouldUpdateReactComponent":168,"./warning":171,"_process":7}],90:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15080,7 +19725,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactComponent":40,"./ReactMultiChildUpdateTypes":73,"./flattenChildren":118,"./instantiateReactComponent":133,"./shouldUpdateReactComponent":150}],73:[function(require,module,exports){
+},{"./ReactComponent":58,"./ReactMultiChildUpdateTypes":91,"./flattenChildren":136,"./instantiateReactComponent":151,"./shouldUpdateReactComponent":168}],91:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15113,7 +19758,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":140}],74:[function(require,module,exports){
+},{"./keyMirror":158}],92:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -15186,7 +19831,7 @@ var ReactNativeComponent = {
 module.exports = ReactNativeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":34,"./invariant":134,"_process":6}],75:[function(require,module,exports){
+},{"./Object.assign":52,"./invariant":152,"_process":7}],93:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15342,7 +19987,7 @@ var ReactOwner = {
 module.exports = ReactOwner;
 
 }).call(this,require('_process'))
-},{"./emptyObject":116,"./invariant":134,"_process":6}],76:[function(require,module,exports){
+},{"./emptyObject":134,"./invariant":152,"_process":7}],94:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15426,7 +20071,7 @@ function _noMeasure(objName, fnName, func) {
 module.exports = ReactPerf;
 
 }).call(this,require('_process'))
-},{"_process":6}],77:[function(require,module,exports){
+},{"_process":7}],95:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15593,7 +20238,7 @@ var ReactPropTransferer = {
 module.exports = ReactPropTransferer;
 
 }).call(this,require('_process'))
-},{"./Object.assign":34,"./emptyFunction":115,"./invariant":134,"./joinClasses":139,"./warning":153,"_process":6}],78:[function(require,module,exports){
+},{"./Object.assign":52,"./emptyFunction":133,"./invariant":152,"./joinClasses":157,"./warning":171,"_process":7}],96:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15621,7 +20266,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
-},{"_process":6}],79:[function(require,module,exports){
+},{"_process":7}],97:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15645,7 +20290,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":140}],80:[function(require,module,exports){
+},{"./keyMirror":158}],98:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15999,7 +20644,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactElement":60,"./ReactPropTypeLocationNames":78,"./deprecated":114,"./emptyFunction":115}],81:[function(require,module,exports){
+},{"./ReactElement":78,"./ReactPropTypeLocationNames":96,"./deprecated":132,"./emptyFunction":133}],99:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16055,7 +20700,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./Object.assign":34,"./PooledClass":35,"./ReactBrowserEventEmitter":38}],82:[function(require,module,exports){
+},{"./Object.assign":52,"./PooledClass":53,"./ReactBrowserEventEmitter":56}],100:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16231,7 +20876,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":13,"./Object.assign":34,"./PooledClass":35,"./ReactBrowserEventEmitter":38,"./ReactInputSelection":67,"./ReactPutListenerQueue":81,"./Transaction":103}],83:[function(require,module,exports){
+},{"./CallbackQueue":31,"./Object.assign":52,"./PooledClass":53,"./ReactBrowserEventEmitter":56,"./ReactInputSelection":85,"./ReactPutListenerQueue":99,"./Transaction":121}],101:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16262,7 +20907,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],84:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16342,7 +20987,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./ReactElement":60,"./ReactInstanceHandles":68,"./ReactMarkupChecksum":70,"./ReactServerRenderingTransaction":85,"./instantiateReactComponent":133,"./invariant":134,"_process":6}],85:[function(require,module,exports){
+},{"./ReactElement":78,"./ReactInstanceHandles":86,"./ReactMarkupChecksum":88,"./ReactServerRenderingTransaction":103,"./instantiateReactComponent":151,"./invariant":152,"_process":7}],103:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -16455,7 +21100,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":13,"./Object.assign":34,"./PooledClass":35,"./ReactPutListenerQueue":81,"./Transaction":103,"./emptyFunction":115}],86:[function(require,module,exports){
+},{"./CallbackQueue":31,"./Object.assign":52,"./PooledClass":53,"./ReactPutListenerQueue":99,"./Transaction":121,"./emptyFunction":133}],104:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16561,7 +21206,7 @@ ReactTextComponentFactory.type = ReactTextComponent;
 
 module.exports = ReactTextComponentFactory;
 
-},{"./DOMPropertyOperations":19,"./Object.assign":34,"./ReactComponent":40,"./ReactElement":60,"./escapeTextForBrowser":117}],87:[function(require,module,exports){
+},{"./DOMPropertyOperations":37,"./Object.assign":52,"./ReactComponent":58,"./ReactElement":78,"./escapeTextForBrowser":135}],105:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16851,7 +21496,7 @@ var ReactUpdates = {
 module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
-},{"./CallbackQueue":13,"./Object.assign":34,"./PooledClass":35,"./ReactCurrentOwner":44,"./ReactPerf":76,"./Transaction":103,"./invariant":134,"./warning":153,"_process":6}],88:[function(require,module,exports){
+},{"./CallbackQueue":31,"./Object.assign":52,"./PooledClass":53,"./ReactCurrentOwner":62,"./ReactPerf":94,"./Transaction":121,"./invariant":152,"./warning":171,"_process":7}],106:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16943,7 +21588,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":18}],89:[function(require,module,exports){
+},{"./DOMProperty":36}],107:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17138,7 +21783,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":23,"./EventPropagators":28,"./ReactInputSelection":67,"./SyntheticEvent":95,"./getActiveElement":121,"./isTextInputElement":137,"./keyOf":141,"./shallowEqual":149}],90:[function(require,module,exports){
+},{"./EventConstants":41,"./EventPropagators":46,"./ReactInputSelection":85,"./SyntheticEvent":113,"./getActiveElement":139,"./isTextInputElement":155,"./keyOf":159,"./shallowEqual":167}],108:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17169,7 +21814,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],91:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17597,7 +22242,7 @@ var SimpleEventPlugin = {
 module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
-},{"./EventConstants":23,"./EventPluginUtils":27,"./EventPropagators":28,"./SyntheticClipboardEvent":92,"./SyntheticDragEvent":94,"./SyntheticEvent":95,"./SyntheticFocusEvent":96,"./SyntheticKeyboardEvent":98,"./SyntheticMouseEvent":99,"./SyntheticTouchEvent":100,"./SyntheticUIEvent":101,"./SyntheticWheelEvent":102,"./getEventCharCode":122,"./invariant":134,"./keyOf":141,"./warning":153,"_process":6}],92:[function(require,module,exports){
+},{"./EventConstants":41,"./EventPluginUtils":45,"./EventPropagators":46,"./SyntheticClipboardEvent":110,"./SyntheticDragEvent":112,"./SyntheticEvent":113,"./SyntheticFocusEvent":114,"./SyntheticKeyboardEvent":116,"./SyntheticMouseEvent":117,"./SyntheticTouchEvent":118,"./SyntheticUIEvent":119,"./SyntheticWheelEvent":120,"./getEventCharCode":140,"./invariant":152,"./keyOf":159,"./warning":171,"_process":7}],110:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17643,7 +22288,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 module.exports = SyntheticClipboardEvent;
 
 
-},{"./SyntheticEvent":95}],93:[function(require,module,exports){
+},{"./SyntheticEvent":113}],111:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17689,7 +22334,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticCompositionEvent;
 
 
-},{"./SyntheticEvent":95}],94:[function(require,module,exports){
+},{"./SyntheticEvent":113}],112:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17728,7 +22373,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":99}],95:[function(require,module,exports){
+},{"./SyntheticMouseEvent":117}],113:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17886,7 +22531,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./Object.assign":34,"./PooledClass":35,"./emptyFunction":115,"./getEventTarget":125}],96:[function(require,module,exports){
+},{"./Object.assign":52,"./PooledClass":53,"./emptyFunction":133,"./getEventTarget":143}],114:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17925,7 +22570,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":101}],97:[function(require,module,exports){
+},{"./SyntheticUIEvent":119}],115:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -17972,7 +22617,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticInputEvent;
 
 
-},{"./SyntheticEvent":95}],98:[function(require,module,exports){
+},{"./SyntheticEvent":113}],116:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18059,7 +22704,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":101,"./getEventCharCode":122,"./getEventKey":123,"./getEventModifierState":124}],99:[function(require,module,exports){
+},{"./SyntheticUIEvent":119,"./getEventCharCode":140,"./getEventKey":141,"./getEventModifierState":142}],117:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18142,7 +22787,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":101,"./ViewportMetrics":104,"./getEventModifierState":124}],100:[function(require,module,exports){
+},{"./SyntheticUIEvent":119,"./ViewportMetrics":122,"./getEventModifierState":142}],118:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18190,7 +22835,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":101,"./getEventModifierState":124}],101:[function(require,module,exports){
+},{"./SyntheticUIEvent":119,"./getEventModifierState":142}],119:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18252,7 +22897,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":95,"./getEventTarget":125}],102:[function(require,module,exports){
+},{"./SyntheticEvent":113,"./getEventTarget":143}],120:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18313,7 +22958,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":99}],103:[function(require,module,exports){
+},{"./SyntheticMouseEvent":117}],121:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -18554,7 +23199,7 @@ var Transaction = {
 module.exports = Transaction;
 
 }).call(this,require('_process'))
-},{"./invariant":134,"_process":6}],104:[function(require,module,exports){
+},{"./invariant":152,"_process":7}],122:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18586,7 +23231,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{"./getUnboundedScrollPosition":130}],105:[function(require,module,exports){
+},{"./getUnboundedScrollPosition":148}],123:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -18652,7 +23297,7 @@ function accumulateInto(current, next) {
 module.exports = accumulateInto;
 
 }).call(this,require('_process'))
-},{"./invariant":134,"_process":6}],106:[function(require,module,exports){
+},{"./invariant":152,"_process":7}],124:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18686,7 +23331,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],107:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18718,7 +23363,7 @@ function camelize(string) {
 
 module.exports = camelize;
 
-},{}],108:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -18760,7 +23405,7 @@ function camelizeStyleName(string) {
 
 module.exports = camelizeStyleName;
 
-},{"./camelize":107}],109:[function(require,module,exports){
+},{"./camelize":125}],127:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18804,7 +23449,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":138}],110:[function(require,module,exports){
+},{"./isTextNode":156}],128:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18890,7 +23535,7 @@ function createArrayFrom(obj) {
 
 module.exports = createArrayFrom;
 
-},{"./toArray":151}],111:[function(require,module,exports){
+},{"./toArray":169}],129:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -18951,7 +23596,7 @@ function createFullPageComponent(tag) {
 module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
-},{"./ReactCompositeComponent":42,"./ReactElement":60,"./invariant":134,"_process":6}],112:[function(require,module,exports){
+},{"./ReactCompositeComponent":60,"./ReactElement":78,"./invariant":152,"_process":7}],130:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19041,7 +23686,7 @@ function createNodesFromMarkup(markup, handleScript) {
 module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":29,"./createArrayFrom":110,"./getMarkupWrap":126,"./invariant":134,"_process":6}],113:[function(require,module,exports){
+},{"./ExecutionEnvironment":47,"./createArrayFrom":128,"./getMarkupWrap":144,"./invariant":152,"_process":7}],131:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19099,7 +23744,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":11}],114:[function(require,module,exports){
+},{"./CSSProperty":29}],132:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19150,7 +23795,7 @@ function deprecated(namespace, oldName, newName, ctx, fn) {
 module.exports = deprecated;
 
 }).call(this,require('_process'))
-},{"./Object.assign":34,"./warning":153,"_process":6}],115:[function(require,module,exports){
+},{"./Object.assign":52,"./warning":171,"_process":7}],133:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19184,7 +23829,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],116:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19208,7 +23853,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = emptyObject;
 
 }).call(this,require('_process'))
-},{"_process":6}],117:[function(require,module,exports){
+},{"_process":7}],135:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19249,7 +23894,7 @@ function escapeTextForBrowser(text) {
 
 module.exports = escapeTextForBrowser;
 
-},{}],118:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19318,7 +23963,7 @@ function flattenChildren(children) {
 module.exports = flattenChildren;
 
 }).call(this,require('_process'))
-},{"./ReactTextComponent":86,"./traverseAllChildren":152,"./warning":153,"_process":6}],119:[function(require,module,exports){
+},{"./ReactTextComponent":104,"./traverseAllChildren":170,"./warning":171,"_process":7}],137:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -19347,7 +23992,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],120:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19378,7 +24023,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],121:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19407,7 +24052,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],122:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19459,7 +24104,7 @@ function getEventCharCode(nativeEvent) {
 
 module.exports = getEventCharCode;
 
-},{}],123:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19564,7 +24209,7 @@ function getEventKey(nativeEvent) {
 
 module.exports = getEventKey;
 
-},{"./getEventCharCode":122}],124:[function(require,module,exports){
+},{"./getEventCharCode":140}],142:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -19611,7 +24256,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],125:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19642,7 +24287,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],126:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19759,7 +24404,7 @@ function getMarkupWrap(nodeName) {
 module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":29,"./invariant":134,"_process":6}],127:[function(require,module,exports){
+},{"./ExecutionEnvironment":47,"./invariant":152,"_process":7}],145:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19834,7 +24479,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],128:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19869,7 +24514,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],129:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19906,7 +24551,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":29}],130:[function(require,module,exports){
+},{"./ExecutionEnvironment":47}],148:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19946,7 +24591,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],131:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19979,7 +24624,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],132:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20020,7 +24665,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":131}],133:[function(require,module,exports){
+},{"./hyphenate":149}],151:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20134,7 +24779,7 @@ function instantiateReactComponent(element, parentCompositeType) {
 module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":60,"./ReactEmptyComponent":62,"./ReactLegacyElement":69,"./ReactNativeComponent":74,"./warning":153,"_process":6}],134:[function(require,module,exports){
+},{"./ReactElement":78,"./ReactEmptyComponent":80,"./ReactLegacyElement":87,"./ReactNativeComponent":92,"./warning":171,"_process":7}],152:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20191,7 +24836,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":6}],135:[function(require,module,exports){
+},{"_process":7}],153:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20256,7 +24901,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":29}],136:[function(require,module,exports){
+},{"./ExecutionEnvironment":47}],154:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20284,7 +24929,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],137:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20328,7 +24973,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],138:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20353,7 +24998,7 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":136}],139:[function(require,module,exports){
+},{"./isNode":154}],157:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20394,7 +25039,7 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],140:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20449,7 +25094,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require('_process'))
-},{"./invariant":134,"_process":6}],141:[function(require,module,exports){
+},{"./invariant":152,"_process":7}],159:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20485,7 +25130,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],142:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20538,7 +25183,7 @@ function mapObject(object, callback, context) {
 
 module.exports = mapObject;
 
-},{}],143:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20572,7 +25217,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],144:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -20606,7 +25251,7 @@ function monitorCodeUse(eventName, data) {
 module.exports = monitorCodeUse;
 
 }).call(this,require('_process'))
-},{"./invariant":134,"_process":6}],145:[function(require,module,exports){
+},{"./invariant":152,"_process":7}],163:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20646,7 +25291,7 @@ function onlyChild(children) {
 module.exports = onlyChild;
 
 }).call(this,require('_process'))
-},{"./ReactElement":60,"./invariant":134,"_process":6}],146:[function(require,module,exports){
+},{"./ReactElement":78,"./invariant":152,"_process":7}],164:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20674,7 +25319,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":29}],147:[function(require,module,exports){
+},{"./ExecutionEnvironment":47}],165:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20702,7 +25347,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":146}],148:[function(require,module,exports){
+},{"./performance":164}],166:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20780,7 +25425,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":29}],149:[function(require,module,exports){
+},{"./ExecutionEnvironment":47}],167:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20824,7 +25469,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],150:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20862,7 +25507,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 
 module.exports = shouldUpdateReactComponent;
 
-},{}],151:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -20934,7 +25579,7 @@ function toArray(obj) {
 module.exports = toArray;
 
 }).call(this,require('_process'))
-},{"./invariant":134,"_process":6}],152:[function(require,module,exports){
+},{"./invariant":152,"_process":7}],170:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -21117,7 +25762,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
-},{"./ReactElement":60,"./ReactInstanceHandles":68,"./invariant":134,"_process":6}],153:[function(require,module,exports){
+},{"./ReactElement":78,"./ReactInstanceHandles":86,"./invariant":152,"_process":7}],171:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -21162,10 +25807,10 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":115,"_process":6}],154:[function(require,module,exports){
+},{"./emptyFunction":133,"_process":7}],172:[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":36}],155:[function(require,module,exports){
+},{"./lib/React":54}],173:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -22248,7 +26893,7 @@ request.put = function(url, data, fn){
 
 module.exports = request;
 
-},{"emitter":156,"reduce":157}],156:[function(require,module,exports){
+},{"emitter":174,"reduce":175}],174:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -22414,7 +27059,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],157:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 
 /**
  * Reduce `arr` with `fn`.

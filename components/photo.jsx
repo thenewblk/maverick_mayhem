@@ -11,7 +11,18 @@ var Dropzone = require('./dropzone.js');
 var Photo = React.createClass({
 
   getInitialState: function() {
-    return { url: '', description: ''};
+    return { url: '', description: '', _id: '', status: 'show'};
+  },
+
+  componentWillMount: function() {
+    var self = this;
+    var tmp_photo = {};
+    tmp_photo.identifier = self.props.identifier;
+    tmp_photo.url = self.props.url;
+    tmp_photo._id = self.props._id;
+    tmp_photo.description = self.props.description;
+    
+    self.setState(tmp_photo);
   },
 
   handleDescriptionChange: function(event) {
@@ -32,123 +43,133 @@ var Photo = React.createClass({
   },
 
   componentDidMount: function() {
-    var self = this;
-    var image = this.state.url;
-    if (!image) {
-      console.log('componentDidMount: '+ self.props.identifier);
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
 
-      // or if you need to access a Dropzone somewhere else:
+    if (!image) {
+      console.log('componentDidMount: '+ _id);
       Dropzone.autoDiscover = false;
-      var myDropzone = new Dropzone(".uploader", {
-        // autoProcessQueue: false,
+      var myDropzone = new Dropzone(".uploader-"+_id, {
         init: function() {
           var self = this;
           self.on("addedfile", function(file) {
             console.log('new file added ', file);
           });
         },
+        maxFiles: 1,
         url: "/upload"
       });
 
-      // myDropzone.on("addedfile", function(file) {
-      //   /* Maybe display some more file information on your page */
-      //   request
-      //     .post('/upload')
-      //     .send(file)
-      //     .end(function(res) {
-      //       console.log(res.text);
-      //     }.bind(self));
-      // });
-
-      // Dropzone.options.uploader({
-      //   init: function() {
-      //     this.on("error", function(file, message) { alert(message); });
-      //   },
-      //   url: "/upload", 
-      //   paramName: "file", 
-      //   maxFiles: 1
-      // });
       myDropzone.on("success", function(response) {
-        /* Maybe display some more file information on your page */
-        // var thing = JSON.parse(file.xhr.response);
-        // console.log('success: ' + thing.saved);
         console.log('success: ' + util.inspect(response.xhr.response));
-
-
         self.setState({url: response.xhr.response});
-        // self.setState({ active: true });
       });
-
-      // myDropzone.on("error", function(err) {
-        /* Maybe display some more file information on your page */
-        // console.log('error: ' + err);
-
-
-
-        // self.props.content({id: self.props.identifier, url: thing.saved  });
-        // self.setState({ active: true });
-      // });
     }
   },
 
-  // componentDidUpdate: function() {
-  //   var self = this;
-  //   var image = this.state.url;
-  //   if (!image) {
-  //     console.log('onScriptLoaded: '+ self.props.identifier);
+  componentDidUpdate: function() {
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
 
-  //     Dropzone.autoDiscover = false;
+    if (!image) {
+      console.log('componentDidMount: '+  _id);
+      Dropzone.autoDiscover = false;
+      var myDropzone = new Dropzone(".uploader-"+ _id, {
+        init: function() {
+          var self = this;
+          self.on("addedfile", function(file) {
+            console.log('new file added ', file);
+          });
+        },
+        maxFiles: 1,
+        url: "/upload"
+      });
 
-  //     var myDropzone = new Dropzone(".uploader-"+self.props.identifier, { url: "/upload", paramName: "file", maxFiles: 1, autoDiscover: false});
+      myDropzone.on("success", function(response) {
+        console.log('success: ' + util.inspect(response.xhr.response));
+        self.setState({url: response.xhr.response});
+      });
+    }
+  },
 
-  //     myDropzone.on("success", function(file) {
-  //       /* Maybe display some more file information on your page */
-  //       var thing = JSON.parse(file.xhr.response);
-  //       console.log('success: ' + thing.saved);
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
 
-        
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
 
-  //       // self.props.content({id: self.props.identifier, url: thing.saved  });
-  //       // self.setState({ active: true });
-  //     });
-  //   }
-  // },
+  removeUrl: function(){
+    this.setState({url: ''});
+  },
+
+  handleRemove: function(){
+    this.props.remove_photo({_id: this.state._id});
+  },
+
+  submitContent: function(){
+    var self = this;
+    console.log('self.state._id: '+self.state._id);
+    request
+      .post('/api/photos/'+self.state._id+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          new_photo.status = 'show';
+          self.setState(new_photo);
+        }
+      }.bind(self));
+  },
 
   render: function() {
     var self = this,
         url = self.state.url,
-        description = self.state.description;
+        description = self.state.description,
+        identifier = this.state.identifier,
+        _id = this.state._id,
+        status = this.state.status;
 
     var className = 'content-container';
-
-    return ( 
-      <div className={className} ref='contentwrapper'>
-        <div className="position-control">
-          <span className="move up" onClick={this.handleSwapPrevious}></span>
-          <span className="move down" onClick={this.handleSwapNext}></span>
-        </div>
-        {url ?  
-          <div className='uploaded-image'>
-            <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />
-          </div> 
-        : 
-          <div className='image-container'>
-            <div className={"image-uploader-label image-uploader uploader"} id="uploader">
-              <p className="fa fa-image upload-icon label-copy"></p>
-              <br />
-              <p className="label-copy">Upload Image</p>
+    if (status == 'show') {
+      return ( 
+        <div className='photo' ref='contentwrapper'>
+              {url ? <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />  : '' }
+              {description ? <p>{description}</p> : '' }
+              <div className='half_buttons'>
+                <a className='submit' onClick={self.handleEdit}>Edit</a> 
+                <a className='submit' onClick={self.handleRemove}>delete</a> 
+              </div>
+        </div> )
+    } else if (status == 'edit'){
+      return ( 
+        <div className='photo image-container'>
+          {url ? 
+            <div className="photo_edit">
+              <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />
+              <span className="close_it"  onClick={self.removeUrl}>×</span>
             </div>
+              :
+            <div>
+              <div className={"image-uploader dropzone uploader-"+_id}>
+                <div className="dz-default dz-message"><span className="fa fa-image upload-icon"></span><span>Drop files here to upload</span></div>
+              </div>
+            </div>
+          }
+          <input className='description_input' type="text" placeholder="Description" value={description} onChange={self.handleDescriptionChange} />
+          <div className='half_buttons'>
+            <a className='submit' onClick={self.submitContent}>save</a> 
+            <a className='submit' onClick={self.cancelEdit}>cancel</a> 
           </div>
-        // <form action="/upload" className="dropzone" method="post" enctype="multipart/form-data">
-        //   <div className="fallback">
-        //     <input name="file" type="file" />
-        //   </div>
-        // </form>
-        }
-        <input className='caption-input' type="text" placeholder="Description" value={description} onChange={self.handleDescriptionChange} />
-
-        <a className="close-link" onClick={self.handleClose}>×</a>
-      </div> )
+        </div>
+      )
+    }
   }
 });
 

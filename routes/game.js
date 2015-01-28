@@ -87,6 +87,7 @@ module.exports = function(app) {
 		edit_game.date     	= req.body.date;
 		edit_game.time     	= req.body.time;
 		edit_game.ticket   	= req.body.ticket;
+		edit_game.home   	= req.body.home;
 		edit_game.location 	= req.body.location;
 		edit_game.scores   	= req.body.scores;
 
@@ -99,6 +100,7 @@ module.exports = function(app) {
 				game.opponent 	= edit_game.opponent;
 				game.date     	= edit_game.date;
 				game.time     	= edit_game.time;
+				game.home     	= edit_game.home;
 				game.ticket   	= edit_game.ticket;
 				game.location 	= edit_game.location;
 				game.scores   	= edit_game.scores;
