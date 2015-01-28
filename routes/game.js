@@ -4,7 +4,7 @@ module.exports = function(app) {
 	// Add New game
 	app.post('/api/games/new', function(req, res) {
 		var new_game = {};
-		new_game.name 			= req.body.name;
+		new_game.name 		= req.body.name;
 		new_game.opponent 	= req.body.opponent;
 		new_game.date     	= req.body.date;
 		new_game.time     	= req.body.time;
@@ -82,7 +82,7 @@ module.exports = function(app) {
 	// Edit game
 	app.post('/api/games/:slug/edit', function(req, res) {
 		var edit_game = {};
-		edit_game.name 			= req.body.name;
+		edit_game.name 		= req.body.name;
 		edit_game.opponent 	= req.body.opponent;
 		edit_game.date     	= req.body.date;
 		edit_game.time     	= req.body.time;

@@ -1,4 +1,5 @@
 var Page = require('../models/page');
+// var Game = require('../models/game');
 // route middleware to ensure user is logged in
 function isLoggedIn(req, res, next) {
     if (req.isAuthenticated())
@@ -23,7 +24,7 @@ module.exports = function(app, passport) {
 	app.get('/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('games')
+			.populate('games games.scores photos')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 				res.render('pages/show', {
@@ -77,10 +78,15 @@ module.exports = function(app, passport) {
 	app.get('/api/pages/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('games photos')
+			.populate('games games.scores photos')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
-				res.send(page);
+			  	console.log('page.game[0].scores: '+page.games[0].scores);
+			  	var tmp_games = [];
+
+			  	res.send(page);
+
+			  		
 		});
 	});
 

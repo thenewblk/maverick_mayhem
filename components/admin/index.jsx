@@ -1,7 +1,7 @@
 var React = require('react'),
     request = require('superagent'),
     util = require('util'),
-    Dropzone = require('./dropzone.js');
+    Dropzone = require('../dropzone.js');
 
 var Content = window.slug || {};
 

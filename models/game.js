@@ -13,13 +13,13 @@ var gameSchema = mongoose.Schema({
   ticket    	: String,
   location    : String,
   home    		: Boolean,
-  scores			: {
-  				us 			: [Number],
-  				them 		: [Number]
-  }
+  scores:   [
+    {
+         us      : Number,
+         them    : Number
+    }
+  ]
 });
-
-
 
 gameSchema.pre('save', function (next) {
   this.updated_at = moment().format("M.D.YYYY");
@@ -29,24 +29,22 @@ gameSchema.pre('save', function (next) {
   next();
 });
 
-gameSchema.virtual('scores.total.us').get(function () {
-  var total = this.scores.us.reduce(function(a, b) {
-	  return a + b;
-	});
+gameSchema.virtual('total_us').get(function () {
+  var total = this.scores.reduce(function(a, b) {
+    return a + b.us;
+  }, 0);
   return total;
 });
 
+gameSchema.virtual('total_them').get(function () {
+  var total = this.scores.reduce(function(a, b) {
+    return a + b.them;
+  }, 0);
+  return total;
+});
+ 
 gameSchema.methods.getPeriod = function (i) {
   return tools.ordinal(i);
 };
 
-
-
-gameSchema.virtual('scores.total.them').get(function () {
-  var total = this.scores.them.reduce(function(a, b) {
-	  return a + b;
-	});
-  return total;
-});
- 
 module.exports = mongoose.model('Game', gameSchema);

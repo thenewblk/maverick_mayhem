@@ -6,7 +6,7 @@ var React = require('react'),
     util = require('util'),
     request = require('superagent');
 
-var Dropzone = require('./dropzone.js');
+var Dropzone = require('../dropzone.js');
 
 var Photo = React.createClass({
 

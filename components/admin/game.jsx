@@ -6,13 +6,18 @@ var DatePicker = require('react-date-picker');
 
 var Score = React.createClass({
   getInitialState: function() {
-    return { us: Number, them: Number };
+    return { us: Number, them: Number, status: 'show' };
   },
 
   componentWillMount: function(){
-    if(this.props.identifier) {
-      this.setState({ identifier: this.props.identifier });
-    }
+    var self = this;
+    var tmp_score = {};
+    tmp_score.identifier = self.props.identifier,
+    tmp_score.us = self.props.us,
+    tmp_score.them = self.props.them,
+    tmp_score.status = self.props.status;
+
+    self.setState(tmp_score);
   },
 
   handleUsChange: function(event) {
@@ -23,56 +28,77 @@ var Score = React.createClass({
     this.setState({them: event.target.value});
   },
 
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
+
   submitContent: function(){
     var self = this;
-    self.props.submit(self.state);
+    var tmp_score = {};
+        tmp_score = self.state,
+        tmp_score.status = 'show';
+
+    self.props.submit(tmp_score);
+
+    // self.setState({status: 'show'})
   },
 
   render: function () {
     var self = this;
 
     var us = self.state.us,
-        them = self.state.them;
-
-    return (
-      <div className="scores">
-        { self.props.type == 'new' ?
-          <div className="score">
-            <input type="number" value={us} onChange={this.handleUsChange} placeholder="Us" />
-            <input type="number" value={them} onChange={this.handleThemChange} placeholder="Them" />
-            {this.state.submitted ? <a className='submit'><span>submitted</span></a> : <a className='submit' onClick={this.submitContent}>submit</a> }
-          </div>
-          : 
-          <div className="score">
-            {us}, {them}
-          </div>
-        }
-      </div>
-    );
+        them = self.state.them,
+        status = self.state.status;
+        
+    if ( status == 'new' ) {
+      return (
+        <div className="score">
+          <input type="number" value={us} onChange={this.handleUsChange} placeholder="Us" />
+          <input type="number" value={them} onChange={this.handleThemChange} placeholder="Them" />
+          <a className='submit' onClick={this.submitContent}>save</a>
+        </div>
+      )
+    } else if ( status == 'edit' ) {
+      return (
+        <div className="score">
+          <input type="number" value={us} onChange={this.handleUsChange} placeholder="Us" />
+          <input type="number" value={them} onChange={this.handleThemChange} placeholder="Them" />
+          <a className='submit' onClick={this.submitContent}>save</a>
+        </div>
+      )
+    } else if ( status == 'show' ) {
+      return (
+        <div className="score">
+          {us}, {them}
+          <span onClick={this.handleEdit}>Edit</span>
+        </div>
+      )
+    }
   }
 });
 
 var Game = React.createClass({
   getInitialState: function() {
-    return { name: '', status: 'show', opponent: '', date: '2015-01-01', time: '', ticket: '', location: '', home: false, scores: {}, tmp_scores: [] };
+    return { name: '', status: 'show', opponent: '', date: '2015-01-01', time: '', ticket: '', location: '', home: false, scores: [] };
   },
 
   componentWillMount: function(){
     var self = this;
-    var tmp_game = {};
-    tmp_game.identifier = self.props.identifier,
-    tmp_game.name = self.props.name,
-    tmp_game.slug = self.props.slug,
-    tmp_game.opponent = self.props.opponent,
-    tmp_game.date = self.props.date,
-    tmp_game.time = self.props.time,
-    tmp_game.ticket = self.props.ticket,
-    tmp_game.location = self.props.location,
-    tmp_game.home = self.props.home,
-    tmp_game.scores = self.props.scores,
-    tmp_game.status = self.props.status;
     
-    self.setState(tmp_game);
+    if( self.props.slug ) {
+      request
+        .get('/api/games/'+self.props.slug)
+        .end(function(res) {
+          console.log(res)
+          if (res.text) {
+            var game = JSON.parse(res.text);
+            self.setState(game);
+
+          }
+        }.bind(self));
+
+    } 
+    // console.log(self.state.scores);
 
   },
 
@@ -106,41 +132,29 @@ var Game = React.createClass({
   },
 
   handleScoreChange: function(content) {
-    var current_scores = this.state.tmp_scores;
+    var current_scores = this.state.scores;
 
     for(var i in current_scores) {
-      if (current_scores[i].identifier == content.identifier){
+      if (current_scores[i].identifier == content.identifier || current_scores[i]._id == content.identifier){
         current_scores[i].us = content.us;
         current_scores[i].them = content.them;
-        current_scores[i].type = '';
+        current_scores[i].status = content.status;
       }
     }
 
     // new_scores = current_scores.concat(content);
-    new_scores = current_scores;
-    console.log(' '+util.inspect(new_scores));
 
-    var actual_scores = {
-      us : [],
-      them : []
-    };
-
-    for (i in new_scores) {
-      actual_scores.us.push(new_scores[i].us);
-      actual_scores.them.push(new_scores[i].them);
-    }
-
-    this.setState({tmp_scores: new_scores, scores: actual_scores});
+    this.setState({ scores: current_scores});
 
   },
 
   newScore: function() {
     console.log('newGame');
-    var current_scores = this.state.tmp_scores;
+    var current_scores = this.state.scores;
     console.log(' '+util.inspect(current_scores));
-    var new_scores = current_scores.concat({type: 'new', identifier: Math.random()});
+    var new_scores = current_scores.concat({status: 'new', identifier: Math.random()});
     console.log(' '+util.inspect(new_scores));
-    this.setState({tmp_scores: new_scores});
+    this.setState({scores: new_scores});
 
   },
 
@@ -154,10 +168,21 @@ var Game = React.createClass({
 
   submitContent: function(){
     var self = this;
-    self.setState({submitted: true});
+    var tmp_game = self.state;
+    var current_scores = tmp_game.scores;
+
+
+
+    for(var i in current_scores) {
+        delete current_scores[i].status;
+        delete current_scores[i].identifier
+    }
+
+    tmp_game.scores = current_scores;
+
     request
       .post('/api/games/new')
-      .send(self.state)
+      .send(tmp_game)
       .end(function(res) {
         console.log(res)
         if (res.text) {
@@ -173,10 +198,24 @@ var Game = React.createClass({
 
   editContent: function(){
     var self = this;
+    var tmp_game = self.state;
+    var current_scores = tmp_game.scores;
+
+
+
+    for(var i in current_scores) {
+        delete current_scores[i].status;
+        delete current_scores[i].identifier
+    }
+
+    tmp_game.scores = current_scores;
+
+
+    console.log('editContent: '+util.inspect(self.state));
     // self.setState({submitted: true});
     request
       .post('/api/games/'+self.state.slug+'/edit')
-      .send(self.state)
+      .send(tmp_game)
       .end(function(res) {
         console.log(res)
         if (res.text) {
@@ -208,20 +247,21 @@ var Game = React.createClass({
         ticket = self.state.ticket,
         location = self.state.location,
         home = self.state.home,
-        scores = self.state.tmp_scores,
-        actual_scores = self.state.scores,
+        scores = self.state.scores,
         status = self.state.status;
 
-        console.log('gome: '+home);
-
     var the_scores = scores.map(function(object) {
+      var identifier = object.identifier || object._id;
+      console.log('object.identifier: '+identifier);
+      var status = object.status || "show";
       return <Score
         us={object.us} 
         them={object.them} 
-        type={object.type}
+        status={status}
 
-        identifier={object.identifier}
-        key={object.identifier}
+        identifier={identifier}
+        key={identifier}
+
         submit={self.handleScoreChange} />
     });
 
@@ -273,7 +313,7 @@ var Game = React.createClass({
           <h5 className="home">Home: <input type="checkbox" checked={home} onChange={this.handleHomeChange} /></h5>
 
           { the_scores ?
-            <div className="Scores">
+            <div className="scores">
               {the_scores}
             </div> 
           : '' }
@@ -296,8 +336,8 @@ var Game = React.createClass({
             <li>Ticket Link: {ticket}</li>
             <li>Location: {location}</li>
             <li>Home?: {home ? "True" : 'False'}</li>
-            <li>Us: {actual_scores.us}</li>
-            <li>Them: {actual_scores.them}</li>
+            <li>Us: {scores.us}</li>
+            <li>Them: {scores.them}</li>
           </ul>
           <div className='half_buttons'>
             <a className='submit' onClick={self.handleEdit}>edit</a> 

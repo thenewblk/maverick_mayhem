@@ -15,43 +15,33 @@ var jshint = require('gulp-jshint'),
     reactify = require('reactify'),
     source = require('vinyl-source-stream'),
     sourcemaps = require('gulp-sourcemaps'),
-    autoprefixer = require('gulp-autoprefixer');
-  // folders = require('gulp-folders'),
-  // srcFolder = './components',
-  // destFolder = './public/js/';
+    autoprefixer = require('gulp-autoprefixer'),
+    folders = require('gulp-folders'),
+    srcFolder = './components',
+    destFolder = './public/js/';
 
-// gulp.task('build-reacts', folders(srcFolder, function(folder){
-//     //This will loop over all folders inside srcFolder main, secondary
-//     //Return stream so gulp-folders can concatenate all of them
-//     //so you still can use safely use gulp multitasking
-
-//     // return gulp.src(path.join(srcFolder, folder, '*.js'))
-//     //     .pipe(concat(folder + '.js'))
-//     //     .pipe(gulp.dest(destFolder))
-//     //     .pipe(uglify())
-//     //     .pipe(rename(folder+'.min.js'))
-//     //     .pipe(gulp.dest(destFolder));
-
-//     return browserify('./components/' + flder o+ '/new.jsx')
-//         .transform(reactify)
-//         .bundle()
-//         .pipe(source(folder+'.js'))
-//         .pipe(gulp.dest('public/js/'))
-//         .pipe(rename(folder+'.min.js'))
-//         .pipe(gulp.dest(destFolder));;
-// }));
-
-gulp.task('build-reacts', function(){
-    return browserify('./components/page.jsx')
+gulp.task('build-reacts', folders(srcFolder, function(folder){
+  
+    return browserify('./components/' + folder + '/index.jsx')
         .transform(reactify)
         .bundle()
-        .pipe(source('pages.js'))
+        .pipe(source(folder+'.js'))
         .pipe(gulp.dest('public/js/'))
-        .pipe(buffer())
-        .pipe(uglify())
-        .pipe(rename('pages.min.js'))
-        .pipe(gulp.dest('./public/js/'));
-});
+        .pipe(rename(folder+'.min.js'))
+        .pipe(gulp.dest(destFolder));;
+}));
+
+// gulp.task('build-reacts', function(){
+//     return browserify('./components/page.jsx')
+//         .transform(reactify)
+//         .bundle()
+//         .pipe(source('pages.js'))
+//         .pipe(gulp.dest('public/js/'))
+//         .pipe(buffer())
+//         .pipe(uglify())
+//         .pipe(rename('pages.min.js'))
+//         .pipe(gulp.dest('./public/js/'));
+// });
 
 
 // Lint Task
