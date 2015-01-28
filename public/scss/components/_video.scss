@@ -4,6 +4,12 @@
   padding-top: 25px;
   height: 0;
   overflow: hidden;
+  background-size: cover;
+  background-position: center center;
+
+  @include respond-to(small) {
+    background-image: none !important;
+  }
 
   iframe {
     display: none;
