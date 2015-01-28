@@ -42,8 +42,7 @@ var jshint = require('gulp-jshint'),
 // }));
 
 gulp.task('build-reacts', function(){
-
-    return browserify('./components/pages/all.jsx')
+    return browserify('./components/page.jsx')
         .transform(reactify)
         .bundle()
         .pipe(source('pages.js'))
