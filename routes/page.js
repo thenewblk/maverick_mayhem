@@ -81,7 +81,6 @@ module.exports = function(app, passport) {
 			.populate('games games.scores photos')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
-			  	console.log('page.game[0].scores: '+page.games[0].scores);
 			  	var tmp_games = [];
 
 			  	res.send(page);
