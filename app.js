@@ -40,11 +40,11 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash());
 
+require('./routes/index')(app, passport);
 require('./routes/game')(app, passport);
 require('./routes/news')(app, passport);
 require('./routes/photo')(app, passport);
 require('./routes/page')(app, passport);
-require('./routes/index')(app, passport);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -75,7 +75,7 @@ app.use(function(err, req, res, next) {
         message: err.message,
         error: {}
     });
-}); 
+});
 
 
 

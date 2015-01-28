@@ -70,7 +70,7 @@ module.exports = function(app, passport) {
 	  });
 	});
 
-  app.get('/arena', function(req, res) {
+  app.get('/our-house', function(req, res) {
     res.render('arena', {
       user: req.user
     });
