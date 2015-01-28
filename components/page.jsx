@@ -189,7 +189,8 @@ var Page = React.createClass({
         .end(function(res) {
           console.log(res)
           if (res.text) {
-            window.location = '/'+res.text.slug;
+            var response = JSON.parse(res.text);
+            window.location = '/'+response.slug;
           }
         }.bind(self));
     } else if (self.state.status == "edit") {
