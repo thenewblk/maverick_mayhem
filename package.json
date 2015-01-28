@@ -54,6 +54,6 @@
   },
   "scripts": {
     "test": "mocha 'test/server/**/*.spec.js'",
-    "start": "node server.js"
+    "start": "node app.js"
   }
 }
