@@ -57,7 +57,14 @@ h2, .h2 {
 }
 
 .sport__headline {
+  padding: 60px 0;
   text-align: center;
 
-  padding: 60px 0;
+  @include respond-to(mobile) {
+    padding: 20px 0;
+
+    h2 {
+      font-size: em(24px);
+    }
+  }
 }

@@ -3,13 +3,17 @@
   width: 47%;
   margin-right: 6%;
   padding-left: 10px;
+  padding-right: 10px;
 
   @include respond-to(mobile) {
     width: 100%;
     float: none;
+    margin-bottom: em(24px);
   }
+
   @include respond-to(large) {
     padding-left: 0;
+    padding-right: 0;
   }
 }
 
