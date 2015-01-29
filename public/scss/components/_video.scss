@@ -1,4 +1,4 @@
-.video-wrapper {
+.video-container {
   position: relative;
   padding-bottom: 56.25%; /* 16:9 */
   padding-top: 25px;
@@ -6,10 +6,6 @@
   overflow: hidden;
   background-size: cover;
   background-position: center center;
-
-  @include respond-to(small) {
-    background-image: none !important;
-  }
 
   @media screen and (max-width: 600px) {
     .arena & {
@@ -19,16 +15,16 @@
       height: auto;
     }
   }
+}
 
-
-  iframe {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
+iframe {
+  @include transition(opacity 0.35s);
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .video-overlay {
@@ -40,6 +36,7 @@
   min-height: 100%;
   height: 100%;
   width: 100%;
+  z-index: 1;
   background: transparent url(../img/bg--video-overlay.png);
   text-align: center;
 
@@ -54,6 +51,16 @@
   }
 }
 
+.video-wrapper {
+  @include transition(opacity .35s);
+  @include clearfix;
+  opacity: 0;
+}
+
+.video-loaded {
+  opacity: 1;
+}
+
 #video-background {
   position: absolute;
   top: 0px;
@@ -62,7 +69,7 @@
   min-height: 100%;
   width: auto;
   height: auto;
-  z-index: -1000;
+  // z-index: -1000;
   overflow: hidden;
 
   @include respond-to(mobile) {
