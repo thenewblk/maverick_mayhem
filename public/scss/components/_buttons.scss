@@ -17,18 +17,36 @@
   }
 }
 
+.btn--play-wrapper {
+  position: absolute;
+  display: table;
+  top: 0px;
+  left: 0px;
+  min-width: 100%;
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  background: transparent url(../img/bg--video-overlay.png);
+  cursor: pointer;
+  text-align: center;
+}
+
 .btn--play {
   display: table-cell;
   vertical-align: middle;
   cursor: pointer;
-  font-family: $museo-slab;
-  font-size: em(48px);
   text-align: center;
 
-
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
   &:hover {
-    .btn--play_icon {
-      background: url(../img/icon--play_hover.svg) no-repeat center center;
+    .icon--play {
+      opacity: 0;
+    }
+    .icon--play_hover {
+      opacity: 1;
     }
   }
 
@@ -36,11 +54,18 @@
     display: inline-block;
     width: 320px;
     height: 334px;
-    background: url(../img/icon--play.svg) no-repeat center center;
 
     @include respond-to(mobile) {
       width: 120px;
+      height: 125px;
     }
   }
+}
+.icon--play {
+  @include transition(opacity 0.2s);
+}
 
+.icon--play_hover {
+  @include transition(opacity 0.2s);
+  opacity: 0;
 }

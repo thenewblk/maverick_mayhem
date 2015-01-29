@@ -1,14 +1,8 @@
-<%- include ../layouts/_site_header.ejs %>
-<%- include ../layouts/_site_navigation.ejs %>
-    <header role="banner">
-      <div class="banner">
-        <div class="sport-type-avatar"><img src="img/icon--uno-hockey.svg" alt=""></div>
-        <h1 class="banner__headline"><%= page.banner %></h1>
-      </div>
-    </header>
+<%- include ./layouts/_site_header.ejs %>
+<%- include ./layouts/_site_navigation.ejs %>
     <div id="main" role="main">
       <div class="video-container">
-        <div class="video-wrapper" style="background-image: url(/img/bg--video_hockey.jpg);">
+        <div class="video-wrapper" style="background-image: url(/img/bg--video_arena.jpg);">
           <div class="btn--play-wrapper">
             <p class="btn--play">
               <span class="btn--play_icon">
@@ -84,16 +78,15 @@
               </span>
             </p>
           </div>
-          <video id="video-background" poster="/img/bg--video_hockey.jpg" autoplay muted="muted" loop>
-            <source src="/video/loop_hockey.mp4" type="video/mp4">
-
+          <video id="video-background" poster="/img/bg--video_arena.jpg" autoplay muted="muted" loop>
+            <source src="/video/loop_arena.mp4" type="video/mp4">
           </video>
           <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
         </div>
       </div>
       <div class="container sport-recap">
         <div class="sport__headline">
-          <h2><%= page.headline %></h2>
+          <h2>Mavericks take win over Colorado College 4-1</h2>
         </div>
         <div class="sport">
           <div class="game-content">
@@ -101,45 +94,49 @@
               <thead>
                 <tr class="scoreboard__header">
                   <th class="team-name">&nbsp;</th>
-                  <% page.games[0].scores.forEach(function(score, index){ %>
-                    <th><%= page.games[0].getPeriod(index +1) %></th>
-                  <% }); %>
+                  <th>1st</th>
+                  <th>2nd</th>
+                  <th>3rd</th>
                   <th class="score-total">Total</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="team visitor">
-                  <td class="team-name"><%= page.games[0].opponent %></td>
-                  <% page.games[0].scores.forEach(function(score, index){ %>
-                    <td class="score"><%= score.us %></td>
-                  <% }); %>
-                  <td class="score"><%= page.games[0].total_us %></td>
+                  <td class="team-name">Omaha</td>
+                  <td class="score">0</td>
+                  <td class="score">2</td>
+                  <td class="score">2</td>
+                  <td class="score score-winner">4</td>
                 </tr>
                 <tr class="team away">
-                  <td class="team-name">Omaha</td>
-                  <% page.games[0].scores.forEach(function(score, index){ %>
-                    <td class="score"><%= score.them %></td>
-                  <% }); %>
-                  <td class="score"><%= page.games[0].total_them %></td>
-                  <!-- <td class="score score-winner">4</td> -->
+                  <td class="team-name">Colorado College</td>
+                  <td class="score">1</td>
+                  <td class="score">0</td>
+                  <td class="score">0</td>
+                  <td class="score">1</td>
                 </tr>
               </tbody>
+              <!-- <tfoot>
+                <tr>
+                  <td colspan="5"><a href="#">view stats</a></td>
+                </tr>
+              </tfoot> -->
             </table>
           </div>
           <div class="upcoming-game">
-            <h3><span>Next Game: </span><%= page.games[0].date %></h3>
-            <p>vs <%= page.games[0].opponent %> @ <%= page.games[0].location %></p>
+            <h3><span>Next Game: </span>Fri, Jan 30th 2015</h3>
+            <p>vs North Dakota @ Omaha, NE</p>
           </div>
-          <a href="<%= page.games[0].ticket %>" class="btn btn--red">Get Tickets</a>
+          <a href="https://oss.ticketmaster.com/aps/uno/EN/buy/details/14HOC14" class="btn btn--red">Get Tickets</a>
         </div>
         <div class="news">
           <ul class="news__list">
-            <li class="news__list-item" style="background: url(/img/news-item.jpg) no-repeat center;">
+            <li class="news__list-item" style="background: url(img/news-item.jpg) no-repeat center;">
               <a href="">
                 <h4 class="news__title"><span>Newcomers spark Mavericks' surprising start<em class="news__byline">by OWH</em></span></h4>
               </a>
             </li>
-            <li class="news__list-item" style="background: url(/img/news-item.jpg) no-repeat center;">
+            <li class="news__list-item" style="background: url(img/news-item.jpg) no-repeat center;">
               <a href="" >
                 <h4 class="news__title"><span>Newcomers spark Mavericks' surprising start<em class="news__byline">by OWH</em><span></h4>
               </a>
@@ -150,13 +147,12 @@
 
       <div class="photo-gallery">
         <ul class="photo-list">
-          <li class="photo-list__item"><img src="/img/hockey/hockey1.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey2.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey3.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey4.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey1.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey2.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey3.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey4.jpg" alt="" class="photo"></li>
+          <li class="photo-list__item"><img src="img/hockey/hockey5.jpg" alt="" class="photo"></li>
         </ul>
       </div>
     </div> <!-- END #main -->
-  <script src="/js/pages.js" async></script>
-<%- include ../layouts/_site_footer.ejs %>
-
+<%- include ./layouts/_site_footer.ejs %>
