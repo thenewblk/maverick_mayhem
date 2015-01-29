@@ -24,7 +24,7 @@ module.exports = function(app, passport) {
 	app.get('/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('games games.scores photos')
+			.populate('games games.scores photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 				res.render('pages/show', {
@@ -78,7 +78,7 @@ module.exports = function(app, passport) {
 	app.get('/api/pages/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('games games.scores photos')
+			.populate('games games.scores photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 			  	var tmp_games = [];

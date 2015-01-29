@@ -48,9 +48,9 @@ module.exports = function(app) {
 	// Edit news
 	app.post('/api/news/:id/edit', function(req, res) {
 		var edit_news = {};
-		edit_news.title = req.body.title;
-		edit_news.link 	= req.body.link;
-		edit_news.image = req.body.image;
+		edit_news.title 	= req.body.title;
+		edit_news.link 		= req.body.link;
+		edit_news.image 	= req.body.image;
 		edit_news.credit 	= req.body.credit;
 
 		News

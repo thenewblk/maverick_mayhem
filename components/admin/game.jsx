@@ -260,7 +260,6 @@ var Game = React.createClass({
 
     var the_scores = scores.map(function(object) {
       var identifier = object.identifier || object._id;
-      console.log('object.identifier: '+identifier);
       var status = object.status || "show";
       return <Score
         us={object.us} 
