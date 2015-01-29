@@ -1,8 +1,8 @@
 var Game = require('../models/game');
 
-module.exports = function(app) {
+module.exports = function(app, passport) {
 	// Add New game
-	app.post('/api/games/new', function(req, res) {
+	app.post('/api/games/new', isLoggedIn, function(req, res) {
 		var new_game = {};
 		new_game.name 		= req.body.name;
 		new_game.opponent 	= req.body.opponent;
@@ -31,7 +31,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.get('/api/games/', function(req, res) {
+	app.get('/api/games/', isLoggedIn, function(req, res) {
 		Game
 			.find({})
 			.exec( function (err, games) {
@@ -60,7 +60,7 @@ module.exports = function(app) {
 	});
 
 	// Display game
-	app.get('/api/games/:slug', function(req, res) {
+	app.get('/api/games/:slug', isLoggedIn, function(req, res) {
 		Game
 			.findOne({ slug: req.params.slug })
 			.exec( function (err, game) {
@@ -70,7 +70,7 @@ module.exports = function(app) {
 	});
 
 	// Display Edit game Form
-	app.get('/api/games/:slug/edit', function(req, res) {
+	app.get('/api/games/:slug/edit', isLoggedIn, function(req, res) {
 		Game
 			.findOne({ slug: req.params.slug })
 			.exec( function (err, game) {
@@ -80,7 +80,7 @@ module.exports = function(app) {
 	});
 
 	// Edit game
-	app.post('/api/games/:slug/edit', function(req, res) {
+	app.post('/api/games/:slug/edit', isLoggedIn, function(req, res) {
 		var edit_game = {};
 		edit_game.name 		= req.body.name;
 		edit_game.opponent 	= req.body.opponent;
@@ -113,7 +113,7 @@ module.exports = function(app) {
 	});
 	
 	// Delete game
-	app.delete('/api/games/:slug/delete', function(req, res) {
+	app.delete('/api/games/:slug/delete', isLoggedIn, function(req, res) {
 		Game
 			.findOne({ slug: req.params.slug })
 			.remove( function (err, game) {
@@ -122,3 +122,10 @@ module.exports = function(app) {
 		});
 	});
 };
+
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated())
+        return next();
+
+    res.send(false);
+}

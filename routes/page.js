@@ -1,17 +1,11 @@
 var Page = require('../models/page');
 // var Game = require('../models/game');
 // route middleware to ensure user is logged in
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated())
-        return next();
-
-    res.send(false);
-}
 
 module.exports = function(app, passport) {
 
 	// Display pages
-	app.get('/pages/new', function(req, res) {
+	app.get('/pages/new', isLoggedIn, function(req, res) {
 		Page
 			.find({})
 			.exec( function (err, pages) {
@@ -34,7 +28,7 @@ module.exports = function(app, passport) {
 	});
 
 
-	app.get('/:slug/edit', function(req, res) {
+	app.get('/:slug/edit', isLoggedIn, function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
 			.exec( function (err, page) {
@@ -46,7 +40,7 @@ module.exports = function(app, passport) {
 	});
 
 	// Add New page
-	app.post('/api/pages/new', function(req, res) {
+	app.post('/api/pages/new', isLoggedIn, function(req, res) {
 		var new_page = {};
 		new_page.name = req.body.name;
 		new_page.video = req.body.video;
@@ -90,7 +84,7 @@ module.exports = function(app, passport) {
 	});
 
 	// Delete page
-	app.delete('/api/pages/:slug/delete', function(req, res) {
+	app.delete('/api/pages/:slug/delete', isLoggedIn, function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
 			.remove( function (err, page) {
@@ -100,7 +94,7 @@ module.exports = function(app, passport) {
 	});
 
 	// Display Edit page Form
-	app.get('/api/pages/:slug/edit', function(req, res) {
+	app.get('/api/pages/:slug/edit', isLoggedIn, function(req, res) {
 			Page
 				.findOne({ slug: req.params.slug })
 				.exec( function (err, page) {
@@ -110,7 +104,7 @@ module.exports = function(app, passport) {
 	});
 
 	// Edit page
-	app.post('/api/pages/:slug/edit', function(req, res) {
+	app.post('/api/pages/:slug/edit', isLoggedIn, function(req, res) {
 		var tmp_page = {};
 		tmp_page.name = req.body.name;
 		tmp_page.video = req.body.video;
@@ -145,3 +139,11 @@ module.exports = function(app, passport) {
 			});
 	});
 };
+
+// route middleware to ensure user is logged in
+function isLoggedIn(req, res, next) {
+	if (req.isAuthenticated())
+		return next();
+
+	res.redirect('/login');
+}

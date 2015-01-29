@@ -4,14 +4,14 @@ var Photo = require('../models/photo'),
     util = require('util'),
     knox = require('knox'),
     async = require('async'),
-		mime = require('mime'),
+	mime = require('mime'),
     fs = require('fs');
 
 var awsUpload = require('../lib/aws-streaming');
 
-module.exports = function(app) {
+module.exports = function(app, passport) {
 	// Add New photo
-	app.post('/api/photos/new', function(req, res) {
+	app.post('/api/photos/new', isLoggedIn, function(req, res) {
 		var new_photo = {};
 		new_photo.url 					= req.body.url;
 		new_photo.description 	= req.body.description;
@@ -43,7 +43,7 @@ module.exports = function(app) {
 	});
 
 	// Display Edit photo Form
-	app.get('/api/photos/:id/edit', function(req, res) {
+	app.get('/api/photos/:id/edit', isLoggedIn, function(req, res) {
 		Photo
 			.findOne({ _id: req.params.id })
 			.exec( function (err, photo) {
@@ -53,7 +53,7 @@ module.exports = function(app) {
 	});
 
 	// Edit photo
-	app.post('/api/photos/:id/edit', function(req, res) {
+	app.post('/api/photos/:id/edit', isLoggedIn, function(req, res) {
 		var edit_photo = {};
 		edit_photo.url 					= req.body.url;
 		edit_photo.description 	= req.body.description;
@@ -74,7 +74,7 @@ module.exports = function(app) {
 	});
 	
 	// Delete photo
-	app.delete('/api/photos/:id/delete', function(req, res) {
+	app.delete('/api/photos/:id/delete', isLoggedIn, function(req, res) {
 		Photo
 			.findOne({ _id: req.params.id })
 			.remove( function (err, photo) {
@@ -83,11 +83,16 @@ module.exports = function(app) {
 		});
 	});
 
-	app.post('/upload', function(req, res){ 
+	app.post('/upload', isLoggedIn, function(req, res){ 
 	   return awsUpload(req, function(err, url) {
 	      res.send(url);
 	    });
 	});
-
-
 };
+
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated())
+        return next();
+
+    res.send(false);
+}

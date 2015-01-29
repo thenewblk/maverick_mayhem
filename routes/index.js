@@ -1,5 +1,11 @@
 var util = require("util");
 
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated())
+        return next();
+
+    res.send(false);
+}
 
 module.exports = function(app, passport) {
 	// locally --------------------------------

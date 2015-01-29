@@ -1,6 +1,6 @@
 var News = require('../models/news');
 
-module.exports = function(app) {
+module.exports = function(app, passport) {
 	// Add New news
 	app.post('/api/news/new', function(req, res) {
 		var new_news = {};
@@ -36,7 +36,7 @@ module.exports = function(app) {
 	});
 
 	// Display Edit news Form
-	app.get('/api/news/:id/edit', function(req, res) {
+	app.get('/api/news/:id/edit', isLoggedIn, function(req, res) {
 		News
 			.findOne({ _id: req.params.id })
 			.exec( function (err, news) {
@@ -46,7 +46,7 @@ module.exports = function(app) {
 	});
 
 	// Edit news
-	app.post('/api/news/:id/edit', function(req, res) {
+	app.post('/api/news/:id/edit', isLoggedIn, function(req, res) {
 		var edit_news = {};
 		edit_news.title 	= req.body.title;
 		edit_news.link 		= req.body.link;
@@ -69,10 +69,10 @@ module.exports = function(app) {
 				});
 			});
 	});
-	
+
 	
 	// Delete news
-	app.delete('/api/news/:id/delete', function(req, res) {
+	app.delete('/api/news/:id/delete', isLoggedIn, function(req, res) {
 		News
 			.findOne({ _id: req.params.id })
 			.remove( function (err, news) {
@@ -81,3 +81,10 @@ module.exports = function(app) {
 		});
 	});
 };
+
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated())
+        return next();
+
+    res.send(false);
+}

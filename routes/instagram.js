@@ -1,6 +1,6 @@
 var Instagram = require('../models/instagram');
 
-module.exports = function(app) {
+module.exports = function(app, passport) {
 
 	// Display instagrams
 	app.get('/api/instagrams/', function(req, res) {
@@ -26,7 +26,7 @@ module.exports = function(app) {
 	});
 
 	// Display Edit instagrams Form
-	app.get('/api/instagrams/:id/edit', function(req, res) {
+	app.get('/api/instagrams/:id/edit', isLoggedIn, function(req, res) {
 		Instagram
 			.findOne({ _id: req.params.id })
 			.exec( function (err, instagram) {
@@ -36,7 +36,7 @@ module.exports = function(app) {
 	});
 
 	// Edit instagrams
-	app.post('/api/instagrams/:id/edit', function(req, res) {
+	app.post('/api/instagrams/:id/edit', isLoggedIn, function(req, res) {
 		var blocked 	= req.body.blocked;
 		Instagram
 			.findOne({ _id: req.params.id })
@@ -54,7 +54,7 @@ module.exports = function(app) {
 	
 	
 	// Delete instagrams
-	app.delete('/api/instagrams/:id/delete', function(req, res) {
+	app.delete('/api/instagrams/:id/delete', isLoggedIn, function(req, res) {
 		Instagram
 			.findOne({ _id: req.params.id })
 			.remove( function (err, instagram) {
@@ -63,3 +63,10 @@ module.exports = function(app) {
 		});
 	});
 };
+
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated())
+        return next();
+
+    res.send(false);
+}
