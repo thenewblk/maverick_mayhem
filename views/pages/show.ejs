@@ -8,7 +8,10 @@
     </header>
     <div id="main" role="main">
       <div class="video-container">
-        <div class="video-wrapper" style="background-image: url(/img/bg--video_hockey.jpg);">
+        <div class="video-wrapper" 
+
+          style="background-image: url(/img/bg--video_hockey.jpg);">
+
           <div class="video-overlay video-btn__wrapper">
             <p class="btn--play">
               <span class="btn--play_icon">
@@ -84,13 +87,23 @@
               </span>
             </p>
           </div>
-          <video id="video-background" poster="/img/bg--video_hockey.jpg" autoplay muted="muted" loop>
-            <source src="/video/loop_hockey.mp4" type="video/mp4">
-
-          </video>
-          <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+          <% if (page.slug == 'hockey') { %>
+            <video id="video-background" poster="/img/bg--video_hockey.jpg" autoplay muted="muted" loop>
+              <source src="https://s3.amazonaws.com/maverickmayhem/loop_hockey.mp4" type="video/mp4">
+            </video>
+            <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+          <% } else if (page.slug == 'basketball') { %>
+            <video id="video-background" poster="/img/bg--video_hockey.jpg" autoplay muted="muted" loop>
+              <source src="https://s3.amazonaws.com/maverickmayhem/loop_bball_mens.mp4" type="video/mp4">
+            </video>
+            <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+            <% } else { %>
+              Not hockey or basketball
+            <% } %>
         </div>
       </div>
+
+
       <div class="container sport-recap">
         <div class="sport__headline">
           <h2><%= page.headline %></h2>
