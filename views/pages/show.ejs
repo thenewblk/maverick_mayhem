@@ -134,26 +134,22 @@
         </div>
         <div class="news">
           <ul class="news__list">
-            <li class="news__list-item" style="background: url(/img/news-item.jpg) no-repeat center;">
-              <a href="">
-                <h4 class="news__title"><span>Newcomers spark Mavericks' surprising start<em class="news__byline">by OWH</em></span></h4>
-              </a>
-            </li>
-            <li class="news__list-item" style="background: url(/img/news-item.jpg) no-repeat center;">
-              <a href="" >
-                <h4 class="news__title"><span>Newcomers spark Mavericks' surprising start<em class="news__byline">by OWH</em><span></h4>
-              </a>
-            </li>
+            <% page.news.forEach(function(news){ %>
+              <li class="news__list-item" style="background: <% if (news.image) {%>url(<%= news.image %>)<% } else { %>url(/img/news-item.jpg)<% } %> no-repeat center;">
+                <a href="<%= news.link %>">
+                  <h4 class="news__title"><span><%= news.title %><em class="news__byline">by <%= news.credit %></em></span></h4>
+                </a>
+              </li>
+            <% }); %>
           </ul>
         </div>
       </div>
 
       <div class="photo-gallery">
         <ul class="photo-list">
-          <li class="photo-list__item"><img src="/img/hockey/hockey1.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey2.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey3.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey4.jpg" alt="" class="photo"></li>
+          <% page.photos.forEach(function(photo){ %>
+          <li class="photo-list__item"><img src="https://s3.amazonaws.com/maverickmayhem-dev<%= photo.url %>" alt="" class="photo"></li>
+          <% }); %>
         </ul>
       </div>
     </div> <!-- END #main -->

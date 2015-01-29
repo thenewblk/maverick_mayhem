@@ -841,7 +841,6 @@ footer {
   transform: translateY(-100%); }
 
 #new_page {
-  margin-top: 75px;
   background: white;
   padding: 15px; }
   #new_page input {
