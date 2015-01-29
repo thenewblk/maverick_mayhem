@@ -48,17 +48,25 @@
   }
 }
 
-.game-content a {
-  display: block;
+.arena-video a {
+  position: absolute;
   width: 100%;
   height: 100%;
+  z-index: 5;
+  text-align: center;
+
+  &:hover {
+    .icon--play {
+      opacity: 0;
+    }
+    .icon--play_hover {
+      opacity: 1;
+    }
+  }
 
   .btn--play_icon {
-    position: absolute;
-    z-index: 5;
-    vertical-align: middle;
-    width: 100px;
-    height: 105px;
+    display: inline-block;
+    margin-top: 40%;
   }
 }
 
