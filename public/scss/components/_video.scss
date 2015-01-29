@@ -11,6 +11,16 @@
     background-image: none !important;
   }
 
+  @media screen and (max-width: 600px) {
+    .arena & {
+      overflow: visible;
+      padding-bottom: 0;
+      padding-top: 0;
+      height: auto;
+    }
+  }
+
+
   iframe {
     display: none;
     position: absolute;
@@ -18,6 +28,29 @@
     left: 0;
     width: 100%;
     height: 100%;
+  }
+}
+
+.video-overlay {
+  position: absolute;
+  display: table;
+  top: 0px;
+  left: 0px;
+  min-width: 100%;
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  background: transparent url(../img/bg--video-overlay.png);
+  text-align: center;
+
+  .arena & {
+    @media screen and (max-width: 600px) {
+      position: relative;
+    }
+  }
+
+  &.active {
+    cursor: pointer;
   }
 }
 

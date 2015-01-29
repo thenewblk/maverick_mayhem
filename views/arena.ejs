@@ -1,10 +1,23 @@
 <%- include ./layouts/_site_header.ejs %>
 <%- include ./layouts/_site_navigation.ejs %>
-    <div id="main" role="main">
+    <div id="main" role="main" class="arena">
       <div class="video-container">
         <div class="video-wrapper" style="background-image: url(/img/bg--video_arena.jpg);">
-          <div class="btn--play-wrapper">
-            <p class="btn--play">
+          <div class="video-overlay">
+            <div class="video-content">
+              <img src="/img/every-moment.svg" alt="Where every moment is the main event.">
+              <p>Opening Fall 2015, construction on the new UNO arena on Center St. near Aksarben Village is well underway. Not only will the arena be home to Mavericks hockey and basketball, it will also play host to a wide range of community events. </p>
+            </div>
+          </div>
+          <video id="video-background" poster="/img/bg--video_arena.jpg" autoplay muted="muted" loop>
+            <source src="/video/loop_arena.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+      <div class="container sport-recap">
+        <div class="sport">
+          <div class="game-content">
+            <a href="" class="">
               <span class="btn--play_icon">
                 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="320px" height="334px" viewBox="0 0 320 334" enable-background="new 0 0 320 334" xml:space="preserve">
                   <path class="icon--play" class="first" fill="#ffffff" d="M271.1,154c1.7,0.7,3.2,1.4,4.9,2c0.7,0.3,2,0.2,2.2,0.7c2.1,5,7.7,6,11.1,9.3c-2.4,4.7-3,4.9-8.4,2.7c-4.9-2-9.9-4-14.9-6
@@ -76,58 +89,9 @@
                     </g>
                 </svg>
               </span>
-            </p>
+              <img src="/img/arena-video.jpg" alt="">
+            </a>
           </div>
-          <video id="video-background" poster="/img/bg--video_arena.jpg" autoplay muted="muted" loop>
-            <source src="/video/loop_arena.mp4" type="video/mp4">
-          </video>
-          <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
-        </div>
-      </div>
-      <div class="container sport-recap">
-        <div class="sport__headline">
-          <h2>Mavericks take win over Colorado College 4-1</h2>
-        </div>
-        <div class="sport">
-          <div class="game-content">
-            <table class="sport__scoreboard sport__scoreboard-hockey">
-              <thead>
-                <tr class="scoreboard__header">
-                  <th class="team-name">&nbsp;</th>
-                  <th>1st</th>
-                  <th>2nd</th>
-                  <th>3rd</th>
-                  <th class="score-total">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="team visitor">
-                  <td class="team-name">Omaha</td>
-                  <td class="score">0</td>
-                  <td class="score">2</td>
-                  <td class="score">2</td>
-                  <td class="score score-winner">4</td>
-                </tr>
-                <tr class="team away">
-                  <td class="team-name">Colorado College</td>
-                  <td class="score">1</td>
-                  <td class="score">0</td>
-                  <td class="score">0</td>
-                  <td class="score">1</td>
-                </tr>
-              </tbody>
-              <!-- <tfoot>
-                <tr>
-                  <td colspan="5"><a href="#">view stats</a></td>
-                </tr>
-              </tfoot> -->
-            </table>
-          </div>
-          <div class="upcoming-game">
-            <h3><span>Next Game: </span>Fri, Jan 30th 2015</h3>
-            <p>vs North Dakota @ Omaha, NE</p>
-          </div>
-          <a href="https://oss.ticketmaster.com/aps/uno/EN/buy/details/14HOC14" class="btn btn--red">Get Tickets</a>
         </div>
         <div class="news">
           <ul class="news__list">

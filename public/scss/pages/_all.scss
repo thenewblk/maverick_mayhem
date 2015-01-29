@@ -50,6 +50,18 @@
 
 .sport-recap {
   margin-bottom: 80px;
+
+  @include respond-to(mobile) {
+    margin-bottom: 10px;
+  }
+
+  .arena & {
+    margin-top: 80px;
+
+    @include respond-to(mobile) {
+      margin-top: 10px;
+    }
+  }
 }
 
 .image-container {
@@ -171,7 +183,7 @@
 		color: white;
 		background: $brand_red;
 	}
-	
+
 	.dp-day:hover {
 		background: #f3f3f3;
 	}
