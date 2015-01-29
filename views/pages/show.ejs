@@ -150,10 +150,9 @@
 
       <div class="photo-gallery">
         <ul class="photo-list">
-          <li class="photo-list__item"><img src="/img/hockey/hockey1.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey2.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey3.jpg" alt="" class="photo"></li>
-          <li class="photo-list__item"><img src="/img/hockey/hockey4.jpg" alt="" class="photo"></li>
+          <% page.photos.forEach(function(photo){ %>
+          <li class="photo-list__item"><img src="<%= photo.url %>" alt="" class="photo"></li>
+          <% }); %>
         </ul>
       </div>
     </div> <!-- END #main -->
