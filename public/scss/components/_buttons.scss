@@ -82,3 +82,25 @@
   @include transition(opacity 0.2s);
   opacity: 0;
 }
+
+.btn--icon_twitter,
+.btn--icon_facebook,
+.btn--icon_youtube,
+.btn--icon_instagram {
+  display: inline-block;
+  text-indent: -9999em;
+  width: 25px;
+  height: 25px;
+}
+.btn--icon_twitter {
+  background: url(../img/icon--twitter.svg) no-repeat center center;
+}
+.btn--icon_facebook {
+  background: url(../img/icon--facebook.svg) no-repeat center center;
+}
+.btn--icon_youtube {
+  background: url(../img/icon--youtube.svg) no-repeat center center;
+}
+.btn--icon_instagram {
+  background: url(../img/icon--instagram.svg) no-repeat center center;
+}
