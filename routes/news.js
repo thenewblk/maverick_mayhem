@@ -70,6 +70,7 @@ module.exports = function(app) {
 			});
 	});
 	
+	
 	// Delete news
 	app.delete('/api/news/:id/delete', function(req, res) {
 		News
