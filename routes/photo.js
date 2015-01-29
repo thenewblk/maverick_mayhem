@@ -4,7 +4,7 @@ var Photo = require('../models/photo'),
     util = require('util'),
     knox = require('knox'),
     async = require('async'),
-	mime = require('mime'),
+		mime = require('mime'),
     fs = require('fs');
 
 var awsUpload = require('../lib/aws-streaming');

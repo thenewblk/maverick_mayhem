@@ -45,6 +45,9 @@ require('./routes/game')(app, passport);
 require('./routes/news')(app, passport);
 require('./routes/photo')(app, passport);
 require('./routes/page')(app, passport);
+require('./routes/instagram')(app, passport);
+
+require('./instagram_polling');
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
