@@ -3,7 +3,8 @@ var tools = require('../lib/utils');
 
 var photoSchema = mongoose.Schema({
 	url    			: String,
-	description		: String
+	description		: String,
+	featured		: Boolean
 });
 
 photoSchema.pre('save', function (next) {

@@ -212,6 +212,30 @@
 	padding: 50px;
 }
 
+
+.featured_photos {
+	.infinite-photo {
+		@include respond-to(mobile) {
+		    width: 100%;
+		}
+		@include respond-to(small) {
+		    width: 100%;
+		}
+		@include respond-to(medium) {
+		    width: 50%;
+		}
+		@include respond-to(large) {
+		    width: 50%;
+		}
+		display: inline-block;
+		vertical-align: middle;
+		padding: 10px;
+		img {
+			width: 100%;
+		}
+	}
+}
+
 .infinite-photo-list {
 	overflow: hidden;
 	.infinite-photo {
@@ -219,7 +243,7 @@
 		    width: 100%;
 		}
 		@include respond-to(small) {
-		    width: 50;
+		    width: 50%;
 		}
 		@include respond-to(medium) {
 		    width: 25%;
@@ -232,16 +256,6 @@
 		padding: 5px;
 		img {
 			width: 100%;
-			transition: 0.15s ease-out;
-		}
-	}
-	.infinite-photo:hover {
-		img {
-			width: 150%;
-			max-width: none;
-			z-index: 1;
-			position: relative;
-			margin-left: -50%;
 		}
 	}
 }

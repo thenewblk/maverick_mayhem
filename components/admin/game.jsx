@@ -136,7 +136,6 @@ var Game = React.createClass({
   handleHomeChange: function(event) {
     console.log('handleHomeChange: '+event.target.value);
     this.setState({home: !this.state.home});
-    
   },
 
   handleScoreChange: function(content) {

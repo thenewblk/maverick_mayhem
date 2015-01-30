@@ -11,7 +11,7 @@ var Dropzone = require('../dropzone.js');
 var Photo = React.createClass({
 
   getInitialState: function() {
-    return { url: '', description: '', _id: '', status: 'show'};
+    return { url: '', description: '', featured: false, _id: '', status: 'show'};
   },
 
   componentWillMount: function() {
@@ -19,6 +19,7 @@ var Photo = React.createClass({
     var tmp_photo = {};
     tmp_photo.identifier = self.props.identifier;
     tmp_photo.url = self.props.url;
+    tmp_photo.featured = self.props.featured;
     tmp_photo._id = self.props._id;
     tmp_photo.description = self.props.description;
     
@@ -27,6 +28,10 @@ var Photo = React.createClass({
 
   handleDescriptionChange: function(event) {
     this.setState({description: event.target.value });
+  },
+
+  handleFeaturedChange: function(event) {
+    this.setState({featured: !this.state.featured });
   },
 
   handleClose: function() {
@@ -132,6 +137,7 @@ var Photo = React.createClass({
     var self = this,
         url = self.state.url,
         description = self.state.description,
+        featured = self.state.featured,
         identifier = this.state.identifier,
         _id = this.state._id,
         status = this.state.status;
@@ -142,6 +148,7 @@ var Photo = React.createClass({
         <div className='photo' ref='contentwrapper'>
               {url ? <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />  : '' }
               {description ? <p>{description}</p> : '' }
+              {featured ? <p>Featured</p>  : '' }
               <div className='half_buttons'>
                 <a className='submit' onClick={self.handleEdit}>Edit</a> 
                 <a className='submit' onClick={self.handleRemove}>delete</a> 
@@ -163,6 +170,7 @@ var Photo = React.createClass({
             </div>
           }
           <input className='description_input' type="text" placeholder="Description" value={description} onChange={self.handleDescriptionChange} />
+          <p>Featured: <input type="checkbox" checked={featured} onChange={this.handleFeaturedChange} /></p>
           <div className='half_buttons'>
             <a className='submit' onClick={self.submitContent}>save</a> 
             <a className='submit' onClick={self.cancelEdit}>cancel</a> 

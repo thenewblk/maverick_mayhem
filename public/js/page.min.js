@@ -95,14 +95,27 @@ var Page = React.createClass({displayName: "Page",
       return React.createElement(Photo, {url: object.url, description: object.description})
     });
 
+    var featured = self.state.photos.filter(function(photo){
+      return photo.featured;
+    });
+
+    var featured_photos = featured.map(function(object) {
+      return React.createElement(Photo, {url: object.url, description: object.description})
+    });
+
     return (
-      React.createElement("div", {className: "infinite-photo-list"}, 
-        React.createElement(InfiniteScroll, {
-          hasMore: self.state.has_more, 
-          loadMore: self.loadPhotos, 
-          loader: React.createElement("div", {className: "fa fa-circle-o-notch fa-spin loader"}), 
-          threshold: 0}, 
-          photos
+      React.createElement("div", {className: "all_photos"}, 
+        React.createElement("div", {className: "featured_photos"}, 
+          featured_photos
+        ), 
+        React.createElement("div", {className: "infinite-photo-list"}, 
+          React.createElement(InfiniteScroll, {
+            hasMore: self.state.has_more, 
+            loadMore: self.loadPhotos, 
+            loader: React.createElement("div", {className: "fa fa-circle-o-notch fa-spin loader"}), 
+            threshold: 0}, 
+            photos
+          )
         )
       )
     )

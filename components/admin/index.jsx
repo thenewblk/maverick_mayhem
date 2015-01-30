@@ -297,7 +297,7 @@ var Page = React.createClass({
         _id={object._id}
 
         key={object._id}
-
+        featured={object.featured} 
         description={object.description} 
         remove_photo={self.handleRemovePhoto}
 

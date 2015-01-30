@@ -13,7 +13,8 @@ module.exports = function(app, passport) {
 	// Add New photo
 	app.post('/api/photos/new', isLoggedIn, function(req, res) {
 		var new_photo = {};
-		new_photo.url 					= req.body.url;
+		new_photo.url 			= req.body.url;
+		new_photo.featured 		= req.body.featured;
 		new_photo.description 	= req.body.description;
 
 		Photo.create(new_photo, function (err, photo) {
@@ -55,7 +56,8 @@ module.exports = function(app, passport) {
 	// Edit photo
 	app.post('/api/photos/:id/edit', isLoggedIn, function(req, res) {
 		var edit_photo = {};
-		edit_photo.url 					= req.body.url;
+		edit_photo.url 			= req.body.url;
+		edit_photo.featured 	= req.body.featured;
 		edit_photo.description 	= req.body.description;
 
 		Photo
@@ -63,7 +65,8 @@ module.exports = function(app, passport) {
 			.exec(function (err, photo) {
 			  if (err) return console.log(err);
 
-				photo.url 					= edit_photo.url;
+				photo.url 			= edit_photo.url;
+				photo.featured 		= edit_photo.featured;
 				photo.description 	= edit_photo.description;
 
 				photo.save(function (err) {
