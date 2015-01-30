@@ -54,7 +54,7 @@ var Page = React.createClass({
           console.log(res)
           if (res.text) {
             var Page = JSON.parse(res.text);
-            Page.tmp_photos = Page.photos.slice(0,1);
+            Page.tmp_photos = Page.photos.slice(0,10);
             self.setState(Page);
           }
         }.bind(self));
@@ -74,7 +74,7 @@ var Page = React.createClass({
     var diff = total_photos.length - total_tmp.length;
 
     if (diff > 0) {
-      if ( diff < 10 ) {
+      if ( diff < 9 ) {
         new_tmp_photos = total_tmp.concat(total_photos.splice(total_tmp.length, diff));
         has_more = false;
       } else {
