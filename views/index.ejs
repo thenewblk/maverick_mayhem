@@ -3,12 +3,16 @@
 
     <div id="main" role="main">
       <div class="video-container">
-        <div class="video-wrapper">
-          <div class="btn--play-wrapper">
-            <p class="btn--play"><span class="btn--play_icon"></span></p>
+        <div class="video-overlay">
+          <div class="video-content">
+            <img src="img/mav_mayhem.svg" alt="">
+            <p>This site belongs to all Mavericks–the underdogs who look at the world and the rules and order imposed on it by conformity and small-mindedness and say: Not for me.</p>
+            <p>#MaverickMayhem is a groundswell, a surge of pride, a growing sense of identity sweeping up players, coaches, fans, students, campus, city and community in its current. You are here. Make some noise.</p>
           </div>
+        </div>
+        <div class="video-wrapper">
           <video id="video-background" poster="" autoplay muted="muted" loop>
-            <source src="/video/loop_hockey.mp4" type="video/mp4">
+            <source src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4" type="video/mp4">
 
           </video>
           <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
@@ -16,6 +20,6 @@
       </div>
 
       <div id="instagrams"></div>
-    </div> 
+    </div>
     <script src="/js/index.js"></script><!-- END #main -->
 <%- include ./layouts/_site_footer.ejs %>
