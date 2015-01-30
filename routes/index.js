@@ -12,7 +12,9 @@ module.exports = function(app, passport) {
 	// LOGIN ===============================
 	// show the login form
 	app.get('/login', function(req, res) {
-		res.render('login.ejs');
+		res.render('login.ejs', {
+			title: ' - Log In',
+		});
 	});
 
 	// process the login form
@@ -40,7 +42,9 @@ module.exports = function(app, passport) {
 	// SIGNUP =================================
 	// show the signup form
 	app.get('/signup', function(req, res) {
-		res.render('signup.ejs');
+		res.render('signup.ejs', {
+			title: ' - Sign Up',
+		});
 	});
 
 	// process the signup form
@@ -78,7 +82,8 @@ module.exports = function(app, passport) {
 
   app.get('/our-house', function(req, res) {
     res.render('arena', {
-      user: req.user
+      user: req.user,
+      title: " - Our House",
     });
   });
 

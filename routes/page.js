@@ -1,4 +1,5 @@
-var Page = require('../models/page');
+var Page = require('../models/page'),
+	util = require('util');
 // var Game = require('../models/game');
 // route middleware to ensure user is logged in
 
@@ -21,8 +22,15 @@ module.exports = function(app, passport) {
 			.populate('games games.scores photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
+			  	var title;
+			  	if (page) {
+			  		title = " - " + page.name + ' Edit';
+			  	} else {
+			  		title = '';
+			  	}
 				res.render('pages/show', {
-					page: page
+					page: page,
+					title: title
 				});
 		});
 	});
@@ -33,8 +41,16 @@ module.exports = function(app, passport) {
 			.findOne({ slug: req.params.slug })
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
+			  	var title;
+			  	if (page.name) {
+			  		title = " - " + page.name + ' Edit';
+			  	} else {
+			  		title = '';
+			  	}
+			  	
 				res.render('pages/edit', {
-					page: page
+					page: page,
+					title: title
 				});
 		});
 	});
