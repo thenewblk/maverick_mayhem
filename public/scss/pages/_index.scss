@@ -1,4 +1,5 @@
 .instagrams {
+	padding: 5%;
 	@include clearfix;
 	.instagram {
 		@include span(1 of 10);
@@ -54,5 +55,42 @@
 				top: 0;
 			}
     }
+	}
+}
+
+
+.home-video-container {
+	@include respond-to(mobile) {
+		padding: 30px 0;
+	}
+}
+
+.video-content.home-copy {
+
+	display: table-cell;
+	vertical-align: middle;
+	width: 100%;
+
+	.container {
+		max-width: 800px;
+		padding: 30px;
+	}
+
+}
+
+.mayhem-copy {
+	color: white;
+	padding: 100px 10% 50px;
+	p {
+		line-height: 2.5;
+		text-transform: uppercase;
+		font-size: 18px;
+	}
+	.mav-mayhem-inline-home {
+		vertical-align: bottom;
+		margin-left: -8%;
+		transform: rotate(-3deg);
+		width: 500px;
+		max-width: 100%;
 	}
 }

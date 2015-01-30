@@ -1,5 +1,5 @@
 .btn {
-  @include transition(background-color 0.2s);
+  @include transition(background-color 0.15s);
   display: block;
   text-align: center;
   padding: 24px 16px;
@@ -38,12 +38,10 @@
 
   .btn--play_icon {
     display: inline-block;
-    width: 240px;
-    height: 251px;
+    width: 150px;
 
     @include respond-to(mobile) {
       width: 100px;
-      height: 105px;
     }
   }
 }
@@ -75,11 +73,11 @@
 }
 
 .icon--play {
-  @include transition(opacity 0.2s);
+  @include transition(opacity 0.15s);
 }
 
 .icon--play_hover {
-  @include transition(opacity 0.2s);
+  @include transition(opacity 0.15s);
   opacity: 0;
 }
 

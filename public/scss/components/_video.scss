@@ -15,6 +15,13 @@
       height: auto;
     }
   }
+
+  @include respond-to(mobile) {
+    height: auto;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
 }
 
 iframe {
@@ -34,7 +41,7 @@ iframe {
   left: 0px;
   min-width: 100%;
   min-height: 100%;
-  height: 100%;
+  height: 100.5%;
   width: 100%;
   z-index: 1;
   background: transparent url(../img/bg--video-overlay.png);
@@ -46,9 +53,18 @@ iframe {
     }
   }
 
+
+
   &.active {
     cursor: pointer;
   }
+
+  @include respond-to(mobile) {
+    position: relative;
+  }
+
+
+
 }
 
 .video-wrapper {
