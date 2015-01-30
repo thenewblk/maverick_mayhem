@@ -19,10 +19,12 @@ var Instagram = React.createClass({
           Image load failed!
         </ImageLoader>
         <div className="user-wrapper">
+        <a href={self.props.link}>
           <p className="user">
             <span className="fa fa-instagram"></span>
             <span className="username">{self.props.user.username}</span> 
           </p>
+          </a>
         </div>
       </div>
     )
@@ -56,7 +58,7 @@ var InstagramList = React.createClass({
     var self = this;
 
     var instagrams = self.state.instagrams.map(function(object) {
-      return <Instagram images={object.images} user={object.user} />
+      return <Instagram images={object.images} user={object.user} link={object.link} />
     });
 
     return (

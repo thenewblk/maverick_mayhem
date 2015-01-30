@@ -202,5 +202,24 @@
 	}
 }
 
+.fa-spin.loader {
+	@include clearfix;
+	color: white;
+	font-size: 30px;
+	text-align: center;
+}
+
+.infinite-photo-list {
+	.infinite-photo {
+		display: inline-block;
+		vertical-align: middle;
+		width: 25%;
+		padding: 5px;
+		img {
+			width: 100%;
+		}
+	}
+}
+
 @import "dropzone";
 @import "index";

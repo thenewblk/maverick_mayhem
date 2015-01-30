@@ -8,6 +8,7 @@ module.exports = function(app, passport) {
 			.find({})
 			.where('blocked').ne('blocked')
 			.where('type').equals('image')
+			.sort('-created_time')
 			.limit(30)
 			.exec( function (err, instagrams) {
 			  	if (err) return console.log(err);
