@@ -69,18 +69,21 @@ var Page = React.createClass({
 
     var new_tmp_photos, 
         new_photos, 
-        has_more = true;
+        has_more;
 
     var diff = total_photos.length - total_tmp.length;
 
     if (diff > 0) {
-      if ( diff < 11) {
+      has_more = true;
+      if ( diff < 10) {
         new_tmp_photos = total_tmp.concat(total_photos.splice(total_tmp.length, diff));
-        has_more = false;
       } else {
         new_tmp_photos = total_tmp.concat(total_photos.splice(total_tmp.length, 10));
       }
       self.setState({tmp_photos: new_tmp_photos, has_more: has_more})
+    } else {
+      has_more = false;
+      self.setState({has_more: has_more});
     }
 
   },
