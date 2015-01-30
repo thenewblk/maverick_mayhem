@@ -213,8 +213,41 @@
 }
 
 .infinite-photo-list {
+	overflow: hidden;
 	.infinite-photo {
+		@include respond-to(mobile) {
+		    width: 100%;
+		}
+		@include respond-to(small) {
+		    width: 50;
+		}
+		@include respond-to(medium) {
+		    width: 25%;
+		}
+		@include respond-to(large) {
+		    width: 20%;
+		}
+		display: inline-block;
+		vertical-align: middle;
+		padding: 5px;
+		img {
+			width: 100%;
+			transition: 0.15s ease-out;
+		}
+	}
+	.infinite-photo:hover {
+		img {
+			width: 150%;
+			max-width: none;
+			z-index: 1;
+			position: relative;
+			margin-left: -50%;
+		}
+	}
+}
 
+.infinite-photo-list {
+	.infinite-photo {
 		@include respond-to(mobile) {
 		    @include span(1 of 1);
 		}
@@ -228,7 +261,6 @@
 		    @include span(1 of 4);
 		}
 		padding: 5px;
-		transition: 015s ease-out;
 		img {
 			width: 100%;
 		}
@@ -239,10 +271,11 @@
 			max-width: none;
 			z-index: 1;
 			position: relative;
-			margin-left: -25%;
+			margin-left: -50%;
 		}
 	}
 }
+
 
 @import "dropzone";
 @import "index";
