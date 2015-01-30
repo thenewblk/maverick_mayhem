@@ -39,6 +39,7 @@ var Page = React.createClass({displayName: "Page",
       icon: {}, 
       games: [], 
       photos: [], 
+      featured_photos: [],
       tmp_photos: [], 
       news: [],
       has_more: true
@@ -56,6 +57,9 @@ var Page = React.createClass({displayName: "Page",
           if (res.text) {
             var Page = JSON.parse(res.text);
             Page.tmp_photos = Page.photos.slice(0,10);
+            Page.featured_photos = Page.photos.filter(function(photo){
+              return photo.featured;
+            });
             self.setState(Page);
           }
         }.bind(self));
@@ -95,11 +99,7 @@ var Page = React.createClass({displayName: "Page",
       return React.createElement(Photo, {url: object.url, description: object.description})
     });
 
-    var featured = self.state.photos.filter(function(photo){
-      return photo.featured;
-    });
-
-    var featured_photos = featured.map(function(object) {
+    var featured_photos = self.state.featured_photos.map(function(object) {
       return React.createElement(Photo, {url: object.url, description: object.description})
     });
 
