@@ -214,12 +214,32 @@
 
 .infinite-photo-list {
 	.infinite-photo {
-		display: inline-block;
-		vertical-align: middle;
-		width: 25%;
+
+		@include respond-to(mobile) {
+		    @include span(1 of 1);
+		}
+		@include respond-to(small) {
+		    @include span(1 of 2);
+		}
+		@include respond-to(medium) {
+		    @include span(1 of 3);
+		}
+		@include respond-to(large) {
+		    @include span(1 of 4);
+		}
 		padding: 5px;
+		transition: 015s ease-out;
 		img {
 			width: 100%;
+		}
+	} 
+	.infinite-photo:hover {
+		img {
+			width: 150%;
+			max-width: none;
+			z-index: 1;
+			position: relative;
+			margin-left: -25%;
 		}
 	}
 }
