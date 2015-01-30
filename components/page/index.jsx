@@ -74,7 +74,7 @@ var Page = React.createClass({
     var diff = total_photos.length - total_tmp.length;
 
     if (diff > 0) {
-      if ( diff < 9 ) {
+      if ( diff < 11) {
         new_tmp_photos = total_tmp.concat(total_photos.splice(total_tmp.length, diff));
         has_more = false;
       } else {
