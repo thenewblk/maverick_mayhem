@@ -99,6 +99,6 @@ var Instagram = require('./models/instagram'),
   // }
   // if ( process.env.NODE_ENV == 'production' ) {
     setInterval( pollInstagram , 6000);
-    setInterval( pollTags , 108000);  
+    // setInterval( pollTags , 108000);  
   // }
     

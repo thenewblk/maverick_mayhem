@@ -12,6 +12,13 @@ $(function () {
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
   });
 
+  $('.arena-btn--play').on('click', function () {
+    $(this).parent().remove();
+    videoContainer.css('background-image', 'none');
+    // Reload Youtube
+    $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
+  });
+
   $('.nav-container').headroom();
 
   function showVideo() {
