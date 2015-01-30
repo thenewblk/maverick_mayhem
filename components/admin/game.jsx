@@ -1,6 +1,7 @@
 var React = require('react'),
     request = require('superagent'),
-    util = require('util');
+    util = require('util'),
+    moment = require('moment');
 
 var DatePicker = require('react-date-picker');
 
@@ -240,7 +241,7 @@ var Game = React.createClass({
   },
 
   dateChange: function(moment, dateText) {
-    this.setState({date: dateText})
+    this.setState({date: moment}); 
   },
 
 
@@ -278,7 +279,7 @@ var Game = React.createClass({
           <h3>New Game</h3>
           <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
           <h5><input type="text" value={opponent} onChange={this.handleOpponentChange} placeholder="Opponent" /></h5>
-          <h5><input type="text" className="game_date" value={date} onChange={this.handleDateChange} placeholder="Date" /></h5>
+          <h5>Date: </h5>
           <DatePicker
                   hideFooter={true}
                   date={date} 
@@ -308,7 +309,7 @@ var Game = React.createClass({
           <h3>Edit Game</h3>
           <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
           <h5><input type="text" value={opponent} onChange={this.handleOpponentChange} placeholder="Opponent" /></h5>
-          <h5><input type="text" className="game_date" value={date} onChange={this.handleDateChange} placeholder="Date" /></h5>
+          <h5>Date: </h5>
           <DatePicker
                   hideFooter={true}
                   date={date} 
@@ -343,7 +344,7 @@ var Game = React.createClass({
           <h3>{name}</h3>
           <ul>
             <li>Opponent: {opponent}</li>
-            <li>Date: {date}</li>
+            <li>Date: {moment(date).format('MMMM Do YYYY')}</li>
             <li>Time: {time}</li>
             <li>Ticket Link: {ticket}</li>
             <li>Location: {location}</li>

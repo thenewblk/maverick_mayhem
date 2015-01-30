@@ -42,7 +42,9 @@ gameSchema.virtual('total_them').get(function () {
   }, 0);
   return total;
 });
- 
+gameSchema.virtual('formatted_date').get(function () {
+  return moment(this.date).format('MMMM Do, YYYY');
+});
 gameSchema.methods.getPeriod = function (i) {
   return tools.ordinal(i);
 };
