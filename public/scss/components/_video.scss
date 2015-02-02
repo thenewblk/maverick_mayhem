@@ -15,11 +15,12 @@
       height: auto;
     }
   }
-
-  @include respond-to(mobile) {
-    height: auto;
-    padding-top: 0;
-    padding-bottom: 0;
+  .home & {
+    @include respond-to(mobile) {
+      height: auto;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
   }
 }
 
@@ -55,8 +56,10 @@ iframe {
     cursor: pointer;
   }
 
-  @include respond-to(mobile) {
-    position: relative;
+  .home & {
+    @include respond-to(mobile) {
+      position: relative;
+    }
   }
 }
 
@@ -68,7 +71,6 @@ iframe {
 
 .video-wrapper {
   @include transition(opacity .35s);
-  @include clearfix;
   opacity: 0;
 }
 
