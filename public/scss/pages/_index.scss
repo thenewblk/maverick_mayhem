@@ -1,24 +1,31 @@
 .instagrams {
+  @include clearfix;
 	padding: 5%;
-	@include clearfix;
+
 	.instagram {
 		@include span(1 of 10);
+
 		@include respond-to(mobile) {
 	    @include span(1 of 3);
 	  }
+
 		@include respond-to(small) {
 	    @include span(1 of 4);
 	  }
+
 		@include respond-to(medium) {
 	    @include span(1 of 6);
 	  }
+
 		@include respond-to(large) {
 	    @include span(1 of 10);
 	  }
+
 		display: inline-block;
 		position: relative;
 		color: white;
 		overflow: hidden;
+
 		.user-wrapper {
 			top: 60%;
 			position: absolute;
@@ -30,12 +37,14 @@
 			background: -o-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0.07) 26%, rgba(0,0,0,0.5) 71%, rgba(0,0,0,0.9) 100%);
 			background: -ms-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(0,0,0,0) 1%, rgba(0,0,0,0.07) 26%, rgba(0,0,0,0.5) 71%, rgba(0,0,0,0.9) 100%);
 		}
+
 		.user {
 			position: absolute;
 			bottom: 0;
 			width: 100%;
 			margin-bottom: 0;
 			padding: 10px;
+
 			.fa-instagram {
 				font-size: 20px;
 				vertical-align: middle;
@@ -47,9 +56,11 @@
 				vertical-align: middle;
 			}
 		}
+
 		&:last-child {
       @include last;
     }
+
     &:hover {
 			.user-wrapper {
 				top: 0;
@@ -58,37 +69,21 @@
 	}
 }
 
-
-.home-video-container {
-	@include respond-to(mobile) {
-		padding: 30px 0;
-	}
-}
-
-.video-content.home-copy {
-
-	display: table-cell;
-	vertical-align: middle;
-	width: 100%;
-
-	.container {
-		max-width: 800px;
-		padding: 30px;
-	}
-
-  img {
-    display: inline-block;
-  }
-}
-
 .mayhem-copy {
 	color: white;
 	padding: 100px 10% 50px;
+
 	p {
-		line-height: 2.5;
+    line-height: 2;
 		text-transform: uppercase;
-		font-size: 18px;
+		font-size: em(16px);
+
+    @include respond-to(small) {
+      font-size: em(18px);
+      line-height: 2.5;
+    }
 	}
+
 	.mav-mayhem-inline-home {
 		vertical-align: bottom;
 		margin-left: -8%;
