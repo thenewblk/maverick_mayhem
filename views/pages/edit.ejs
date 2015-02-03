@@ -4,5 +4,9 @@
       <script>window.slug = "<%= page.slug %>";</script>
       <div id="new_page"></div>
     </div>
-    <script src="/js/admin.js" async></script>
+    <% if (process.env.NODE_ENV == 'production') { %>
+    	<script src="/js/admin.min.js" async></script>
+    <% } else { %>
+    	<script src="/js/admin.js" async></script>
+    <% } %>
 <%- include ../layouts/_site_footer.ejs %>
