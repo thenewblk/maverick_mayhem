@@ -8,6 +8,7 @@ $(function () {
     $(this).parent().parent().remove();
     $('#video-background').remove();
     videoContainer.css('background-image', 'none');
+
     // Reload Youtube
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
   });
@@ -15,6 +16,7 @@ $(function () {
   $('.arena-btn--play').on('click', function () {
     $(this).parent().parent().remove();
     videoContainer.css('background-image', 'none');
+
     // Reload Youtube
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
   });

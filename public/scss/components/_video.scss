@@ -7,14 +7,19 @@
   background-size: cover;
   background-position: center center;
 
-  @media screen and (max-width: 600px) {
-    .arena & {
+  @include respond-to(mobile) {
+    background-image: none !important;
+  }
+
+  .arena & {
+    @media screen and (max-width: 600px) {
       overflow: visible;
       padding-bottom: 0;
       padding-top: 0;
       height: auto;
     }
   }
+
   .home & {
     @include respond-to(mobile) {
       height: auto;
@@ -32,6 +37,10 @@ iframe {
   left: 0;
   width: 100%;
   height: 100%;
+
+  @include respond-to(mobile) {
+    opacity: 1;
+  }
 }
 
 .video-overlay {
@@ -46,15 +55,20 @@ iframe {
   background: transparent url(../img/bg--video-overlay.png);
   text-align: center;
 
-  .arena & {
-    @media screen and (max-width: 600px) {
-      position: relative;
-    }
+  @include respond-to(mobile) {
+    display: none;
   }
+  // Hide until figure out mobile video
+  // .arena & {
+  //   @media screen and (max-width: 600px) {
+  //     position: relative;
+  //   }
+  // }
 
-  &.active {
-    cursor: pointer;
-  }
+  // Shouldn't need this
+  // &.active {
+  //   cursor: pointer;
+  // }
 
   .home & {
     @include respond-to(mobile) {
@@ -72,6 +86,10 @@ iframe {
 .video-wrapper {
   @include transition(opacity .35s);
   opacity: 0;
+
+  @include respond-to(mobile) {
+    opacity: 1;
+  }
 }
 
 .video-loaded {
