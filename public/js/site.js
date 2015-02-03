@@ -1,5 +1,5 @@
-var $video = $('video'),
-  videoContainer = $('.video-container'),
+var $video = $('#video-background'),
+  hero = $('.hero'),
   videoWrapper = $('.video-wrapper'),
   videoElement = $video[0];
 
@@ -7,7 +7,7 @@ $(function () {
   $('.btn--play').on('click', function () {
     $(this).parent().parent().remove();
     $('#video-background').remove();
-    videoContainer.css('background-image', 'none');
+    hero.css('background-image', 'none');
 
     // Reload Youtube
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
@@ -15,7 +15,7 @@ $(function () {
 
   $('.arena-btn--play').on('click', function () {
     $(this).parent().parent().remove();
-    videoContainer.css('background-image', 'none');
+    $('.video-container').css('background-image', 'none');
 
     // Reload Youtube
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
