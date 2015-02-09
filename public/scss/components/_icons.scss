@@ -1,1 +1,11 @@
-
+.icon--menu {
+  &:after {
+    float: right;
+    display: block;
+    width: 42px;
+    height: 30px;
+    content: "";
+    background: url(../img/icon--menu.svg) no-repeat center center;
+    // background-size: 100%;
+  }
+}
