@@ -58,7 +58,7 @@ gulp.task('build-styles', function() {
           .pipe(sourcemaps.init())
           .pipe(sass())
           .pipe(sourcemaps.write())
-          .pipe(gulp.dest('./public/css'));
+          .pipe(gulp.dest('./public/css'))
           .pipe(livereload());
 });
 
