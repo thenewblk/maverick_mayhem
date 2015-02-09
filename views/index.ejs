@@ -1,6 +1,29 @@
 <%- include ./layouts/_site_header.ejs %>
-<%- include ./layouts/_site_navigation.ejs %>
+    <header id="header">
+        <a href="/" class="logo">
+          <img src="/img/icon--bull.svg" alt="UNO Maverics bull icon">
+        </a>
 
+        <nav class="nav--secondary" role="navigation">
+          <div class="menu">
+            <ul class="menu--secondary menu__list">
+              <li class="menu__list--item"><a href="#">Tickets</a></li>
+              <li class="menu__list--item"><a href="#">Our House</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <nav class="nav--primary" role="navigation">
+          <span class="btn--menu icon--menu">Sports</span>
+          <div class="menu is-disabled">
+            <ul class="menu--main-menu menu__list">
+              <li class="menu__list--item"><a href="/hockey">Hockey</a></li>
+              <li class="menu__list--item"><a href="/basketball">Womens Basketball</a></li>
+              <li class="menu__list--item"><a href="/basketball">Mens Basketball</a></li>
+            </ul>
+          </div>
+        </nav>
+    </header>
     <div id="main" role="main" class="home">
       <div class="hero"  style="background-image: url(/img/SportsCombineStill.jpg);">
         <div class="overlay">
@@ -16,7 +39,7 @@
 
         <div class="video-wrapper">
           <video id="video-background" poster="/img/SportsCombineStill.jpg" autoplay muted="muted" loop>
-            <source src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4" type="video/mp4">
+            <!-- <source src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4" type="video/mp4"> -->
           </video>
         </div>
       </div>
