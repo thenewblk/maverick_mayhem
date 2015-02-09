@@ -10,11 +10,17 @@
 }
 
 .btn--menu {
+  @include transition(color 0.2s);
   float: left;
   color: $white;
   text-transform: uppercase;
-  line-height: em(48px);
+  line-height: em(32px);
   cursor: pointer;
+
+  &:hover,
+  &:active {
+    color: $brand_red;
+  }
 }
 
 .btn--red {
