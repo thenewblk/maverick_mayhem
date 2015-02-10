@@ -9,12 +9,11 @@
 }
 
 .menu__list {
-  @include horizontal-list;
+  margin: 0;
+  padding: 0;
 }
 
 .menu__list--item {
-  margin-right: 24px;
-
   a {
     @include transition(color 0.2s);
     text-decoration: none;
@@ -32,7 +31,26 @@
 .nav--primary {
   float: right;
   margin-right: 20px;
-  padding: 10px 0;
+  padding: 16px 0;
+}
+
+.menu--main-menu {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 40px;
+  max-width: 320px;
+  background-color: $brand_black;
+
+  .nav-show & {
+    display: block;
+  }
+
+  a {
+    display: block;
+    padding: 18px 8px;
+  }
 }
 
 /**
@@ -42,8 +60,12 @@
   float: left;
   padding: 20px 0;
   text-transform: uppercase;
-}
 
-.is-disabled {
-  display: none;
+  .menu__list {
+    @include horizontal-list;
+  }
+
+  .menu__list--item {
+    margin-right: 24px;
+  }
 }

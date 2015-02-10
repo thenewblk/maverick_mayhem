@@ -10234,6 +10234,10 @@ var $video = $('#video-background'),
   videoElement = $video[0];
 
 $(function () {
+
+  $('.btn--menu, .btn--menu-close').on('click', function () {
+    $('body').toggleClass('nav-show');
+  });
   $('.btn--play').on('click', function () {
     $(this).parent().parent().remove();
     $('#video-background').remove();

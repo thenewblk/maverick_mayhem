@@ -11,15 +11,35 @@
 
 .btn--menu {
   @include transition(color 0.2s);
-  float: left;
+  display: block;
   color: $white;
   text-transform: uppercase;
   line-height: em(32px);
+  text-align: right;
   cursor: pointer;
 
   &:hover,
   &:active {
     color: $brand_red;
+  }
+
+  .nav-show & {
+    display: none;
+  }
+}
+
+.btn--menu-close {
+  @include transition(opacity 0.8s);
+  display: none;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  text-indent: em(-9999px);
+  overflow: hidden;
+
+  .nav-show & {
+    display: block;
+    opacity: 1;
   }
 }
 
