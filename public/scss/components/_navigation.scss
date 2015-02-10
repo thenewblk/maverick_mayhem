@@ -3,6 +3,9 @@
  */
 .nav--primary,
 .nav--secondary {
+  font-weight: 900;
+  letter-spacing: em(1px);
+
   a {
     text-decoration: none;
   }
@@ -31,7 +34,6 @@
 .nav--primary {
   float: right;
   margin-right: 20px;
-  padding: 16px 0;
 }
 
 .menu--main-menu {
@@ -41,7 +43,7 @@
   right: 0;
   padding: 40px;
   max-width: 320px;
-  background-color: $brand_black;
+  background-color: $black;
 
   .nav-show & {
     display: block;
@@ -58,7 +60,6 @@
  */
 .nav--secondary {
   float: left;
-  padding: 20px 0;
   text-transform: uppercase;
 
   .menu__list {
@@ -67,5 +68,6 @@
 
   .menu__list--item {
     margin-right: 24px;
+    line-height: em(36px);
   }
 }

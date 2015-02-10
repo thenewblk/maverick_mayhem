@@ -4,6 +4,7 @@
 #header {
   @include clearfix;
   position: fixed;
+  padding-top: 14px;
   z-index: 1000;
   width: 100%;
   font-size: em(14px);
@@ -14,14 +15,7 @@
  */
 .logo {
   float: left;
-  width: 64px;
-  height: 48px;
-  padding: 4px 8px;
-
-  @include respond-to(mobile) {
-    width: 52px;
-    height: 36px;
-  }
+  margin: -4px 10px 0 10px;
 }
 
 .banner {

@@ -14,7 +14,7 @@
   display: block;
   color: $white;
   text-transform: uppercase;
-  line-height: em(32px);
+  line-height: em(36px);
   text-align: right;
   cursor: pointer;
 
@@ -36,6 +36,7 @@
   opacity: 0;
   text-indent: em(-9999px);
   overflow: hidden;
+  cursor: pointer;
 
   .nav-show & {
     display: block;
