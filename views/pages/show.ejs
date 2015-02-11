@@ -126,36 +126,9 @@
           <div class="upcoming-game last">
             <h3><span>Last Game:</span></h3>
           </div>
-          <div class="game-content">
-            <table class="sport__scoreboard sport__scoreboard-hockey">
-              <thead>
-                <tr class="scoreboard__header">
-                  <th class="team-name">&nbsp;</th>
-                  <% page.games[page.games.length - 2].scores.forEach(function(score, index){ %>
-                    <th><%= page.games[page.games.length - 2].getPeriod(index +1) %></th>
-                  <% }); %>
-                  <th class="score-total">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="team visitor">
-                  <td class="team-name">Omaha</td>
-                  <% page.games[page.games.length - 2].scores.forEach(function(score, index){ %>
-                    <td class="score"><%= score.us %></td>
-                  <% }); %>
-                  <td class="score"><%= page.games[page.games.length - 2].total_us %></td>
-                </tr>
-                <tr class="team away">
-                  <td class="team-name"><%= page.games[page.games.length - 2].opponent %></td>
-                  <% page.games[page.games.length - 2].scores.forEach(function(score, index){ %>
-                    <td class="score"><%= score.them %></td>
-                  <% }); %>
-                  <td class="score"><%= page.games[page.games.length - 2].total_them %></td>
-                  <!-- <td class="score score-winner">4</td> -->
-                </tr>
-              </tbody>
-            </table>
-          </div>
+  
+          <!-- include game partial -->
+
           <div class="upcoming-game">
             <h3><span>Next Game: </span><%= page.games[page.games.length - 1].formatted_date %></h3>
             <p>vs <%= page.games[page.games.length - 1].opponent %> @ <%= page.games[page.games.length - 1].location %></p>
