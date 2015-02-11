@@ -1,17 +1,19 @@
 <%- include ./layouts/_site_header.ejs %>
 <%- include ./layouts/_site_navigation.ejs %>
+
     <div id="main" role="main" class="arena">
-      <div class="video-container" style="background-image: url(/img/bg--video_arena.jpg);">
-        <div class="video-overlay">
-          <div class="video-overlay-container">
-            <div class="video-content">
-              <div class="video-content-arena">
+      <div class="hero" style="background-image: url(/img/bg--video_arena.jpg);">
+        <div class="overlay">
+          <div class="overlay__container">
+            <div class="hero__content">
+              <div class="hero__content-wrap">
                 <img src="/img/every-moment.svg" alt="Where every moment is the main event.">
                 <p>Opening Fall 2015, construction on the new UNO arena on Center St. near Aksarben Village is well underway. Not only will the arena be home to Mavericks hockey and basketball, it will also play host to a wide range of community events. </p>
               </div>
             </div>
           </div>
         </div>
+
         <div class="video-wrapper">
           <video id="video-background" poster="/img/bg--video_arena.jpg" autoplay muted="muted" loop>
             <source src="https://s3.amazonaws.com/maverickmayhem/loop_arena.mp4" type="video/mp4">
@@ -21,8 +23,8 @@
       <div class="container">
         <div class="arena-video">
           <div class="video-container" style="background-image: url(/img/arena-video.jpg);">
-            <div class="video-overlay video-btn__wrapper">
-              <div class="video-overlay-container">
+            <div class="overlay overlay--btn overlay--video">
+              <div class="overlay__container">
                 <p class="arena-btn--play">
                   <span class="btn--play_icon">
                     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="320px" height="334px" viewBox="0 0 320 334" enable-background="new 0 0 320 334" xml:space="preserve">

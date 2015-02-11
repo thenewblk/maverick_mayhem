@@ -7,6 +7,7 @@ var jshint = require('gulp-jshint'),
     path = require('path'),
     buffer = require('vinyl-buffer');
   	sass = require('gulp-sass'),
+    livereload = require('gulp-livereload'),
   	concat = require('gulp-concat'),
   	uglify = require('gulp-uglify'),
   	rename = require('gulp-rename'),
@@ -21,7 +22,7 @@ var jshint = require('gulp-jshint'),
     destFolder = './public/js/';
 
 gulp.task('build-reacts', folders(srcFolder, function(folder){
-  
+
     return browserify('./components/' + folder + '/index.jsx')
         .transform(reactify)
         .bundle()
@@ -58,6 +59,7 @@ gulp.task('build-styles', function() {
           .pipe(sass())
           .pipe(sourcemaps.write())
           .pipe(gulp.dest('./public/css'));
+          .pipe(livereload());
 });
 
 gulp.task('autoprefixer', function() {
@@ -80,6 +82,7 @@ gulp.task('build-scripts', function() {
 
 // Watch Files For Changes
 gulp.task('watch', function() {
+    livereload.listen();
     gulp.watch('components/**/*.jsx', ['build-reacts']);
     gulp.watch('public/scss/**/*.scss', ['stylesheets']);
     gulp.watch('public/js/site.js', ['build-scripts']);
