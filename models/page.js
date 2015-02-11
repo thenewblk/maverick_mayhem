@@ -1,7 +1,8 @@
 var mongoose = require( 'mongoose' ),
     moment = require('moment'),
     tools = require('../lib/utils'),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    deepPopulate = require('mongoose-deep-populate');
 
 var pageSchema = mongoose.Schema({
   updated_date  : String,
@@ -18,6 +19,8 @@ var pageSchema = mongoose.Schema({
   news          : [{ type: Schema.Types.ObjectId, ref: 'News' }] ,
 });
 
+
+
 pageSchema.pre('save', function (next) {
   this.updated_at = moment().format("M.D.YYYY");
   this.updated_date = moment().format();
@@ -26,5 +29,7 @@ pageSchema.pre('save', function (next) {
   
   next();
 });
+
+pageSchema.plugin( deepPopulate );
  
 module.exports = mongoose.model('Page', pageSchema);

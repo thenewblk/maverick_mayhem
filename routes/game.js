@@ -64,6 +64,7 @@ module.exports = function(app, passport) {
 	app.get('/api/games/:slug', isLoggedIn, function(req, res) {
 		Game
 			.findOne({ slug: req.params.slug })
+			.populate('photos')
 			.exec( function (err, game) {
 			  	if (err) return console.log(err);
 				res.send(game);
