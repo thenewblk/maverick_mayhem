@@ -283,7 +283,8 @@ var Page = React.createClass({displayName: "Page",
         ticket: object.ticket, 
         location: object.location, 
         home: object.home, 
-        scores: object.scores, 
+        series: object.series, 
+        photos: object.photos, 
         status: object.status, 
 
         remove_game: self.handleRemoveGame, 
@@ -376,7 +377,8 @@ React.renderComponent(
 var React = require('react'),
     request = require('superagent'),
     util = require('util'),
-    moment = require('moment');
+    moment = require('moment'),
+    Dropzone = require('../dropzone.js');
 
 var DatePicker = require('react-date-picker');
 
@@ -738,7 +740,7 @@ var Game = React.createClass({displayName: "Game",
 });
 
 module.exports = Game;
-},{"moment":11,"react":174,"react-date-picker":16,"superagent":175,"util":10}],3:[function(require,module,exports){
+},{"../dropzone.js":6,"moment":11,"react":174,"react-date-picker":16,"superagent":175,"util":10}],3:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
     util = require('util');

@@ -122,9 +122,14 @@ var Page = React.createClass({
 });
 
 
-
+var FlickerIcon = require('./flickerIcon.jsx');
 
 React.renderComponent(
   Page(),
   document.getElementById('photo-gallery')
-)
+);
+
+React.renderComponent(
+  FlickerIcon(),
+  document.getElementById('sport_icon')
+);
