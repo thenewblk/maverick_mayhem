@@ -1,7 +1,8 @@
 var React = require('react'),
     request = require('superagent'),
     util = require('util'),
-    moment = require('moment');
+    moment = require('moment'),
+    Dropzone = require('../dropzone.js');
 
 var DatePicker = require('react-date-picker');
 

@@ -1,22 +1,29 @@
 var mongoose = require( 'mongoose' ),
-    moment = require('moment'),
-    tools = require('../lib/utils');
+    moment = require( 'moment' ),
+    tools = require( '../lib/utils' ),
+    Schema = mongoose.Schema;
 
 var gameSchema = mongoose.Schema({
   updated_date  : String,
   updated_at    : String,
-	name    		: String,
-	slug    		: String,
-  opponent    : String,
-  date    		: String,
-  time    		: String,
-  ticket    	: String,
-  location    : String,
-  home    		: Boolean,
-  scores:   [
+	name    		  : String,
+	slug    		  : String,
+  opponent      : String,
+  ticket    	  : String,
+  location      : String,
+  home    		  : Boolean,
+  photos        : [{ type: Schema.Types.ObjectId, ref: 'Photo' }],
+
+  series: [
     {
-         us      : Number,
-         them    : Number
+      date          : String,
+      time          : String,
+      scores:   [
+        {
+             us      : Number,
+             them    : Number
+        }
+      ]
     }
   ]
 });
