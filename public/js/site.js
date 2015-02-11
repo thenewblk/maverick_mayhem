@@ -3,11 +3,27 @@ var $video = $('#video-background'),
   videoWrapper = $('.hero__media'),
   videoElement = $video[0];
 
+
+var navigation = document.querySelector("header");
+var headroom  = new Headroom(navigation);
+headroom.init({
+   // vertical offset in px before element is first unpinned
+    offset : 100,
+    // scroll tolerance in px before state changes
+    // tolerance : 0,
+    // or you can specify tolerance individually for up/down scroll
+    tolerance : {
+        up : 5,
+        down : 200
+    },
+});
+
 $(function () {
 
   $('.btn--menu, .btn--menu-close').on('click', function () {
     $('body').toggleClass('nav-show');
   });
+
   $('.btn--play').on('click', function () {
     $(this).parent().parent().remove();
     $('#video-background').remove();
@@ -25,7 +41,7 @@ $(function () {
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
   });
 
-  $('.nav-container').headroom();
+  // $('.nav-container').headroom();
 
   function showVideo() {
     videoWrapper.addClass('video-loaded');
