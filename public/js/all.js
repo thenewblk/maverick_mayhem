@@ -10230,7 +10230,7 @@ $("videojs.autoSetup",t.oc);$("videojs.plugin",t.ge);$("videojs.createTimeRange"
 });
 var $video = $('#video-background'),
   hero = $('.hero'),
-  videoWrapper = $('.video-wrapper'),
+  videoWrapper = $('.hero__media'),
   videoElement = $video[0];
 
 $(function () {

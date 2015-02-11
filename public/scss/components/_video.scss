@@ -1,32 +1,3 @@
-.hero {
-  position: relative;
-  padding-bottom: 56.25%; /* 16:9 */
-  padding-top: 25px;
-  height: 0;
-  overflow: hidden;
-  background-size: cover;
-  background-position: center center;
-
-  // @include respond-to(mobile) { background-image: none !important; }
-
-  .arena & {
-    @media screen and (max-width: 600px) {
-      overflow: visible;
-      padding-bottom: 0;
-      padding-top: 0;
-      height: auto;
-    }
-  }
-
-  .home & {
-    @include respond-to(mobile) {
-      height: auto;
-      padding-top: 0;
-      padding-bottom: 0;
-    }
-  }
-}
-
 .video-container {
   position: relative;
   padding-bottom: 56.25%; /* 16:9 */
@@ -37,54 +8,12 @@
   background-position: center center;
 }
 
-.overlay {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  min-width: 100%;
-  min-height: 100%;
-  height: 100.5%;
-  width: 100%;
-  z-index: 1;
-  background: transparent url(../img/bg--video-overlay.png);
-  text-align: center;
-
-  &.overlay--video {
-    @include respond-to(mobile) { display: none; }
-  }
-
-
-  .home &,
-  .arena & {
-    @include respond-to(mobile) { position: relative; }
-  }
-
-  // Hide until figure out mobile video
-  // .arena & {
-  //   @media screen and (max-width: 600px) {
-  //     position: relative;
-  //   }
-  // }
-
-  // Shouldn't need this
-  // &.active {
-  //   cursor: pointer;
-  // }
-}
-
 .overlay--btn{ cursor: pointer; }
 
 .overlay__container {
   display: table;
   width: 100%;
   height: 100%;
-}
-
-.video-wrapper {
-  @include transition(opacity .35s);
-  opacity: 0;
-
-  @include respond-to(mobile) { opacity: 1; }
 }
 
 iframe{
@@ -101,18 +30,18 @@ iframe{
 
 .video-loaded { opacity: 1; }
 
-#video-background {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  overflow: hidden;
+// #video-background {
+//   position: absolute;
+//   top: 0px;
+//   left: 0px;
+//   min-width: 100%;
+//   min-height: 100%;
+//   width: auto;
+//   height: auto;
+//   overflow: hidden;
 
-  @include respond-to(mobile) { display: none; }
-}
+//   @include respond-to(mobile) { display: none; }
+// }
 
 .arena-video {
   position: relative;
@@ -136,40 +65,15 @@ iframe{
   }
 }
 
-.hero__content {
-  display: table-cell;
-  vertical-align: middle;
-  line-height: 1.8;
-  color: $white;
-
-  p {
-    margin: 0;
-    padding-bottom: em(24px);
-  }
-
-  img { margin-bottom: 20px; }
-}
-
-
-
-.hero__content-wrap {
-  width: 280px;
-  margin: 0 auto;
-  padding: 80px 0 30px 0;
-
-  @media screen and (min-width: 360px) and (max-width: 599px ) { width: 320px; }
-
-  @media screen and (min-width: 600px) and (max-width: 767px) { width: 440px; }
-
-  @include respond-to(small) {
-    width: 320px;
-
-    &.hero__content-home { width: 600px; }
-  }
-
-  @include respond-to(medium) {
-    width: 500px;
-
-    &.hero__content-home { width: 800px; }
-  }
+.video-wrap {
+  @include transform(translate(-50%, -50%));
+  @include transition(opacity 0.3s ease);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-height: 100%;
+  min-width: 100%;
+  overflow: hidden;
+  outline: 0;
+  border: 0;
 }
