@@ -12,19 +12,19 @@ var Instagram = React.createClass({
   componentDidMount: function () {},
   render: function() {
     var self = this;
-    
+
     return (
       <div className="instagram">
         <ImageLoader src={self.props.images.low_resolution.url} >
           Image load failed!
         </ImageLoader>
         <div className="user-wrapper">
-        <a href={self.props.link}>
-          <p className="user">
-            <span className="fa fa-instagram"></span>
-            <span className="username">{self.props.user.username}</span> 
-          </p>
+        <p className="photo__description">{self.props.caption.slice(0,140)}</p>
+        <p className="instagram__user">
+          <a href={self.props.link}>
+             &#64;{self.props.user.username}
           </a>
+        </p>
         </div>
       </div>
     )
@@ -47,7 +47,7 @@ var InstagramList = React.createClass({
           self.setState({instagrams: instagrams});
         }
       }.bind(self));
-    
+
   },
 
   componentDidMount: function () {
@@ -58,7 +58,7 @@ var InstagramList = React.createClass({
     var self = this;
 
     var instagrams = self.state.instagrams.map(function(object) {
-      return <Instagram images={object.images} user={object.user} link={object.link} />
+      return <Instagram images={object.images} user={object.user} link={object.link} caption={object.caption.text} />
     });
 
     return (
