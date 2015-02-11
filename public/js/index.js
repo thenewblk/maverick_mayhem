@@ -13,19 +13,19 @@ var Instagram = React.createClass({displayName: "Instagram",
   componentDidMount: function () {},
   render: function() {
     var self = this;
-    
+
     return (
       React.createElement("div", {className: "instagram"}, 
         React.createElement(ImageLoader, {src: self.props.images.low_resolution.url}, 
           "Image load failed!"
         ), 
         React.createElement("div", {className: "user-wrapper"}, 
-        React.createElement("a", {href: self.props.link}, 
-          React.createElement("p", {className: "user"}, 
-            React.createElement("span", {className: "fa fa-instagram"}), 
-            React.createElement("span", {className: "username"}, self.props.user.username)
+        React.createElement("p", {className: "photo__description"}, self.props.caption.slice(0,140)), 
+        React.createElement("p", {className: "instagram__user"}, 
+          React.createElement("a", {href: self.props.link}, 
+             "@", self.props.user.username
           )
-          )
+        )
         )
       )
     )
@@ -48,7 +48,7 @@ var InstagramList = React.createClass({displayName: "InstagramList",
           self.setState({instagrams: instagrams});
         }
       }.bind(self));
-    
+
   },
 
   componentDidMount: function () {
@@ -59,7 +59,7 @@ var InstagramList = React.createClass({displayName: "InstagramList",
     var self = this;
 
     var instagrams = self.state.instagrams.map(function(object) {
-      return React.createElement(Instagram, {images: object.images, user: object.user, link: object.link})
+      return React.createElement(Instagram, {images: object.images, user: object.user, link: object.link, caption: object.caption.text})
     });
 
     return (
@@ -74,6 +74,7 @@ React.renderComponent(
   InstagramList(),
   document.getElementById('instagrams')
 )
+
 },{"react":155,"react-imageloader":6,"superagent":156,"util":5}],2:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
