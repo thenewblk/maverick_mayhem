@@ -5,7 +5,7 @@ var React = require('react'),
 
 var Content = window.slug || {};
 
-var Game = require('./game.jsx'),
+var Matchup = require('./matchup.jsx'),
     News = require('./news.jsx'),
     Photo = require('./photo.jsx'),
     PhotosUploader = require('./photos_uploader.jsx');
@@ -20,8 +20,8 @@ var Page = React.createClass({
       description: '', 
       video: {}, 
       icon: {}, 
-      games: [], 
-      tmp_games: [], 
+      matchups: [], 
+      tmp_matchups: [''], 
       photos: [], 
       tmp_photos: [], 
       news: [], 
@@ -41,27 +41,6 @@ var Page = React.createClass({
           if (res.text) {
             var Page = JSON.parse(res.text);
             Page.status = "edit";
-            var tmp_games = Page.games;
-            Page.tmp_games = tmp_games;
-            Page.games = [];
-            for ( i in  Page.tmp_games) {
-              Page.games[i] = Page.tmp_games[i]._id;
-            }
-
-            var tmp_photos = Page.photos;
-            Page.tmp_photos = tmp_photos;
-            Page.photos = [];
-            for ( i in  Page.tmp_photos) {
-              Page.photos[i] = Page.tmp_photos[i]._id;
-            }
-
-            var tmp_news = Page.news;
-            Page.tmp_news = tmp_news;
-            Page.news = [];
-            for ( i in  Page.tmp_news) {
-              Page.news[i] = Page.tmp_news[i]._id;
-            }
-
             self.setState(Page);
             console.log(Page)
           }
@@ -97,9 +76,8 @@ var Page = React.createClass({
         console.log(res)
         if (res.text) {
           var new_photo = JSON.parse(res.text);
-          var new_tmp_photos = current_tmp_photos.concat(new_photo);
-          var new_photos = current_photos.concat(new_photo._id);
-          self.setState({tmp_photos: new_tmp_photos, photos: new_photos });
+          var new_photos = current_photos.concat(new_photo);
+          self.setState({photos: new_photos });
         }
       }.bind(self));
   },
@@ -107,18 +85,8 @@ var Page = React.createClass({
   handleRemovePhoto: function(photo) {
 
     var self = this,
-        current_tmp_photos = self.state.tmp_photos,
-        current_photos = self.state.photos;
-
-    var found_tmp_photo, found_photo;
-
-    for ( i in  current_tmp_photos) {
-      if ( current_tmp_photos[i]._id == photo._id ){
-        found_tmp_photo = i;
-      }
-    }
-
-    current_tmp_photos.splice(found_tmp_photo, 1);
+        current_photos = self.state.photos,
+        found_photo;
 
     for ( i in  current_photos) {
       if ( current_photos[i] == photo._id ){
@@ -127,76 +95,57 @@ var Page = React.createClass({
     }
     current_photos.splice(found_photo, 1);
 
-    self.setState({tmp_photos: current_tmp_photos, photos: current_photos });
+    self.setState({photos: current_photos });
   },
 
 
-  handleRemoveGame: function(game) {
+  handleRemoveMatchup: function(matchup) {
 
     var self = this,
-        current_tmp_games = self.state.tmp_games,
-        current_games = self.state.games;
+        current_matchups = self.state.matchups, 
+        found_matchup;
 
-    var found_tmp_game, found_game;
-    if (game._id) {
-      for ( i in  current_tmp_games) {
-        if ( current_tmp_games[i]._id == game._id ){
-          found_tmp_game = i;
+    if (matchup._id) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i] == matchup._id ){
+          found_matchup = i;
         }
       }
+      current_matchups.splice(found_matchup, 1);
 
-      current_tmp_games.splice(found_tmp_game, 1);
-
-      for ( i in  current_games) {
-        if ( current_games[i] == game._id ){
-          found_game = i;
-        }
-      }
-      current_games.splice(found_game, 1);
-
-      self.setState({tmp_games: current_tmp_games, games: current_games });      
-    } else {
-      for ( i in  current_tmp_games) {
-        if ( current_tmp_games[i].identifier == game.identifier ){
-          found_tmp_game = i;
-        }
-      }
-
-      current_tmp_games.splice(found_tmp_game, 1);
-
-      self.setState({tmp_games: current_tmp_games });
+      self.setState({matchups: current_matchups });      
     }
 
   },
 
-  newGameSaved: function(content) {
-    console.log('newGameSaved');
-    var current_games = this.state.games;
+  newMatchupSaved: function(content) {
+    console.log('newMatchupSaved');
+    var current_matchups = this.state.matchups;
 
-    var new_games = current_games.concat(content._id);
+    var new_matchups = current_matchups.concat(content);
 
-    this.setState({games: new_games});
+    this.setState({matchups: new_matchups});
   },
 
-  newGame: function() {
-    console.log('newGame');
-    var current_games = this.state.tmp_games;
-    var new_games = current_games.concat({status: 'new', identifier: Math.random()});
-    this.setState({tmp_games: new_games});
+  newMatchup: function() {
+    console.log('newMatchup');
+    var current_matchups = this.state.matchups;
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random()});
+    this.setState({matchups: new_matchups});
   },
 
   newNews: function() {
     console.log('newNews');
-    var current_news = this.state.tmp_news;
+    var current_news = this.state.news;
     var new_news = current_news.concat({status: 'new', identifier: Math.random()});
-    this.setState({tmp_news: new_news});
+    this.setState({news: new_news});
   },
 
   newNewsSaved: function(content) {
     console.log('newNewsSaved');
     var current_news = this.state.news;
 
-    var new_news = current_news.concat(content._id);
+    var new_news = current_news.concat(content);
 
     this.setState({news: new_news});
   },
@@ -205,20 +154,10 @@ var Page = React.createClass({
   handleRemoveNews: function(object) {
 
     var self = this,
-        current_tmp_news = self.state.tmp_news,
-        current_news = self.state.news;
-
-    var found_tmp_new, found_new;
+        current_news = self.state.news,
+        found_new;
 
     if (object._id) {
-      for ( i in  current_tmp_news) {
-        if ( current_tmp_news[i]._id == object._id ){
-          found_tmp_new = i;
-        }
-      }
-
-      current_tmp_news.splice(found_tmp_new, 1);
-
       for ( i in  current_news) {
         if ( current_news[i] == object._id ){
           found_new = i;
@@ -227,15 +166,6 @@ var Page = React.createClass({
       current_news.splice(found_new, 1);
 
       self.setState({tmp_news: current_tmp_news, news: current_news });      
-    } else {
-      for ( i in  current_tmp_news) {
-        if ( current_tmp_news[i].identifier == object.identifier ){
-          found_tmp_new = i;
-        }
-      }
-
-      current_tmp_news.splice(found_tmp_new, 1);
-      self.setState({tmp_news: current_tmp_news });
     }
   },
 
@@ -273,28 +203,25 @@ var Page = React.createClass({
         banner = self.state.banner,
         description = self.state.description;  
 
-    var games = self.state.tmp_games.map(function(object) {
-      return <Game 
+    var matchups = self.state.matchups.map(function(object) {
+      return <Matchup 
         name={object.name}
         slug={object.slug} 
         opponent={object.opponent}
-        date={object.date}
-        time={object.time}
         ticket={object.ticket}
         location={object.location}
         home={object.home}
-        scores={object.scores}
-        series={object.series}
+        games={object.games}
         photos={object.photos}
         status={object.status}
 
-        remove_game={self.handleRemoveGame}
+        remove_matchup={self.handleRemoveMatchup}
 
         identifier={object.identifier}
-        new_game={self.newGameSaved} />
+        new_matchup={self.newMatchupSaved} />
     }); 
 
-    var photos = self.state.tmp_photos.map(function(object) {
+    var photos = self.state.photos.map(function(object) {
       return <Photo 
         url={object.url} 
         _id={object._id}
@@ -307,7 +234,7 @@ var Page = React.createClass({
         identifier={Math.random()} />
     });
 
-    var news = self.state.tmp_news.map(function(object) {
+    var news = self.state.news.map(function(object) {
       console.log('news: '+util.inspect(object));
       return <News 
         title={object.title} 
@@ -334,13 +261,13 @@ var Page = React.createClass({
         <h5><input type="text" value={banner} onChange={this.handleBannerChange} placeholder="Banner" /></h5>
         <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
  
-        { games ?
+        { matchups ?
           <div className="games">
-            <h2 className="page_edit_title">Games</h2>
-            {games}
+            <h2 className="page_edit_title">Matchups</h2>
+            {matchups}
           </div> 
         : '' }
-        <h6 className="new_game" onClick={this.newGame}><span className="fa fa-plus"></span>New Game</h6>
+        <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
 
 
         { news ?

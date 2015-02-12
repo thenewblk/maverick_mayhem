@@ -36,7 +36,7 @@ var Page = React.createClass({
       description: '', 
       video: {}, 
       icon: {}, 
-      games: [], 
+      matchups: [], 
       photos: [], 
       featured_photos: [],
       tmp_photos: [], 

@@ -1,6 +1,6 @@
 var Page = require('../models/page'),
 	util = require('util');
-// var Game = require('../models/game');
+// var matchup = require('../models/matchup');
 // route middleware to ensure user is logged in
 
 module.exports = function(app, passport) {
@@ -19,7 +19,7 @@ module.exports = function(app, passport) {
 	app.get('/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('games games.scores photos news')
+			.populate('matchups matchups.scores photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 			  	var title;
@@ -64,7 +64,7 @@ module.exports = function(app, passport) {
 		new_page.headline = req.body.headline;
 		new_page.banner = req.body.banner;
 		new_page.description = req.body.description;
-		new_page.games = req.body.games;
+		new_page.matchups = req.body.matchups;
 		new_page.photos = req.body.photos;
 		new_page.news = req.body.news;
 
@@ -88,10 +88,10 @@ module.exports = function(app, passport) {
 	app.get('/api/pages/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.deepPopulate('games games.photos photos news')
+			.deepPopulate('matchups matchups.photos photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
-			  	var tmp_games = [];
+			  	var tmp_matchups = [];
 
 			  	res.send(page);
 
@@ -128,7 +128,7 @@ module.exports = function(app, passport) {
 		tmp_page.headline = req.body.headline;
 		tmp_page.banner = req.body.banner;
 		tmp_page.description = req.body.description;
-		tmp_page.games = req.body.games;
+		tmp_page.matchups = req.body.matchups;
 		tmp_page.photos = req.body.photos;
 		tmp_page.news = req.body.news;
 
@@ -143,7 +143,7 @@ module.exports = function(app, passport) {
 				page.headline = tmp_page.headline;
 				page.banner = tmp_page.banner;
 				page.description = tmp_page.description;
-				page.games = tmp_page.games;
+				page.matchups = tmp_page.matchups;
 				page.photos = tmp_page.photos;
 				page.news = tmp_page.news;
 

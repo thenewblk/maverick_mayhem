@@ -14,7 +14,7 @@ var pageSchema = mongoose.Schema({
   headline      : String,
   banner        : String,
   description   : String,
-  games         : [{ type: Schema.Types.ObjectId, ref: 'Game' }],
+  games         : [{ type: Schema.Types.ObjectId, ref: 'Matchup' }],
   photos        : [{ type: Schema.Types.ObjectId, ref: 'Photo' }] ,
   news          : [{ type: Schema.Types.ObjectId, ref: 'News' }] ,
 });

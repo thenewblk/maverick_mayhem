@@ -6,7 +6,7 @@ var React = require('react'),
 
 var Content = window.slug || {};
 
-var Game = require('./game.jsx'),
+var Matchup = require('./matchup.jsx'),
     News = require('./news.jsx'),
     Photo = require('./photo.jsx'),
     PhotosUploader = require('./photos_uploader.jsx');
@@ -21,8 +21,8 @@ var Page = React.createClass({displayName: "Page",
       description: '', 
       video: {}, 
       icon: {}, 
-      games: [], 
-      tmp_games: [], 
+      matchups: [], 
+      tmp_matchups: [''], 
       photos: [], 
       tmp_photos: [], 
       news: [], 
@@ -42,27 +42,6 @@ var Page = React.createClass({displayName: "Page",
           if (res.text) {
             var Page = JSON.parse(res.text);
             Page.status = "edit";
-            var tmp_games = Page.games;
-            Page.tmp_games = tmp_games;
-            Page.games = [];
-            for ( i in  Page.tmp_games) {
-              Page.games[i] = Page.tmp_games[i]._id;
-            }
-
-            var tmp_photos = Page.photos;
-            Page.tmp_photos = tmp_photos;
-            Page.photos = [];
-            for ( i in  Page.tmp_photos) {
-              Page.photos[i] = Page.tmp_photos[i]._id;
-            }
-
-            var tmp_news = Page.news;
-            Page.tmp_news = tmp_news;
-            Page.news = [];
-            for ( i in  Page.tmp_news) {
-              Page.news[i] = Page.tmp_news[i]._id;
-            }
-
             self.setState(Page);
             console.log(Page)
           }
@@ -98,9 +77,8 @@ var Page = React.createClass({displayName: "Page",
         console.log(res)
         if (res.text) {
           var new_photo = JSON.parse(res.text);
-          var new_tmp_photos = current_tmp_photos.concat(new_photo);
-          var new_photos = current_photos.concat(new_photo._id);
-          self.setState({tmp_photos: new_tmp_photos, photos: new_photos });
+          var new_photos = current_photos.concat(new_photo);
+          self.setState({photos: new_photos });
         }
       }.bind(self));
   },
@@ -108,18 +86,8 @@ var Page = React.createClass({displayName: "Page",
   handleRemovePhoto: function(photo) {
 
     var self = this,
-        current_tmp_photos = self.state.tmp_photos,
-        current_photos = self.state.photos;
-
-    var found_tmp_photo, found_photo;
-
-    for ( i in  current_tmp_photos) {
-      if ( current_tmp_photos[i]._id == photo._id ){
-        found_tmp_photo = i;
-      }
-    }
-
-    current_tmp_photos.splice(found_tmp_photo, 1);
+        current_photos = self.state.photos,
+        found_photo;
 
     for ( i in  current_photos) {
       if ( current_photos[i] == photo._id ){
@@ -128,76 +96,57 @@ var Page = React.createClass({displayName: "Page",
     }
     current_photos.splice(found_photo, 1);
 
-    self.setState({tmp_photos: current_tmp_photos, photos: current_photos });
+    self.setState({photos: current_photos });
   },
 
 
-  handleRemoveGame: function(game) {
+  handleRemoveMatchup: function(matchup) {
 
     var self = this,
-        current_tmp_games = self.state.tmp_games,
-        current_games = self.state.games;
+        current_matchups = self.state.matchups, 
+        found_matchup;
 
-    var found_tmp_game, found_game;
-    if (game._id) {
-      for ( i in  current_tmp_games) {
-        if ( current_tmp_games[i]._id == game._id ){
-          found_tmp_game = i;
+    if (matchup._id) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i] == matchup._id ){
+          found_matchup = i;
         }
       }
+      current_matchups.splice(found_matchup, 1);
 
-      current_tmp_games.splice(found_tmp_game, 1);
-
-      for ( i in  current_games) {
-        if ( current_games[i] == game._id ){
-          found_game = i;
-        }
-      }
-      current_games.splice(found_game, 1);
-
-      self.setState({tmp_games: current_tmp_games, games: current_games });      
-    } else {
-      for ( i in  current_tmp_games) {
-        if ( current_tmp_games[i].identifier == game.identifier ){
-          found_tmp_game = i;
-        }
-      }
-
-      current_tmp_games.splice(found_tmp_game, 1);
-
-      self.setState({tmp_games: current_tmp_games });
+      self.setState({matchups: current_matchups });      
     }
 
   },
 
-  newGameSaved: function(content) {
-    console.log('newGameSaved');
-    var current_games = this.state.games;
+  newMatchupSaved: function(content) {
+    console.log('newMatchupSaved');
+    var current_matchups = this.state.matchups;
 
-    var new_games = current_games.concat(content._id);
+    var new_matchups = current_matchups.concat(content);
 
-    this.setState({games: new_games});
+    this.setState({matchups: new_matchups});
   },
 
-  newGame: function() {
-    console.log('newGame');
-    var current_games = this.state.tmp_games;
-    var new_games = current_games.concat({status: 'new', identifier: Math.random()});
-    this.setState({tmp_games: new_games});
+  newMatchup: function() {
+    console.log('newMatchup');
+    var current_matchups = this.state.matchups;
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random()});
+    this.setState({matchups: new_matchups});
   },
 
   newNews: function() {
     console.log('newNews');
-    var current_news = this.state.tmp_news;
+    var current_news = this.state.news;
     var new_news = current_news.concat({status: 'new', identifier: Math.random()});
-    this.setState({tmp_news: new_news});
+    this.setState({news: new_news});
   },
 
   newNewsSaved: function(content) {
     console.log('newNewsSaved');
     var current_news = this.state.news;
 
-    var new_news = current_news.concat(content._id);
+    var new_news = current_news.concat(content);
 
     this.setState({news: new_news});
   },
@@ -206,20 +155,10 @@ var Page = React.createClass({displayName: "Page",
   handleRemoveNews: function(object) {
 
     var self = this,
-        current_tmp_news = self.state.tmp_news,
-        current_news = self.state.news;
-
-    var found_tmp_new, found_new;
+        current_news = self.state.news,
+        found_new;
 
     if (object._id) {
-      for ( i in  current_tmp_news) {
-        if ( current_tmp_news[i]._id == object._id ){
-          found_tmp_new = i;
-        }
-      }
-
-      current_tmp_news.splice(found_tmp_new, 1);
-
       for ( i in  current_news) {
         if ( current_news[i] == object._id ){
           found_new = i;
@@ -228,15 +167,6 @@ var Page = React.createClass({displayName: "Page",
       current_news.splice(found_new, 1);
 
       self.setState({tmp_news: current_tmp_news, news: current_news });      
-    } else {
-      for ( i in  current_tmp_news) {
-        if ( current_tmp_news[i].identifier == object.identifier ){
-          found_tmp_new = i;
-        }
-      }
-
-      current_tmp_news.splice(found_tmp_new, 1);
-      self.setState({tmp_news: current_tmp_news });
     }
   },
 
@@ -274,28 +204,25 @@ var Page = React.createClass({displayName: "Page",
         banner = self.state.banner,
         description = self.state.description;  
 
-    var games = self.state.tmp_games.map(function(object) {
-      return React.createElement(Game, {
+    var matchups = self.state.matchups.map(function(object) {
+      return React.createElement(Matchup, {
         name: object.name, 
         slug: object.slug, 
         opponent: object.opponent, 
-        date: object.date, 
-        time: object.time, 
         ticket: object.ticket, 
         location: object.location, 
         home: object.home, 
-        scores: object.scores, 
-        series: object.series, 
+        games: object.games, 
         photos: object.photos, 
         status: object.status, 
 
-        remove_game: self.handleRemoveGame, 
+        remove_matchup: self.handleRemoveMatchup, 
 
         identifier: object.identifier, 
-        new_game: self.newGameSaved})
+        new_matchup: self.newMatchupSaved})
     }); 
 
-    var photos = self.state.tmp_photos.map(function(object) {
+    var photos = self.state.photos.map(function(object) {
       return React.createElement(Photo, {
         url: object.url, 
         _id: object._id, 
@@ -308,7 +235,7 @@ var Page = React.createClass({displayName: "Page",
         identifier: Math.random()})
     });
 
-    var news = self.state.tmp_news.map(function(object) {
+    var news = self.state.news.map(function(object) {
       console.log('news: '+util.inspect(object));
       return React.createElement(News, {
         title: object.title, 
@@ -335,13 +262,13 @@ var Page = React.createClass({displayName: "Page",
         React.createElement("h5", null, React.createElement("input", {type: "text", value: banner, onChange: this.handleBannerChange, placeholder: "Banner"})), 
         React.createElement("h5", null, React.createElement("input", {type: "text", value: description, onChange: this.handleDescriptionChange, placeholder: "Description"})), 
  
-         games ?
+         matchups ?
           React.createElement("div", {className: "games"}, 
-            React.createElement("h2", {className: "page_edit_title"}, "Games"), 
-            games
+            React.createElement("h2", {className: "page_edit_title"}, "Matchups"), 
+            matchups
           ) 
         : '', 
-        React.createElement("h6", {className: "new_game", onClick: this.newGame}, React.createElement("span", {className: "fa fa-plus"}), "New Game"), 
+        React.createElement("h6", {className: "new_game", onClick: this.newMatchup}, React.createElement("span", {className: "fa fa-plus"}), "New Matchup"), 
 
 
          news ?
@@ -375,16 +302,15 @@ React.renderComponent(
  Page(Content),
   document.getElementById('new_page')
 )
-},{"../dropzone.js":6,"./game.jsx":2,"./news.jsx":3,"./photo.jsx":4,"./photos_uploader.jsx":5,"react":174,"superagent":175,"util":10}],2:[function(require,module,exports){
+},{"../dropzone.js":6,"./matchup.jsx":2,"./news.jsx":3,"./photo.jsx":4,"./photos_uploader.jsx":5,"react":174,"superagent":175,"util":10}],2:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
     util = require('util'),
     moment = require('moment'),
     Dropzone = require('../dropzone.js'),
     Photo = require('./photo.jsx'),
-    PhotosUploader = require('./photos_uploader.jsx');
-
-var DatePicker = require('react-date-picker');
+    PhotosUploader = require('./photos_uploader.jsx'),
+    DatePicker = require('react-date-picker');
 
 var Score = React.createClass({displayName: "Score",
   getInitialState: function() {
@@ -459,7 +385,7 @@ var Score = React.createClass({displayName: "Score",
   }
 });
 
-var Game = React.createClass({displayName: "Game",
+var Matchup = React.createClass({displayName: "Matchup",
   getInitialState: function() {
     return { 
         name: '', 
@@ -473,57 +399,29 @@ var Game = React.createClass({displayName: "Game",
         scores: [],
         tmp_photos: [],
         photos: [],
-        series: [] };
+        games: [] };
   },
 
   componentWillMount: function(){
     var self = this;
+    console.log('self: '+util.inspect(self));
     console.log('self.props.slug: '+self.props.slug);
     console.log('self.props.photos: '+self.props.photos);
 
-    var tmp_game = self.props;
-
-    if (tmp_game.series.length > 0) {
-      tmp_game.isSeries = true;
-    } else {
-      tmp_game.isSeries = false;
-    }
-
-    
+    var tmp_matchup = self.props;
 
 
-    self.setState(tmp_game);
-
-    // if( self.props.slug ) {
-    //   request
-    //     .get('/api/games/'+self.props.slug)
-    //     .end(function(res) {
-    //       console.log(res)
-    //       if (res.text) {
-    //         var game = JSON.parse(res.text);
-    //         self.setState(game);
-
-    //       }
-    //     }.bind(self));
-
-    // } else {
-    //   var tmp_game = {};
-    //       tmp_game.status = self.props.status,
-    //       tmp_game.identifier = self.props.identifier;
-    //   self.setState(tmp_game);
-    // }
-    // console.log(self.state.scores);
+    self.setState(tmp_matchup);
 
   },
 
-  componentDidMount: function(){
-
-  },
+  componentDidMount: function(){},
 
 
   handleNameChange: function(event) {
     this.setState({name: event.target.value});
   },
+
   handleOpponentChange: function(event) {
     this.setState({opponent: event.target.value});
   },
@@ -543,12 +441,6 @@ var Game = React.createClass({displayName: "Game",
     console.log('handleHomeChange: '+event.target.value);
     this.setState({home: !this.state.home});
   },
-
-  isSeriesChange: function(event) {
-    console.log('isSeriesChange: '+event.target.value);
-    this.setState({isSeries: !this.state.isSeries});
-  },
-
 
   // Photo Stuff
 
@@ -617,7 +509,7 @@ var Game = React.createClass({displayName: "Game",
   },
 
   newScore: function() {
-    console.log('newGame');
+    console.log('newmatchup');
     var current_scores = this.state.scores;
     console.log(' '+util.inspect(current_scores));
     var new_scores = current_scores.concat({status: 'new', identifier: Math.random()});
@@ -631,13 +523,13 @@ var Game = React.createClass({displayName: "Game",
   },
 
   handleRemove: function(){
-    this.props.remove_game({_id: this.state._id});
+    this.props.remove_matchup({_id: this.state._id});
   },
 
   submitContent: function(){
     var self = this;
-    var tmp_game = self.state;
-    var current_scores = tmp_game.scores;
+    var tmp_matchup = self.state;
+    var current_scores = tmp_matchup.scores;
 
 
 
@@ -646,28 +538,28 @@ var Game = React.createClass({displayName: "Game",
         delete current_scores[i].identifier
     }
 
-    tmp_game.scores = current_scores;
+    tmp_matchup.scores = current_scores;
 
     request
-      .post('/api/games/new')
-      .send(tmp_game)
+      .post('/api/matchups/new')
+      .send(tmp_matchup)
       .end(function(res) {
         console.log(res)
         if (res.text) {
-          console.log('new game: '+res.text);
-          var new_game = JSON.parse(res.text);
-          new_game.identifier = self.state.identifier;
-          new_game.status = 'show';
-          self.props.new_game(new_game);
-          self.setState(new_game);
+          console.log('new matchup: '+res.text);
+          var new_matchup = JSON.parse(res.text);
+          new_matchup.identifier = self.state.identifier;
+          new_matchup.status = 'show';
+          self.props.new_matchup(new_matchup);
+          self.setState(new_matchup);
         }
       }.bind(self));
   },
 
   editContent: function(){
     var self = this;
-    var tmp_game = self.state;
-    var current_scores = tmp_game.scores;
+    var tmp_matchup = self.state;
+    var current_scores = tmp_matchup.scores;
 
 
 
@@ -676,22 +568,22 @@ var Game = React.createClass({displayName: "Game",
         delete current_scores[i].identifier
     }
 
-    tmp_game.scores = current_scores;
+    tmp_matchup.scores = current_scores;
 
 
     console.log('editContent: '+util.inspect(self.state));
     // self.setState({submitted: true});
     request
-      .post('/api/games/'+self.state.slug+'/edit')
-      .send(tmp_game)
+      .post('/api/matchups/'+self.state.slug+'/edit')
+      .send(tmp_matchup)
       .end(function(res) {
         console.log(res)
         if (res.text) {
-          console.log('new game: '+res.text);
-          var new_game = JSON.parse(res.text);
-          new_game.identifier = self.state.identifier;
-          new_game.status = 'show';
-          self.setState(new_game);
+          console.log('new matchup: '+res.text);
+          var new_matchup = JSON.parse(res.text);
+          new_matchup.identifier = self.state.identifier;
+          new_matchup.status = 'show';
+          self.setState(new_matchup);
         }
       }.bind(self));
   },
@@ -715,24 +607,8 @@ var Game = React.createClass({displayName: "Game",
         ticket = self.state.ticket,
         location = self.state.location,
         home = self.state.home,
-        scores = self.state.scores,
-        series = self.state.series,
-        isSeries = self.state.isSeries,
+        games = self.state.games,
         status = self.state.status;
-
-    var the_scores = scores.map(function(object) {
-      var identifier = object.identifier || object._id;
-      var status = object.status || "show";
-      return React.createElement(Score, {
-        us: object.us, 
-        them: object.them, 
-        status: status, 
-
-        identifier: identifier, 
-        key: identifier, 
-
-        submit: self.handleScoreChange})
-    });
 
     var photos = self.state.photos.map(function(object) {
       return React.createElement(Photo, {
@@ -750,11 +626,11 @@ var Game = React.createClass({displayName: "Game",
 
     if ((status == 'new') || (status == 'edit')) {
       return (
-        React.createElement("div", {className: "game"}, 
+        React.createElement("div", {className: "matchup"}, 
            status == 'new' ? 
-            React.createElement("h3", null, "New Game") 
+            React.createElement("h3", null, "New matchup") 
           : 
-            React.createElement("h3", null, "Edit Game"), 
+            React.createElement("h3", null, "Edit matchup"), 
           
           React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: opponent, onChange: this.handleOpponentChange, placeholder: "Opponent"})), 
@@ -762,21 +638,12 @@ var Game = React.createClass({displayName: "Game",
           React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
           React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
 
-          React.createElement("h5", {className: "home"}, "Series?: ", React.createElement("input", {type: "checkbox", checked: isSeries, onChange: this.isSeriesChange})), 
-
           React.createElement("h5", null, "Date: "), 
           React.createElement(DatePicker, {
                   hideFooter: true, 
                   date: date, 
                   onChange: self.dateChange}), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
-
-           the_scores ?
-            React.createElement("div", {className: "Scores"}, 
-              the_scores
-            ) 
-          : '', 
-          React.createElement("h6", {onClick: this.newScore}, "New Score"), 
 
            photos ?
             React.createElement("div", {className: "photos"}, 
@@ -840,7 +707,7 @@ var Game = React.createClass({displayName: "Game",
   }
 });
 
-module.exports = Game;
+module.exports = Matchup;
 },{"../dropzone.js":6,"./photo.jsx":4,"./photos_uploader.jsx":5,"moment":11,"react":174,"react-date-picker":16,"superagent":175,"util":10}],3:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
