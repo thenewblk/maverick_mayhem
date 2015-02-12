@@ -9,10 +9,10 @@ var Instagram = React.createClass({displayName: "Instagram",
   getInitialState: function() {
     return {  };
   },
-
   componentDidMount: function () {},
   render: function() {
     var self = this;
+    var userCaption = (self.props.caption.length > 190 ? self.props.caption.slice(0, 190) + ' [...]' : self.props.caption);
 
     return (
       React.createElement("div", {className: "instagram"}, 
@@ -20,7 +20,8 @@ var Instagram = React.createClass({displayName: "Instagram",
           "Image load failed!"
         ), 
         React.createElement("div", {className: "user-wrapper"}, 
-        React.createElement("p", {className: "photo__description"}, self.props.caption.slice(0,140)), 
+        React.createElement("div", {className: "user__profile-picture"}, React.createElement("img", {src: self.props.user.profile_picture})), 
+        React.createElement("p", {className: "photo__description"}, userCaption), 
         React.createElement("p", {className: "instagram__user"}, 
           React.createElement("a", {href: self.props.link}, 
              "@", self.props.user.username

@@ -8,10 +8,10 @@ var Instagram = React.createClass({
   getInitialState: function() {
     return {  };
   },
-
   componentDidMount: function () {},
   render: function() {
     var self = this;
+    var userCaption = (self.props.caption.length > 190 ? self.props.caption.slice(0, 190) + ' [...]' : self.props.caption);
 
     return (
       <div className="instagram">
@@ -19,7 +19,8 @@ var Instagram = React.createClass({
           Image load failed!
         </ImageLoader>
         <div className="user-wrapper">
-        <p className="photo__description">{self.props.caption.slice(0,140)}</p>
+        <div className="user__profile-picture"><img src={self.props.user.profile_picture} /></div>
+        <p className="photo__description">{userCaption}</p>
         <p className="instagram__user">
           <a href={self.props.link}>
              &#64;{self.props.user.username}
