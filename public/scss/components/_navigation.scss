@@ -1,95 +1,73 @@
-.nav-container {
-  @include clearfix;
-  position: fixed;
-  z-index: 1000;
-  width: 100%;
-  background-color: $black;
-  font-size: em(14px);
-  border-bottom: 1px solid rgba($white, 0.1);
-}
-
-.nav--primary {
-  @include clearfix;
-}
-
-.nav__menu {
-  @include horizontal-list;
-  @include transition(all, 0.2s);
-  float: left;
-  height: 100%;
-}
-
-.nav__item {
-  line-height: 48px;
-  border-right: 1px solid rgba($white, 0.1);
-
-  @include respond-to(mobile) {
-    line-height: 36px;
-  }
+/**
+ * $GLOBAL
+ */
+.nav--primary,
+.nav--secondary {
+  font-weight: 900;
+  letter-spacing: em(1px);
 
   a {
-    @include transition(background-color 0.2s);
-    display: block;
-    padding: 0 16px;
     text-decoration: none;
+  }
+}
 
-    @include respond-to(small) {
-      padding: 0 20px;
-    }
+.menu__list {
+  margin: 0;
+  padding: 0;
+}
+
+.menu__list--item {
+  a {
+    @include transition(color 0.2s);
+    text-decoration: none;
 
     &:hover,
     &.active {
-      background-color: $brand_red;
+      color: $brand_red;
     }
   }
 }
 
-.nav__logo {
-  @include transition(background-color 0.2s);
-  float: left;
-  width: 64px;
-  height: 48px;
-  padding: 4px 8px;
-  border-right: 1px solid rgba($white, 0.1);
-
-  @include respond-to(mobile) {
-    width: 52px;
-    height: 36px;
-  }
-
-  &:hover {
-    background-color: $brand_red;
-  }
+/**
+ * $MAIN NAVIGATION
+ */
+.nav--primary {
+  float: right;
+  margin-right: 20px;
 }
 
-.nav__menu-icon {
-  float: left;
-  color: $white;
-  text-transform: uppercase;
-  line-height: em(48px);
-  padding: 4px 0;
-  cursor: pointer;
+.menu--main-menu {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 40px;
+  max-width: 320px;
+  background-color: $black;
 
-  &:before {
-    float: left;
+  .nav-show & {
     display: block;
-    width: 24px;
-    height: 24px;
-    margin-top: 8px;
-    margin-right: 8px;
-    content: " ";
-    background: url(../img/icon-menu.svg) no-repeat left center;
-    background-size: 100%;
+  }
+
+  a {
+    display: block;
+    padding: 18px 8px;
   }
 }
 
+/**
+ * $SECONDARY NAVIGATION
+ */
+.nav--secondary {
+  float: left;
+  text-transform: uppercase;
 
-.headroom {
-  transition: transform 200ms linear;
-}
-.headroom--pinned {
-  transform: translateY(0%);
-}
-.headroom--unpinned {
-  transform: translateY(-100%);
+  .menu__list {
+    @include horizontal-list;
+  }
+
+  .menu__list--item {
+    margin-right: 24px;
+    line-height: em(36px);
+  }
 }

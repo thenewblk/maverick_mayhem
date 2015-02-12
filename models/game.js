@@ -12,6 +12,15 @@ var gameSchema = mongoose.Schema({
   ticket    	  : String,
   location      : String,
   home    		  : Boolean,
+  date          : String,
+  time          : String,
+  scores:   [
+    {
+         us      : Number,
+         them    : Number
+    }
+  ],
+
   photos        : [{ type: Schema.Types.ObjectId, ref: 'Photo' }],
 
   series: [

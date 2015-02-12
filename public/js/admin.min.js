@@ -29,6 +29,7 @@ var Page = React.createClass({displayName: "Page",
       tmp_news: [],
       submitted: false };
   },
+  
   componentWillMount: function(){
     var self = this;
 
@@ -378,7 +379,9 @@ var React = require('react'),
     request = require('superagent'),
     util = require('util'),
     moment = require('moment'),
-    Dropzone = require('../dropzone.js');
+    Dropzone = require('../dropzone.js'),
+    Photo = require('./photo.jsx'),
+    PhotosUploader = require('./photos_uploader.jsx');
 
 var DatePicker = require('react-date-picker');
 
@@ -457,33 +460,46 @@ var Score = React.createClass({displayName: "Score",
 
 var Game = React.createClass({displayName: "Game",
   getInitialState: function() {
-    return { name: '', status: 'show', opponent: '', date: '2015-01-01', time: '', ticket: '', location: '', home: false, scores: [] };
+    return { 
+        name: '', 
+        status: 'show', 
+        opponent: '', 
+        date: '2015-01-01', 
+        time: '', 
+        ticket: '', 
+        location: '', 
+        home: false, 
+        scores: [],
+        tmp_photos: [],
+        photos: [],
+        series: [] };
   },
 
   componentWillMount: function(){
     var self = this;
     console.log('self.props.slug: '+self.props.slug);
-    console.log('self.props.status: '+self.props.status);
+    console.log('self.props.photos: '+self.props.photos);
 
+    self.setState(self.props);
 
-    if( self.props.slug ) {
-      request
-        .get('/api/games/'+self.props.slug)
-        .end(function(res) {
-          console.log(res)
-          if (res.text) {
-            var game = JSON.parse(res.text);
-            self.setState(game);
+    // if( self.props.slug ) {
+    //   request
+    //     .get('/api/games/'+self.props.slug)
+    //     .end(function(res) {
+    //       console.log(res)
+    //       if (res.text) {
+    //         var game = JSON.parse(res.text);
+    //         self.setState(game);
 
-          }
-        }.bind(self));
+    //       }
+    //     }.bind(self));
 
-    } else {
-      var tmp_game = {};
-          tmp_game.status = self.props.status,
-          tmp_game.identifier = self.props.identifier;
-      self.setState(tmp_game);
-    }
+    // } else {
+    //   var tmp_game = {};
+    //       tmp_game.status = self.props.status,
+    //       tmp_game.identifier = self.props.identifier;
+    //   self.setState(tmp_game);
+    // }
     // console.log(self.state.scores);
 
   },
@@ -516,6 +532,56 @@ var Game = React.createClass({displayName: "Game",
     this.setState({home: !this.state.home});
   },
 
+
+  // Photo Stuff
+
+  handleNewPhoto: function(photo) {
+    var self = this,
+        current_tmp_photos = self.state.tmp_photos,
+        current_photos = self.state.photos;
+
+    request
+      .post('/api/photos/new')
+      .send(photo)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          var new_tmp_photos = current_tmp_photos.concat(new_photo);
+          var new_photos = current_photos.concat(new_photo._id);
+          self.setState({tmp_photos: new_tmp_photos, photos: new_photos });
+        }
+      }.bind(self));
+  },
+
+  handleRemovePhoto: function(photo) {
+
+    var self = this,
+        current_tmp_photos = self.state.tmp_photos,
+        current_photos = self.state.photos;
+
+    var found_tmp_photo, found_photo;
+
+    for ( i in  current_tmp_photos) {
+      if ( current_tmp_photos[i]._id == photo._id ){
+        found_tmp_photo = i;
+      }
+    }
+
+    current_tmp_photos.splice(found_tmp_photo, 1);
+
+    for ( i in  current_photos) {
+      if ( current_photos[i] == photo._id ){
+        found_photo = i;
+      }
+    }
+    current_photos.splice(found_photo, 1);
+
+    self.setState({tmp_photos: current_tmp_photos, photos: current_photos });
+  },
+
+  // Score Stuff
+
   handleScoreChange: function(content) {
     var current_scores = this.state.scores;
 
@@ -526,8 +592,6 @@ var Game = React.createClass({displayName: "Game",
         current_scores[i].status = content.status;
       }
     }
-
-    // new_scores = current_scores.concat(content);
 
     this.setState({ scores: current_scores});
 
@@ -649,8 +713,21 @@ var Game = React.createClass({displayName: "Game",
         submit: self.handleScoreChange})
     });
 
+    var photos = self.state.photos.map(function(object) {
+      return React.createElement(Photo, {
+        url: object.url, 
+        _id: object._id, 
 
-    if (status == 'new') {
+        key: object._id, 
+        featured: object.featured, 
+        description: object.description, 
+        remove_photo: self.handleRemovePhoto, 
+
+        identifier: Math.random()})
+    });
+
+
+    if ((status == 'new') || (status == 'edit')) {
       return (
         React.createElement("div", {className: "game"}, 
           React.createElement("h3", null, "New Game"), 
@@ -672,50 +749,37 @@ var Game = React.createClass({displayName: "Game",
             ) 
           : '', 
           React.createElement("h6", {onClick: this.newScore}, "New Score"), 
-          
-          React.createElement("div", {className: "half_buttons"}, 
-            React.createElement("a", {className: "submit", onClick: self.submitContent}, "save"), 
-            React.createElement("a", {className: "submit", onClick: self.handleRemove}, "cancel")
-          )
-         
-        )
-      )
-    } else if (status == 'edit') {
-      return (
-        React.createElement("div", {className: "game"}, 
-          React.createElement("h3", null, "Edit Game"), 
-          React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
-          React.createElement("h5", null, React.createElement("input", {type: "text", value: opponent, onChange: this.handleOpponentChange, placeholder: "Opponent"})), 
-          React.createElement("h5", null, "Date: "), 
-          React.createElement(DatePicker, {
-                  hideFooter: true, 
-                  date: date, 
-                  onChange: self.dateChange}), 
-          React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
-          React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket"})), 
-          React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
-          React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
 
-           the_scores ?
-            React.createElement("div", {className: "scores"}, 
-              the_scores
+           photos ?
+            React.createElement("div", {className: "photos"}, 
+              React.createElement("h3", {className: "page_edit_title"}, "Photos"), 
+              photos
             ) 
-          : '', 
-          React.createElement("h6", {onClick: this.newScore}, "New Score"), 
+            : '', 
+          
+
+          React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
           
           React.createElement("div", {className: "half_buttons"}, 
-            React.createElement("a", {className: "submit", onClick: self.editContent}, "save"), 
+             status == 'new' ? 
+              React.createElement("a", {className: "submit", onClick: self.submitContent}, "save") 
+            : 
+              React.createElement("a", {className: "submit", onClick: self.editContent}, "save"), 
+            
             React.createElement("a", {className: "submit", onClick: self.cancelEdit}, "cancel")
           )
         )
       )
     } else {
+
       var us_scores = scores.map(function(object) {
         return React.createElement("span", null, object.us);
       });
+
       var them_scores = scores.map(function(object) {
         return React.createElement("span", null, object.them);
       });
+
       return (
         React.createElement("div", {className: "game"}, 
           React.createElement("h3", null, name), 
@@ -729,6 +793,15 @@ var Game = React.createClass({displayName: "Game",
             React.createElement("li", null, "Us: ", us_scores), 
             React.createElement("li", null, "Them: ", them_scores)
           ), 
+
+           photos ?
+            React.createElement("div", {className: "photos"}, 
+              React.createElement("h3", {className: "page_edit_title"}, "Photos"), 
+              photos
+            ) 
+            : '', 
+          
+
           React.createElement("div", {className: "half_buttons"}, 
             React.createElement("a", {className: "submit", onClick: self.handleEdit}, "edit"), 
             React.createElement("a", {className: "submit", onClick: self.handleRemove}, "remove")
@@ -740,7 +813,7 @@ var Game = React.createClass({displayName: "Game",
 });
 
 module.exports = Game;
-},{"../dropzone.js":6,"moment":11,"react":174,"react-date-picker":16,"superagent":175,"util":10}],3:[function(require,module,exports){
+},{"../dropzone.js":6,"./photo.jsx":4,"./photos_uploader.jsx":5,"moment":11,"react":174,"react-date-picker":16,"superagent":175,"util":10}],3:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
     util = require('util');

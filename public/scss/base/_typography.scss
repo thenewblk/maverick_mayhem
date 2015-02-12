@@ -4,16 +4,12 @@
 html {
   font-family: $base-font-family;
   font-weight: 500;
-  font-size: 80%;
+  font-size: 100%;
   line-height: 1.5;
+}
 
-  @include respond-to(small) {
-    font-size: 90%;
-  }
-
-  @include respond-to(medium) {
-    font-size: 100%;
-  }
+body {
+  font-size: rem(16px);
 }
 
 /**
@@ -34,6 +30,7 @@ p, %p {
   font-size: em(16);
   margin: 0 0 em(32px);
 }
+
 /**
  * Headings
  */

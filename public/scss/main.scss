@@ -17,15 +17,17 @@
 // Layouts/Partials
 @import "partials/header";
 @import "partials/footer";
+@import "partials/hero";
 
 // Components
 @import "components/buttons";
 @import "components/video";
 @import "components/sport-info";
 @import "components/news";
-@import "components/photo-library";
+@import "components/photo-grid";
 @import "components/navigation";
 @import "components/icons";
+@import "components/marquee";
 
 // Pages
 @import "pages/all";

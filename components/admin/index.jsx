@@ -28,6 +28,7 @@ var Page = React.createClass({
       tmp_news: [],
       submitted: false };
   },
+  
   componentWillMount: function(){
     var self = this;
 

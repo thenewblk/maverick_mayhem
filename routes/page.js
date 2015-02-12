@@ -88,7 +88,7 @@ module.exports = function(app, passport) {
 	app.get('/api/pages/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('games games.scores photos news')
+			.deepPopulate('games games.photos photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 			  	var tmp_games = [];

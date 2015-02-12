@@ -1,7 +1,8 @@
 <%- include ../layouts/_site_header.ejs %>
 <%- include ../layouts/_site_navigation.ejs %>
     <script>window.slug = "<%= page.slug %>";</script>
-    <header role="banner">
+    <!-- Made into a div and new class for temporary fix -->
+    <div class="banner-wrap" role="banner">
       <div class="banner">
         <div class="sport-type-avatar">
         <% if (page.slug == 'hockey') { %>
@@ -12,7 +13,7 @@
         </div>
         <h1 class="banner__headline"><%= page.banner %></h1>
       </div>
-    </header>
+    </div>
     <div id="main" role="main">
       <div class="hero"
         <% if (page.slug == 'hockey') { %>
@@ -125,6 +126,7 @@
           <div class="upcoming-game last">
             <h3><span>Last Game:</span></h3>
           </div>
+<<<<<<< HEAD
           <div class="game-content">
             <!-- game_partial -->
           </div>
@@ -133,6 +135,12 @@
             <p>vs <%= page.games[page.games.length - 1].opponent %> @ <%= page.games[page.games.length - 1].location %></p>
           </div>
           <a href="<%= page.games[page.games.length - 1].ticket %>" class="btn btn--red">Get Tickets</a>
+=======
+  
+          <!-- include game partial -->
+
+
+>>>>>>> 649559d0a94835a44400e0c0e26f04ccef3693a4
         </div>
         <div class="news">
           <ul class="news__list">

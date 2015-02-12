@@ -1,29 +1,56 @@
 <%- include ./layouts/_site_header.ejs %>
-<%- include ./layouts/_site_navigation.ejs %>
+    <header id="header">
+        <a href="/" class="logo">
+          <img src="/img/icon--bull.svg" alt="UNO Maverics bull icon">
+        </a>
 
+        <nav class="nav--secondary" role="navigation">
+          <div class="menu">
+            <ul class="menu--secondary menu__list">
+              <li class="menu__list--item"><a href="#">Tickets</a></li>
+              <li class="menu__list--item"><a href="#">Our House</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <nav class="nav--primary" role="navigation">
+          <span class="btn--menu icon--menu">Sports</span>
+          <span class="btn--menu-close icon--close">Close</span>
+          <div class="menu menu--main-menu">
+            <ul class="menu__list">
+              <li class="menu__list--item"><a href="/hockey">Hockey</a></li>
+              <li class="menu__list--item"><a href="/basketball">Womens Basketball</a></li>
+              <li class="menu__list--item"><a href="/basketball">Mens Basketball</a></li>
+            </ul>
+          </div>
+        </nav>
+    </header>
     <div id="main" role="main" class="home">
-      <div class="hero"  style="background-image: url(/img/SportsCombineStill.jpg);">
-        <div class="overlay">
-          <div class="overlay__container">
+      <div class="hero hero-home">
+        <div class="hero__inner">
+          <div class="hero__content-wrap hero__content-home">
             <div class="hero__content">
-              <div class="hero__content-wrap hero__content-home">
-                <img src="img/mav_mayhem.svg" alt="">
-                <p>This site belongs to all Mavericks–the underdogs who look at the world and the rules and order imposed on it by conformity and small-mindedness and say: Not for me.</p>
-              </div>
+              <img src="img/hashtag_MM_HOME.svg" alt="">
+              <p>This site belongs to all Mavericks–the underdogs who look at the world and the rules and order imposed on it by conformity and small-mindedness and say: Not for me.</p>
+              <a class="btn--show-pride" href="#">Show your pride</a>
             </div>
           </div>
         </div>
-
-        <div class="video-wrapper">
-          <video id="video-background" poster="/img/SportsCombineStill.jpg" autoplay muted="muted" loop>
+        <div class="hero__overlay"></div>
+        <div class="hero__media">
+          <video id="video-background" class="video-wrap" poster="/img/SportsCombineStill.jpg" autoplay muted="muted" loop>
             <source src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4" type="video/mp4">
           </video>
         </div>
       </div>
 
-        <div class="container mayhem-copy">
-          <p><img class="mav-mayhem-inline-home" src="img/icon--maverick-mayhem.svg" alt="#maverickmayhem"> is a groundswell, a surge of pride, a growing sense of identity sweeping up players, coaches, fans, students, campus, city and community in its current. You are here. Make some noise.</p>
-        </div>
+      <div class="marquee">
+        <ul class="marquee__list">
+          <li class="marquee__list-item">2/20/2015 - Men’s basketball vs Iowa, 7pm. <a href="">tickets here</a></li>
+          <li class="marquee__list-item">2/25/2015 - Hockey vs Denver, 7pm. <a href="">tickets here</a></li>
+          <li class="marquee__list-item">2/20/2015 - Men’s basketball vs Iowa, 7pm. <a href="">tickets here</a></li>
+        </ul>
+      </div>
 
       <div id="instagrams"></div>
     </div>

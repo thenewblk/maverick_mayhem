@@ -9,10 +9,83 @@
   text-decoration: none;
 }
 
+.btn--menu {
+  @include transition(color 0.2s);
+  display: block;
+  color: $white;
+  text-transform: uppercase;
+  line-height: em(36px);
+  text-align: right;
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    color: $brand_red;
+  }
+
+  .nav-show & {
+    display: none;
+  }
+}
+
+.btn--menu-close {
+  @include transition(opacity 0.8s);
+  display: none;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  text-indent: em(-9999px);
+  overflow: hidden;
+  cursor: pointer;
+
+  .nav-show & {
+    display: block;
+    opacity: 1;
+  }
+}
+
 .btn--red {
   background-color: $brand_red;
 
   &:hover { background-color: darken($brand_red, 10%); }
+}
+
+.btn--show-pride {
+  @include transition(color 0.1s, font-size 0.25s);
+  font-size: em(18px);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: em(1px);
+  text-transform: uppercase;
+  text-decoration: none;
+
+  &:before {
+    @include transition(background-position 0.4s);
+    display: inline-block;
+    content: '';
+    width: 48px;
+    height: 18px;
+    background: url(../img/arrow_long_right.svg) no-repeat left 5px;
+  }
+  &:after {
+    @include transition(background-position 0.4s);
+    display: inline-block;
+    content: '';
+    width: 48px;
+    height: 18px;
+    background: url(../img/arrow_long_left.svg) no-repeat right 5px;
+  }
+
+  &:hover {
+    font-size: 24px;
+    color: $brand_red;
+    &:before {
+      background-position: 60px 5px;
+    }
+    &:after {
+      background-position: -60px 5px;
+    }
+  }
 }
 
 .btn--play, .arena-btn--play {
