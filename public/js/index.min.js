@@ -12,8 +12,13 @@ var Instagram = React.createClass({displayName: "Instagram",
   componentDidMount: function () {},
   render: function() {
     var self = this;
-    var userCaption = (self.props.caption.length > 190 ? self.props.caption.slice(0, 190) + ' [...]' : self.props.caption);
+    var userCaption = (self.props.caption.length > 160 ? self.props.caption.slice(0, 160) + ' [...]' : self.props.caption);
 
+    // var truncate = function(str,num){
+    //   var words = str.split(' ');
+    //   words = words.splice(0,num);
+    //   return words.join(' ');
+    // }
     return (
       React.createElement("div", {className: "instagram"}, 
         React.createElement(ImageLoader, {src: self.props.images.low_resolution.url}, 
