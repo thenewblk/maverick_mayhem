@@ -36,7 +36,8 @@
   margin-right: 20px;
 }
 
-.menu--main-menu {
+.menu--main-menu,
+.menu--mobile-menu {
   display: none;
   position: absolute;
   top: 0;
@@ -45,13 +46,25 @@
   max-width: 320px;
   background-color: $black;
 
-  .nav-show & {
-    display: block;
-  }
-
   a {
     display: block;
     padding: 18px 8px;
+  }
+}
+
+.menu--main-menu {
+  @media (min-width: 480px) {
+    .nav-show & {
+      display: block;
+    }
+  }
+}
+
+.menu--mobile-menu{
+  @media (max-width: 479px) {
+    .nav-show & {
+      display: block;
+    }
   }
 }
 
@@ -61,6 +74,10 @@
 .nav--secondary {
   float: left;
   text-transform: uppercase;
+
+  @media (max-width: 479px) {
+    display: none;
+  }
 
   .menu__list {
     @include horizontal-list;
