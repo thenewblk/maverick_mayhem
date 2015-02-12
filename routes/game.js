@@ -10,8 +10,16 @@ module.exports = function(app, passport) {
 		new_game.time     	= req.body.time;
 		new_game.ticket   	= req.body.ticket;
 		new_game.location 	= req.body.location;
+		new_game.scores   	= req.body.scores;
 		new_game.series   	= req.body.series;
-		new_game.photos   	= req.body.photos;
+		
+		if ( req.body.photos ) {
+			var tmp_photos = [];
+			for ( i in req.body.photos ) {
+				tmp_photos.push(req.body.photos[i]._id);
+			}	
+			new_game.photos   	= tmp_photos;
+		}
 
 		Game.create(new_game, function (err, game) {
 		  if (err) return console.log(err);
@@ -91,8 +99,16 @@ module.exports = function(app, passport) {
 		edit_game.ticket   	= req.body.ticket;
 		edit_game.home   	= req.body.home;
 		edit_game.location 	= req.body.location;
+		edit_game.scores   	= req.body.scores;
 		edit_game.series   	= req.body.series;
-		edit_game.photos   	= req.body.photos;
+
+		if ( req.body.photos ) {
+			var tmp_photos = [];
+			for ( i in req.body.photos ) {
+				tmp_photos.push(req.body.photos[i]._id);
+			}	
+			edit_game.photos   	= tmp_photos;
+		}
 
 		Game
 			.findOne({ slug: req.params.slug })
@@ -107,6 +123,7 @@ module.exports = function(app, passport) {
 				game.ticket   	= edit_game.ticket;
 				game.location 	= edit_game.location;
 				game.series   	= edit_game.series;
+				game.scores   	= edit_game.scores;
 				game.photos   	= edit_game.photos;
 
 				game.save(function (err) {

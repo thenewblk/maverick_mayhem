@@ -14,6 +14,7 @@ var gameSchema = mongoose.Schema({
   home    		  : Boolean,
   date          : String,
   time          : String,
+
   scores:   [
     {
          us      : Number,
@@ -21,10 +22,9 @@ var gameSchema = mongoose.Schema({
     }
   ],
 
-  photos        : [{ type: Schema.Types.ObjectId, ref: 'Photo' }],
+  photos        : [{ type: Schema.ObjectId, ref: 'Photo' }],
 
-  series: [
-    {
+  series: [{
       date          : String,
       time          : String,
       scores:   [
@@ -32,9 +32,7 @@ var gameSchema = mongoose.Schema({
              us      : Number,
              them    : Number
         }
-      ]
-    }
-  ]
+      ]}]
 });
 
 gameSchema.pre('save', function (next) {

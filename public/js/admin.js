@@ -284,6 +284,7 @@ var Page = React.createClass({displayName: "Page",
         ticket: object.ticket, 
         location: object.location, 
         home: object.home, 
+        scores: object.scores, 
         series: object.series, 
         photos: object.photos, 
         status: object.status, 
@@ -540,6 +541,8 @@ var Game = React.createClass({displayName: "Game",
         current_tmp_photos = self.state.tmp_photos,
         current_photos = self.state.photos;
 
+    console.log('handleNewPhoto:' + util.inspect(photo));
+
     request
       .post('/api/photos/new')
       .send(photo)
@@ -730,18 +733,23 @@ var Game = React.createClass({displayName: "Game",
     if ((status == 'new') || (status == 'edit')) {
       return (
         React.createElement("div", {className: "game"}, 
-          React.createElement("h3", null, "New Game"), 
+           status == 'new' ? 
+            React.createElement("h3", null, "New Game") 
+          : 
+            React.createElement("h3", null, "Edit Game"), 
+          
           React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: opponent, onChange: this.handleOpponentChange, placeholder: "Opponent"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket Link"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
+          React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
+
           React.createElement("h5", null, "Date: "), 
           React.createElement(DatePicker, {
                   hideFooter: true, 
                   date: date, 
                   onChange: self.dateChange}), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
-          React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket"})), 
-          React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
-          React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
 
            the_scores ?
             React.createElement("div", {className: "Scores"}, 
@@ -762,9 +770,9 @@ var Game = React.createClass({displayName: "Game",
           
           React.createElement("div", {className: "half_buttons"}, 
              status == 'new' ? 
-              React.createElement("a", {className: "submit", onClick: self.submitContent}, "save") 
+              React.createElement("a", {className: "submit", onClick: self.submitContent}, "new save") 
             : 
-              React.createElement("a", {className: "submit", onClick: self.editContent}, "save"), 
+              React.createElement("a", {className: "submit", onClick: self.editContent}, "edit save"), 
             
             React.createElement("a", {className: "submit", onClick: self.cancelEdit}, "cancel")
           )

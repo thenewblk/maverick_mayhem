@@ -1,33 +1,3 @@
-<<<<<<< HEAD
-<table class="sport__scoreboard sport__scoreboard-hockey">
-  <thead>
-    <tr class="scoreboard__header">
-      <th class="team-name">&nbsp;</th>
-      <% page.games[page.games.length - 1].scores.forEach(function(score, index){ %>
-        <th><%= page.games[page.games.length - 1].getPeriod(index +1) %></th>
-      <% }); %>
-      <th class="score-total">Total</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr class="team visitor">
-      <td class="team-name">Omaha</td>
-      <% page.games[page.games.length - 1].scores.forEach(function(score, index){ %>
-        <td class="score"><%= score.us %></td>
-      <% }); %>
-      <td class="score"><%= page.games[page.games.length - 1].total_us %></td>
-    </tr>
-    <tr class="team away">
-      <td class="team-name"><%= page.games[page.games.length - 1].opponent %></td>
-      <% page.games[page.games.length - 1].scores.forEach(function(score, index){ %>
-        <td class="score"><%= score.them %></td>
-      <% }); %>
-      <td class="score"><%= page.games[page.games.length - 1].total_them %></td>
-      <!-- <td class="score score-winner">4</td> -->
-    </tr>
-  </tbody>
-</table>
-=======
           <div class="game-content">
             <table class="sport__scoreboard sport__scoreboard-hockey">
               <thead>
@@ -63,4 +33,3 @@
             <p>vs <%= page.games[page.games.length - 1].opponent %> @ <%= page.games[page.games.length - 1].location %></p>
           </div>
           <a href="<%= page.games[page.games.length - 1].ticket %>" class="btn btn--red">Get Tickets</a>
->>>>>>> 649559d0a94835a44400e0c0e26f04ccef3693a4

@@ -163,6 +163,8 @@ var Game = React.createClass({
         current_tmp_photos = self.state.tmp_photos,
         current_photos = self.state.photos;
 
+    console.log('handleNewPhoto:' + util.inspect(photo));
+
     request
       .post('/api/photos/new')
       .send(photo)
@@ -353,18 +355,23 @@ var Game = React.createClass({
     if ((status == 'new') || (status == 'edit')) {
       return (
         <div className="game">
-          <h3>New Game</h3>
+          { status == 'new' ? 
+            <h3>New Game</h3> 
+          : 
+            <h3>Edit Game</h3> 
+          }
           <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
           <h5><input type="text" value={opponent} onChange={this.handleOpponentChange} placeholder="Opponent" /></h5>
+          <h5><input type="text" value={ticket} onChange={this.handleTicketChange} placeholder="Ticket Link" /></h5>
+          <h5><input type="text" value={location} onChange={this.handleLocationChange} placeholder="Location" /></h5>
+          <h5 className="home">Home: <input type="checkbox" checked={home} onChange={this.handleHomeChange} /></h5>
+
           <h5>Date: </h5>
           <DatePicker
                   hideFooter={true}
                   date={date} 
                   onChange={self.dateChange}  />
           <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
-          <h5><input type="text" value={ticket} onChange={this.handleTicketChange} placeholder="Ticket" /></h5>
-          <h5><input type="text" value={location} onChange={this.handleLocationChange} placeholder="Location" /></h5>
-          <h5 className="home">Home: <input type="checkbox" checked={home} onChange={this.handleHomeChange} /></h5>
 
           { the_scores ?
             <div className="Scores">
@@ -385,9 +392,9 @@ var Game = React.createClass({
           
           <div className='half_buttons'>
             { status == 'new' ? 
-              <a className='submit' onClick={self.submitContent}>save</a> 
+              <a className='submit' onClick={self.submitContent}>new save</a> 
             : 
-              <a className='submit' onClick={self.editContent}>save</a> 
+              <a className='submit' onClick={self.editContent}>edit save</a> 
             }
             <a className='submit' onClick={self.cancelEdit}>cancel</a> 
           </div>

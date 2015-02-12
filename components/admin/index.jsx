@@ -283,6 +283,7 @@ var Page = React.createClass({
         ticket={object.ticket}
         location={object.location}
         home={object.home}
+        scores={object.scores}
         series={object.series}
         photos={object.photos}
         status={object.status}
