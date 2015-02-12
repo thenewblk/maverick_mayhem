@@ -103,7 +103,18 @@ var Game = React.createClass({
     console.log('self.props.slug: '+self.props.slug);
     console.log('self.props.photos: '+self.props.photos);
 
-    self.setState(self.props);
+    var tmp_game = self.props;
+
+    if (tmp_game.series.length > 0) {
+      tmp_game.isSeries = true;
+    } else {
+      tmp_game.isSeries = false;
+    }
+
+    
+
+
+    self.setState(tmp_game);
 
     // if( self.props.slug ) {
     //   request
@@ -153,6 +164,11 @@ var Game = React.createClass({
   handleHomeChange: function(event) {
     console.log('handleHomeChange: '+event.target.value);
     this.setState({home: !this.state.home});
+  },
+
+  isSeriesChange: function(event) {
+    console.log('isSeriesChange: '+event.target.value);
+    this.setState({isSeries: !this.state.isSeries});
   },
 
 
@@ -322,6 +338,8 @@ var Game = React.createClass({
         location = self.state.location,
         home = self.state.home,
         scores = self.state.scores,
+        series = self.state.series,
+        isSeries = self.state.isSeries,
         status = self.state.status;
 
     var the_scores = scores.map(function(object) {
@@ -365,6 +383,8 @@ var Game = React.createClass({
           <h5><input type="text" value={ticket} onChange={this.handleTicketChange} placeholder="Ticket Link" /></h5>
           <h5><input type="text" value={location} onChange={this.handleLocationChange} placeholder="Location" /></h5>
           <h5 className="home">Home: <input type="checkbox" checked={home} onChange={this.handleHomeChange} /></h5>
+
+          <h5 className="home">Series?: <input type="checkbox" checked={isSeries} onChange={this.isSeriesChange} /></h5>
 
           <h5>Date: </h5>
           <DatePicker

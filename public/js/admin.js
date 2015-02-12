@@ -481,7 +481,18 @@ var Game = React.createClass({displayName: "Game",
     console.log('self.props.slug: '+self.props.slug);
     console.log('self.props.photos: '+self.props.photos);
 
-    self.setState(self.props);
+    var tmp_game = self.props;
+
+    if (tmp_game.series.length > 0) {
+      tmp_game.isSeries = true;
+    } else {
+      tmp_game.isSeries = false;
+    }
+
+    
+
+
+    self.setState(tmp_game);
 
     // if( self.props.slug ) {
     //   request
@@ -531,6 +542,11 @@ var Game = React.createClass({displayName: "Game",
   handleHomeChange: function(event) {
     console.log('handleHomeChange: '+event.target.value);
     this.setState({home: !this.state.home});
+  },
+
+  isSeriesChange: function(event) {
+    console.log('isSeriesChange: '+event.target.value);
+    this.setState({isSeries: !this.state.isSeries});
   },
 
 
@@ -700,6 +716,8 @@ var Game = React.createClass({displayName: "Game",
         location = self.state.location,
         home = self.state.home,
         scores = self.state.scores,
+        series = self.state.series,
+        isSeries = self.state.isSeries,
         status = self.state.status;
 
     var the_scores = scores.map(function(object) {
@@ -743,6 +761,8 @@ var Game = React.createClass({displayName: "Game",
           React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket Link"})), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
           React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
+
+          React.createElement("h5", {className: "home"}, "Series?: ", React.createElement("input", {type: "checkbox", checked: isSeries, onChange: this.isSeriesChange})), 
 
           React.createElement("h5", null, "Date: "), 
           React.createElement(DatePicker, {
