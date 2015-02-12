@@ -8,18 +8,24 @@ var Instagram = React.createClass({
   getInitialState: function() {
     return {  };
   },
-
   componentDidMount: function () {},
   render: function() {
     var self = this;
+    var userCaption = (self.props.caption.length > 160 ? self.props.caption.slice(0, 160) + ' [...]' : self.props.caption);
 
+    // var truncate = function(str,num){
+    //   var words = str.split(' ');
+    //   words = words.splice(0,num);
+    //   return words.join(' ');
+    // }
     return (
       <div className="instagram">
         <ImageLoader src={self.props.images.low_resolution.url} >
           Image load failed!
         </ImageLoader>
         <div className="user-wrapper">
-        <p className="photo__description">{self.props.caption.slice(0,140)}</p>
+        <div className="user__profile-picture"><img src={self.props.user.profile_picture} /></div>
+        <p className="photo__description">{userCaption}</p>
         <p className="instagram__user">
           <a href={self.props.link}>
              &#64;{self.props.user.username}
