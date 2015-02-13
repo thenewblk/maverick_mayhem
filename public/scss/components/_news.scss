@@ -1,7 +1,6 @@
 .news {
   padding: 0 10px;
   max-height: 300px;
-  overflow: scroll;
   @include respond-to(mobile) {
     width: 100%;
     float: none;
