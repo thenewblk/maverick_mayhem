@@ -34,6 +34,43 @@ matchupSchema.pre('save', function (next) {
   next();
 });
 
+matchupSchema.virtual('date').get(function () {
+  var self = this;
+  var days = [],
+    months = [],
+    years = [];
+
+  var games_length = self.games.length; 
+  if ( games_length > 1 ) {
+
+    for (i in games_length) {
+      months.push(moment(self.games[i].date).format('MMM'));
+      days.push(moment(self.games[i].date).format('D'));
+      years.push(moment(self.games[i].date).format('YYYY'));
+    }
+
+    var de_months = tools.uniq(months),
+        de_days = tools.uniq(days),
+        de_years = tools.uniq(years);
+
+    if (months.length == 1) {
+
+      if (de_days.length > 1) {
+        return de_months[0] + ' ' + de_days[0] + '-' + de_days[games_length-1] + ', ' + de_years[0];
+      } else {
+        return months[0] + ' ' + days[0] + ', ' + years[0];
+      }
+    } else {
+      return 'fuck you';
+    }
+
+
+  } else {
+    return moment(self.games[0].date).format('MMM D, YYYY');
+  }
+
+});
+
 matchupSchema.virtual('total_us').get(function () {
   var total = this.scores.reduce(function(a, b) {
     return a + b.us;

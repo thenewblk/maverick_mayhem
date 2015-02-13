@@ -85,7 +85,7 @@ var Game = React.createClass({
     tmp_game.time = self.props.time,
     tmp_game.scores = self.props.scores,
     tmp_game.status = self.props.status || [];
-
+    console.log('game: ' + util.inspect(tmp_game));
     self.setState(tmp_game);
   },
 
@@ -128,7 +128,7 @@ var Game = React.createClass({
     var tmp_game = {};
         tmp_game = self.state,
         tmp_game.status = 'show';
-
+    console.log('tmp_game: ' + util.inspect(tmp_game));
     self.props.submit(tmp_game);
   },
 
@@ -421,6 +421,7 @@ var Matchup = React.createClass({
 
     var name = self.state.name,
         opponent = self.state.opponent,
+        date = self.state.date,
         ticket = self.state.ticket,
         location = self.state.location,
         home = self.state.home,
@@ -435,7 +436,7 @@ var Matchup = React.createClass({
          
         remove_game={self.handleRemoveGame}
 
-        identifier={object.identifier} 
+        identifier={Math.random()} 
 
         submit={self.handleGameChange} />
     });
@@ -497,6 +498,7 @@ var Matchup = React.createClass({
       return (
         <div className="matchup">
           <h3>{name}</h3>
+          <h3>{date}</h3>
           <ul>
             <li>Opponent: {opponent}</li>
             <li>Ticket Link: {ticket}</li>

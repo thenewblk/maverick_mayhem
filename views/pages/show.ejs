@@ -3,22 +3,39 @@
     <script>window.slug = "<%= page.slug %>";</script>
     <!-- Made into a div and new class for temporary fix -->
 
-    <div id="main" role="main">
+    <% if (page.slug == 'hockey') { %>
+      <div class="page-video-wrapper">
+        <div class="video-center">
+          <iframe class="tunnel-walk" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" data-video="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+    <% } else if (page.slug == 'basketball') { %>
+      <div class="page-video-wrapper">
+        <div class="video-center">
+          <iframe class="tunnel-walk" width="853" height="480" src="//www.youtube.com/embed/sVI9Cyw3oxg?rel=0&amp;showinfo=0" data-video="//www.youtube.com/embed/sVI9Cyw3oxg?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+    <% }%>
 
+    <div id="main" role="main">
+    
       <div class="hero">
         <div class="page_content">
           <div class="page_title">
-            <% if (page.slug == 'hockey') { %>
-              <h3><img class="icon--mav-mayhem" src="/img/icon--maverick-mayhem.svg" alt="#maverickmayhem"><span id="sport_icon"></span></h3>
-            <% } else if (page.slug == 'basketball') { %>
-              <img src="/img/icon--uno-bball.svg" alt="">
-            <% } %>
+            <h3><img class="icon--mav-mayhem" src="/img/icon--maverick-mayhem.svg" alt="#maverickmayhem"><span id="sport_icon"></span></h3>
           </div>
           <div class="content_box next">
-            <p class="content_title">NEXT SERIES: JAN 15-16, 2015</p>
-            <p class="game_title">vs North Dakota @ Omaha</p>
-            <div class="ticket_button">
-              <a href="#">Get Tickets</a>
+            <% if (page.slug == 'hockey') { %>
+              <p class="content_title">NEXT MATCHUP: Feb 13-14, 2015</p>
+              <p class="game_title">vs Western Michigan @ Omaha</p>
+              <div class="ticket_button">
+                <a href="http://www.ticketmaster.com/University-of-Nebraska-Omaha-Mavericks-tickets/artist/838151">Get Tickets</a>
+            <% } else if (page.slug == 'basketball') { %>  
+              <p class="content_title">NEXT MATCHUP: Feb 19, 2015</p>
+              <p class="game_title">vs Oral Roberts @ Ralston Arena</p>
+              <div class="ticket_button">
+                <a href="http://ev2.evenue.net/cgi-bin/ncommerce3/SEGetEventInfo?ticketCode=GS:RALSTON:U15:G13:&linkID=global-ralston&shopperContext;=&pc;=&caller;=&appCode;=&groupCode=UNO&cgc;=">Get Tickets</a>
+            <% } %>
               <svg id="button_bkgrd" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" preserveAspectRatio="none"
                  viewBox="0 0 225.4 31.3" enable-background="new 0 0 225.4 31.3" xml:space="preserve">
                   <path d="M224.4,7.9c-0.2-0.1-0.3-0.3-0.5-0.4c-0.1-0.1-0.3-0.3-0.4-0.4c-0.4-0.4-0.8-0.3-1,0.3
@@ -384,18 +401,17 @@
           </svg>
           Hockey Tunnel Walk Video
         </div>
+
         <div class="hero__overlay"></div>
         <div class="hero__media">
         <% if (page.slug == 'hockey') { %>
             <video id="video-background" class="video-wrap" poster="/img/bg--video_hockey.jpg" autoplay muted="muted" loop>
               <source src="https://s3.amazonaws.com/maverickmayhem/loop_hockey.mp4" type="video/mp4">
             </video>
-            <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/-betK2whnW4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
         <% } else if (page.slug == 'basketball') { %>
             <video id="video-background" class="video-wrap" poster="/img/bg--video_bball-mens.jpg" autoplay muted="muted" loop>
               <source src="https://s3.amazonaws.com/maverickmayhem/loop_bball_mens.mp4" type="video/mp4">
             </video>
-            <iframe id="sport-video" width="853" height="480" src="//www.youtube.com/embed/sVI9Cyw3oxg?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
           <% } else { %>
             Not hockey or basketball
           <% } %>

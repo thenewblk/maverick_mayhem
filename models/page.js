@@ -30,6 +30,15 @@ pageSchema.pre('save', function (next) {
   next();
 });
 
+pageSchema.virtual('next_matchup').get(function () {
+  var today = moment();
+
+
+
+  next();
+});
+
+
 pageSchema.plugin( deepPopulate );
  
 module.exports = mongoose.model('Page', pageSchema);

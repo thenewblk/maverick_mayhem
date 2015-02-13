@@ -130,6 +130,6 @@ React.renderComponent(
 );
 
 React.renderComponent(
-  FlickerIcon(),
+  <FlickerIcon sport={Content} />,
   document.getElementById('sport_icon')
 );
