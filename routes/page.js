@@ -19,7 +19,7 @@ module.exports = function(app, passport) {
 	app.get('/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.populate('matchups matchups.scores photos news')
+			.deepPopulate('matchups matchups.scores photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 			  	var title;
