@@ -6,13 +6,13 @@ module.exports = function(app, passport) {
 		var new_matchup = {};
 		new_matchup.name 		= req.body.name;
 		new_matchup.opponent 	= req.body.opponent;
-		new_matchup.date     	= req.body.date;
-		new_matchup.time     	= req.body.time;
 		new_matchup.ticket   	= req.body.ticket;
 		new_matchup.location 	= req.body.location;
 		new_matchup.scores   	= req.body.scores;
 		new_matchup.games   	= req.body.games;
 		
+		console.log('new_matchup.games: ' + util.inspect(new_matchup.games));
+
 		if ( req.body.photos ) {
 			var tmp_photos = [];
 			for ( i in req.body.photos ) {
@@ -92,15 +92,15 @@ module.exports = function(app, passport) {
 	// Edit matchup
 	app.post('/api/matchups/:id/edit', isLoggedIn, function(req, res) {
 		var edit_matchup = {};
-		edit_matchup.name 		= req.body.name;
+		edit_matchup.name 			= req.body.name;
 		edit_matchup.opponent 	= req.body.opponent;
-		edit_matchup.date     	= req.body.date;
-		edit_matchup.time     	= req.body.time;
 		edit_matchup.ticket   	= req.body.ticket;
-		edit_matchup.home   	= req.body.home;
+		edit_matchup.home   		= req.body.home;
 		edit_matchup.location 	= req.body.location;
 		edit_matchup.scores   	= req.body.scores;
-		edit_matchup.games   	= req.body.games;
+		edit_matchup.games   		= req.body.games;
+
+		console.log('edit_matchup.games: ' + util.inspect(edit_matchup.games));
 
 		if ( req.body.photos ) {
 			var tmp_photos = [];
@@ -130,7 +130,7 @@ module.exports = function(app, passport) {
 					if (err) return console.log(err);
 					Matchup
 						.findOne({ _id: matchup.id })
-						.populate('photos')
+						.populate('photos games')
 						.exec( function (err, new_matchup) {
 							res.send(new_matchup);
 						});

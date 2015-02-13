@@ -90,7 +90,9 @@ var Game = React.createClass({
   },
 
   dateChange: function(moment, dateText) {
-    this.setState({date: moment}); 
+    console.log('moment: ' + moment);
+    console.log('dateText: ' + dateText);
+    this.setState({date: dateText}); 
   },
 
   handleEdit: function() {
@@ -404,9 +406,10 @@ var Matchup = React.createClass({
 
   handleGameChange: function(content) {
     var current_games = this.state.games;
-
+    console.log('content: ' + util.inspect(content));
+    console.log('current_games: ' + util.inspect(current_games));
     for(var i in current_games) {
-      if (current_games[i].identifier == content.identifier || current_games[i]._id == content.identifier){
+      if (current_games[i].identifier == content.identifier){
         current_games[i].date = content.date;
         current_games[i].time = content.time;
         current_games[i].scores = content.scores;
@@ -436,7 +439,7 @@ var Matchup = React.createClass({
          
         remove_game={self.handleRemoveGame}
 
-        identifier={Math.random()} 
+        identifier={object.identifier || Math.random()} 
 
         submit={self.handleGameChange} />
     });

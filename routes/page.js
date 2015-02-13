@@ -19,7 +19,7 @@ module.exports = function(app, passport) {
 	app.get('/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.deepPopulate('matchups matchups.scores photos news')
+			.deepPopulate('matchups matchups.games photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 			  	var title;
@@ -109,7 +109,7 @@ module.exports = function(app, passport) {
 	app.get('/api/pages/:slug', function(req, res) {
 		Page
 			.findOne({ slug: req.params.slug })
-			.deepPopulate('matchups matchups.photos photos news')
+			.deepPopulate('matchups matchups.photos matchups.games photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
 			  	var tmp_matchups = [];
