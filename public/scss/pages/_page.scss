@@ -1,11 +1,10 @@
 .page_content {
 	position: absolute;
 	display: table;
-	width: 318px;
+	width: 320px;
 	z-index: 2;
 	right: 0;
 	top: 75px;
-	padding: 15px;
 	margin: 0 20px;
 
 	.page_title {
@@ -37,9 +36,49 @@
 			text-align: center;
 		}
 		.ticket_button {
+			position: relative;
 			text-align: center; 
+			a {
+				position: absolute;
+				width: 100%;
+				line-height: 30px;
+				font-weight: bold;
+				text-decoration: none;
+			}
+			svg {
+				width: 100%;
+				height: 35px;
+			}
+			svg path {
+				fill: #CF0A2C;
+				transition: 0.15s ease-out;
+			}
+			&:hover {
+				svg path {
+					fill: rgba(177,0,14,1);
+				}
+			}
 		}
 	}
+
+  @include respond-to(tablet) {
+    margin: 0;
+    width: 100%;
+    top: 50px;
+    padding: 0 15px;
+    .content_box {
+    	width: 45%;
+    }
+    .content_box.next {
+    	float: left;
+    }
+    .content_box.press {
+    	position: absolute;
+    	top: 0;
+    	right: 15px;
+    }
+  }
+	
 }
 .play_button {
 	position: absolute;
