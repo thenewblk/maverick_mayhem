@@ -379,15 +379,7 @@ var Score = React.createClass({displayName: "Score",
         them = self.state.them,
         status = self.state.status;
         
-    if ( status == 'new' ) {
-      return (
-        React.createElement("div", {className: "score"}, 
-          React.createElement("input", {type: "number", value: us, onChange: this.handleUsChange, placeholder: "Us"}), 
-          React.createElement("input", {type: "number", value: them, onChange: this.handleThemChange, placeholder: "Them"}), 
-          React.createElement("a", {className: "submit", onClick: this.submitContent}, "save")
-        )
-      )
-    } else if ( status == 'edit' ) {
+    if (( status == 'new' ) || ( status == 'edit' )) {
       return (
         React.createElement("div", {className: "score"}, 
           React.createElement("input", {type: "number", value: us, onChange: this.handleUsChange, placeholder: "Us"}), 
@@ -399,6 +391,122 @@ var Score = React.createClass({displayName: "Score",
       return (
         React.createElement("div", {className: "score"}, 
           us, ", ", them, 
+          React.createElement("span", {onClick: this.handleEdit}, "Edit")
+        )
+      )
+    }
+  }
+});
+
+var Game = React.createClass({displayName: "Game",
+  getInitialState: function() {
+    return { date: '', time: '', scores: [] };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var tmp_game = {};
+    tmp_game.identifier = self.props.identifier,
+    tmp_game.date = self.props.date,
+    tmp_game.time = self.props.time,
+    tmp_game.scores = self.props.scores,
+    tmp_game.status = self.props.status || [];
+
+    self.setState(tmp_game);
+  },
+
+  dateChange: function(moment, dateText) {
+    this.setState({date: moment}); 
+  },
+
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
+
+
+  handleScoreChange: function(content) {
+    var current_scores = this.state.scores;
+
+    for(var i in current_scores) {
+      if (current_scores[i].identifier == content.identifier || current_scores[i]._id == content.identifier){
+        current_scores[i].us = content.us;
+        current_scores[i].them = content.them;
+        current_scores[i].status = content.status;
+      }
+    }
+
+    this.setState({ scores: current_scores});
+
+  },
+
+  newScore: function() {
+    console.log('newGame');
+    var current_scores = this.state.scores;
+    console.log(' '+util.inspect(current_scores));
+    var new_scores = current_scores.concat({status: 'new', identifier: Math.random()});
+    console.log(' '+util.inspect(new_scores));
+    this.setState({scores: new_scores});
+
+  },
+
+  submitContent: function(){
+    var self = this;
+    var tmp_game = {};
+        tmp_game = self.state,
+        tmp_game.status = 'show';
+
+    self.props.submit(tmp_game);
+  },
+
+  render: function () {
+    var self = this;
+    console.log("self: " + self );
+    var date = self.state.date,
+        time = self.state.time,
+        status = self.state.status,
+        scores = self.state.scores;
+
+    var the_scores = scores.map(function(object) {
+      var identifier = object.identifier || object._id;
+      var status = object.status || "show";
+      return React.createElement(Score, {
+        us: object.us, 
+        them: object.them, 
+        status: status, 
+
+        identifier: identifier, 
+        key: identifier, 
+
+        submit: self.handleScoreChange})
+    });
+        
+    if (( status == 'new' ) || ( status == 'edit' )) {
+      return (
+        React.createElement("div", {className: "game"}, 
+          React.createElement("h5", null, "Date: "), 
+          React.createElement(DatePicker, {
+                  hideFooter: true, 
+                  date: date, 
+                  onChange: self.dateChange}), 
+          
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
+
+           the_scores ?
+            React.createElement("div", {className: "Scores"}, 
+              the_scores
+            ) 
+          : '', 
+
+          React.createElement("h6", {onClick: this.newScore}, "New Score"), 
+          React.createElement("a", {className: "submit", onClick: this.submitContent}, "save")
+        )
+      )
+    } else {
+      return (
+        React.createElement("div", {className: "score"}, 
+          React.createElement("p", null, date), 
+          React.createElement("p", null, time), 
+          the_scores, 
           React.createElement("span", {onClick: this.handleEdit}, "Edit")
         )
       )
@@ -613,6 +721,26 @@ var Matchup = React.createClass({displayName: "Matchup",
     console.log(util.inspect(this.state.photos));
   },
 
+  newGame: function() {
+    var current_games = this.state.games;
+    var new_games = current_games.concat({status: 'new', identifier: Math.random(), scores: []});
+    console.log(' '+util.inspect(new_games));
+    this.setState({games: new_games});
+  },
+
+  handleGameChange: function(content) {
+    var current_games = this.state.games;
+
+    for(var i in current_games) {
+      if (current_games[i].identifier == content.identifier || current_games[i]._id == content.identifier){
+        current_games[i].date = content.date;
+        current_games[i].time = content.time;
+        current_games[i].scores = content.scores;
+      }
+    }
+    this.setState({ games: current_games});
+  },
+
 
   render: function () {
     var self = this;
@@ -622,8 +750,21 @@ var Matchup = React.createClass({displayName: "Matchup",
         ticket = self.state.ticket,
         location = self.state.location,
         home = self.state.home,
-        games = self.state.games,
         status = self.state.status;
+
+    var games = self.state.games.map(function(object) {
+      return React.createElement(Game, {
+        status: object.status, 
+        date: object.date, 
+        time: object.time, 
+        scores: object.scores, 
+         
+        remove_game: self.handleRemoveGame, 
+
+        identifier: object.identifier, 
+
+        submit: self.handleGameChange})
+    });
 
     var photos = self.state.photos.map(function(object) {
       return React.createElement(Photo, {
@@ -641,7 +782,7 @@ var Matchup = React.createClass({displayName: "Matchup",
 
     if ((status == 'new') || (status == 'edit')) {
       return (
-        React.createElement("div", {className: "game"}, 
+        React.createElement("div", {className: "matchup"}, 
            status == 'new' ? 
             React.createElement("h3", null, "New matchup") 
           : 
@@ -653,6 +794,10 @@ var Matchup = React.createClass({displayName: "Matchup",
           React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
           React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
 
+          games, 
+
+          React.createElement("a", {className: "submit", onClick: self.newGame}, "new game"), 
+
            photos ?
             React.createElement("div", {className: "photos"}, 
               React.createElement("h3", {className: "page_edit_title"}, "Photos"), 
@@ -660,8 +805,6 @@ var Matchup = React.createClass({displayName: "Matchup",
             ) 
             : '', 
           
-
-          React.createElement("a", {className: "submit", onClick: self.printPhotos}, "print photos"), 
 
           React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
           
@@ -678,7 +821,7 @@ var Matchup = React.createClass({displayName: "Matchup",
     } else {
 
       return (
-        React.createElement("div", {className: "game"}, 
+        React.createElement("div", {className: "matchup"}, 
           React.createElement("h3", null, name), 
           React.createElement("ul", null, 
             React.createElement("li", null, "Opponent: ", opponent), 
@@ -686,7 +829,7 @@ var Matchup = React.createClass({displayName: "Matchup",
             React.createElement("li", null, "Location: ", location), 
             React.createElement("li", null, "Home?: ", home ? "True" : 'False')
           ), 
-
+          games, 
            photos ?
             React.createElement("div", {className: "photos"}, 
               React.createElement("h3", {className: "page_edit_title"}, "Photos"), 
@@ -811,7 +954,7 @@ var News = React.createClass({displayName: "News",
 
     if (status == 'new') {
       return (
-        React.createElement("div", {className: "game"}, 
+        React.createElement("div", {className: "matchup"}, 
           React.createElement("h3", null, "New News"), 
           React.createElement("h3", null, React.createElement("input", {type: "text", value: title, onChange: this.handleTitleChange, placeholder: "Title"})), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: link, onChange: this.handleLinkChange, placeholder: "Link"})), 
@@ -826,7 +969,7 @@ var News = React.createClass({displayName: "News",
       )
     } else if (status == 'edit') {
       return (
-        React.createElement("div", {className: "game"}, 
+        React.createElement("div", {className: "matchup"}, 
           React.createElement("h3", null, "Edit News"), 
           React.createElement("h3", null, React.createElement("input", {type: "text", value: title, onChange: this.handleTitleChange, placeholder: "Title"})), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: link, onChange: this.handleLinkChange, placeholder: "Link"})), 
@@ -841,7 +984,7 @@ var News = React.createClass({displayName: "News",
       )
     } else {
       return (
-        React.createElement("div", {className: "game"}, 
+        React.createElement("div", {className: "matchup"}, 
           React.createElement("h3", null, name), 
           React.createElement("ul", null, 
             React.createElement("li", null, "Title: ", title), 

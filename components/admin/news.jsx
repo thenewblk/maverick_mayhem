@@ -102,7 +102,7 @@ var News = React.createClass({
 
     if (status == 'new') {
       return (
-        <div className="game">
+        <div className="matchup">
           <h3>New News</h3>
           <h3><input type="text" value={title} onChange={this.handleTitleChange} placeholder="Title" /></h3>
           <h5><input type="text" value={link} onChange={this.handleLinkChange} placeholder="Link" /></h5>
@@ -117,7 +117,7 @@ var News = React.createClass({
       )
     } else if (status == 'edit') {
       return (
-        <div className="game">
+        <div className="matchup">
           <h3>Edit News</h3>
           <h3><input type="text" value={title} onChange={this.handleTitleChange} placeholder="Title" /></h3>
           <h5><input type="text" value={link} onChange={this.handleLinkChange} placeholder="Link" /></h5>
@@ -132,7 +132,7 @@ var News = React.createClass({
       )
     } else {
       return (
-        <div className="game">
+        <div className="matchup">
           <h3>{name}</h3>
           <ul>
             <li>Title: {title}</li>

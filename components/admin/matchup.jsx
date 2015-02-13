@@ -53,15 +53,7 @@ var Score = React.createClass({
         them = self.state.them,
         status = self.state.status;
         
-    if ( status == 'new' ) {
-      return (
-        <div className="score">
-          <input type="number" value={us} onChange={this.handleUsChange} placeholder="Us" />
-          <input type="number" value={them} onChange={this.handleThemChange} placeholder="Them" />
-          <a className='submit' onClick={this.submitContent}>save</a>
-        </div>
-      )
-    } else if ( status == 'edit' ) {
+    if (( status == 'new' ) || ( status == 'edit' )) {
       return (
         <div className="score">
           <input type="number" value={us} onChange={this.handleUsChange} placeholder="Us" />
@@ -73,6 +65,122 @@ var Score = React.createClass({
       return (
         <div className="score">
           {us}, {them}
+          <span onClick={this.handleEdit}>Edit</span>
+        </div>
+      )
+    }
+  }
+});
+
+var Game = React.createClass({
+  getInitialState: function() {
+    return { date: '', time: '', scores: [] };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var tmp_game = {};
+    tmp_game.identifier = self.props.identifier,
+    tmp_game.date = self.props.date,
+    tmp_game.time = self.props.time,
+    tmp_game.scores = self.props.scores,
+    tmp_game.status = self.props.status || [];
+
+    self.setState(tmp_game);
+  },
+
+  dateChange: function(moment, dateText) {
+    this.setState({date: moment}); 
+  },
+
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
+
+
+  handleScoreChange: function(content) {
+    var current_scores = this.state.scores;
+
+    for(var i in current_scores) {
+      if (current_scores[i].identifier == content.identifier || current_scores[i]._id == content.identifier){
+        current_scores[i].us = content.us;
+        current_scores[i].them = content.them;
+        current_scores[i].status = content.status;
+      }
+    }
+
+    this.setState({ scores: current_scores});
+
+  },
+
+  newScore: function() {
+    console.log('newGame');
+    var current_scores = this.state.scores;
+    console.log(' '+util.inspect(current_scores));
+    var new_scores = current_scores.concat({status: 'new', identifier: Math.random()});
+    console.log(' '+util.inspect(new_scores));
+    this.setState({scores: new_scores});
+
+  },
+
+  submitContent: function(){
+    var self = this;
+    var tmp_game = {};
+        tmp_game = self.state,
+        tmp_game.status = 'show';
+
+    self.props.submit(tmp_game);
+  },
+
+  render: function () {
+    var self = this;
+    console.log("self: " + self );
+    var date = self.state.date,
+        time = self.state.time,
+        status = self.state.status,
+        scores = self.state.scores;
+
+    var the_scores = scores.map(function(object) {
+      var identifier = object.identifier || object._id;
+      var status = object.status || "show";
+      return <Score
+        us={object.us} 
+        them={object.them} 
+        status={status}
+
+        identifier={identifier}
+        key={identifier}
+
+        submit={self.handleScoreChange} />
+    });
+        
+    if (( status == 'new' ) || ( status == 'edit' )) {
+      return (
+        <div className="game">
+          <h5>Date: </h5>
+          <DatePicker
+                  hideFooter={true}
+                  date={date} 
+                  onChange={self.dateChange}  />
+          
+          <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
+
+          { the_scores ?
+            <div className="Scores">
+              {the_scores}
+            </div> 
+          : '' }
+
+          <h6 onClick={this.newScore}>New Score</h6>
+          <a className='submit' onClick={this.submitContent}>save</a>
+        </div>
+      )
+    } else {
+      return (
+        <div className="score">
+          <p>{date}</p>
+          <p>{time}</p>
+          {the_scores}
           <span onClick={this.handleEdit}>Edit</span>
         </div>
       )
@@ -287,6 +395,26 @@ var Matchup = React.createClass({
     console.log(util.inspect(this.state.photos));
   },
 
+  newGame: function() {
+    var current_games = this.state.games;
+    var new_games = current_games.concat({status: 'new', identifier: Math.random(), scores: []});
+    console.log(' '+util.inspect(new_games));
+    this.setState({games: new_games});
+  },
+
+  handleGameChange: function(content) {
+    var current_games = this.state.games;
+
+    for(var i in current_games) {
+      if (current_games[i].identifier == content.identifier || current_games[i]._id == content.identifier){
+        current_games[i].date = content.date;
+        current_games[i].time = content.time;
+        current_games[i].scores = content.scores;
+      }
+    }
+    this.setState({ games: current_games});
+  },
+
 
   render: function () {
     var self = this;
@@ -296,8 +424,21 @@ var Matchup = React.createClass({
         ticket = self.state.ticket,
         location = self.state.location,
         home = self.state.home,
-        games = self.state.games,
         status = self.state.status;
+
+    var games = self.state.games.map(function(object) {
+      return <Game 
+        status={object.status}
+        date={object.date} 
+        time={object.time}
+        scores={object.scores}
+         
+        remove_game={self.handleRemoveGame}
+
+        identifier={object.identifier} 
+
+        submit={self.handleGameChange} />
+    });
 
     var photos = self.state.photos.map(function(object) {
       return <Photo 
@@ -315,7 +456,7 @@ var Matchup = React.createClass({
 
     if ((status == 'new') || (status == 'edit')) {
       return (
-        <div className="game">
+        <div className="matchup">
           { status == 'new' ? 
             <h3>New matchup</h3> 
           : 
@@ -327,6 +468,10 @@ var Matchup = React.createClass({
           <h5><input type="text" value={location} onChange={this.handleLocationChange} placeholder="Location" /></h5>
           <h5 className="home">Home: <input type="checkbox" checked={home} onChange={this.handleHomeChange} /></h5>
 
+          {games}
+
+          <a className='submit' onClick={self.newGame}>new game</a> 
+
           { photos ?
             <div className="photos">
               <h3 className="page_edit_title">Photos</h3>
@@ -334,8 +479,6 @@ var Matchup = React.createClass({
             </div> 
             : ''
           }
-
-          <a className='submit' onClick={self.printPhotos}>print photos</a> 
 
           <PhotosUploader photos={this.handleNewPhoto} />
           
@@ -352,7 +495,7 @@ var Matchup = React.createClass({
     } else {
 
       return (
-        <div className="game">
+        <div className="matchup">
           <h3>{name}</h3>
           <ul>
             <li>Opponent: {opponent}</li>
@@ -360,7 +503,7 @@ var Matchup = React.createClass({
             <li>Location: {location}</li>
             <li>Home?: {home ? "True" : 'False'}</li>
           </ul>
-
+          {games}
           { photos ?
             <div className="photos">
               <h3 className="page_edit_title">Photos</h3>
