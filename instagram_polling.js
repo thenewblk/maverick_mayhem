@@ -15,7 +15,6 @@ var Instagram = require('./models/instagram'),
 
   var instagram_tags = [
     'maverickmayhem',
-    'unomaha',
     'mavspirit'
   ];  
 
@@ -95,7 +94,7 @@ var Instagram = require('./models/instagram'),
   });
 
   // if ( process.env.NODE_ENV == 'staging' ) {
-  //   setInterval( pollInstagram , 6000);
+    setInterval( pollInstagram , 6000);
   // }
   // if ( process.env.NODE_ENV == 'production' ) {
     // setInterval( pollInstagram , 6000);

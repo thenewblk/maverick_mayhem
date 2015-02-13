@@ -12,7 +12,7 @@ var Instagram = React.createClass({displayName: "Instagram",
   componentDidMount: function () {},
   render: function() {
     var self = this;
-    var userCaption = (self.props.caption.length > 160 ? self.props.caption.slice(0, 160) + ' [...]' : self.props.caption);
+    var userCaption = (self.props.caption.length > 160 ? self.props.caption.slice(0, 160) + ' ...' : self.props.caption);
 
     // var truncate = function(str,num){
     //   var words = str.split(' ');
@@ -21,14 +21,14 @@ var Instagram = React.createClass({displayName: "Instagram",
     // }
     return (
       React.createElement("div", {className: "instagram"}, 
-        React.createElement(ImageLoader, {src: self.props.images.low_resolution.url}, 
+        React.createElement(ImageLoader, {src: self.props.images.standard_resolution.url}, 
           "Image load failed!"
         ), 
         React.createElement("div", {className: "user-wrapper"}, 
         React.createElement("div", {className: "user__profile-picture"}, React.createElement("img", {src: self.props.user.profile_picture})), 
         React.createElement("p", {className: "photo__description"}, userCaption), 
         React.createElement("p", {className: "instagram__user"}, 
-          React.createElement("a", {href: self.props.link}, 
+          React.createElement("a", {href: self.props.link, target: "_blank"}, 
              "@", self.props.user.username
           )
         )

@@ -11,7 +11,7 @@ var Instagram = React.createClass({
   componentDidMount: function () {},
   render: function() {
     var self = this;
-    var userCaption = (self.props.caption.length > 160 ? self.props.caption.slice(0, 160) + ' [...]' : self.props.caption);
+    var userCaption = (self.props.caption.length > 160 ? self.props.caption.slice(0, 160) + ' ...' : self.props.caption);
 
     // var truncate = function(str,num){
     //   var words = str.split(' ');
@@ -20,14 +20,14 @@ var Instagram = React.createClass({
     // }
     return (
       <div className="instagram">
-        <ImageLoader src={self.props.images.low_resolution.url} >
+        <ImageLoader src={self.props.images.standard_resolution.url} >
           Image load failed!
         </ImageLoader>
         <div className="user-wrapper">
         <div className="user__profile-picture"><img src={self.props.user.profile_picture} /></div>
         <p className="photo__description">{userCaption}</p>
         <p className="instagram__user">
-          <a href={self.props.link}>
+          <a href={self.props.link} target="_blank">
              &#64;{self.props.user.username}
           </a>
         </p>
