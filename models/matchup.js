@@ -13,7 +13,7 @@ var matchupSchema = mongoose.Schema({
   location      : String,
   home    		  : Boolean,
 
-  photos        : [{ type: Schema.ObjectId, ref: 'Photo' }],
+  photos        : [{ type: Schema.Types.ObjectId, ref: 'Photo' }],
 
   games: [{
       date          : String,

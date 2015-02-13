@@ -64,9 +64,30 @@ module.exports = function(app, passport) {
 		new_page.headline = req.body.headline;
 		new_page.banner = req.body.banner;
 		new_page.description = req.body.description;
-		new_page.matchups = req.body.matchups;
-		new_page.photos = req.body.photos;
-		new_page.news = req.body.news;
+
+		if ( req.body.photos ) {
+			var tmp_photos = [];
+			for ( i in req.body.photos ) {
+				tmp_photos.push(req.body.photos[i]._id);
+			}	
+			new_page.photos = tmp_photos;
+		}
+
+		if ( req.body.matchups ) {
+			var tmp_matchups = [];
+			for ( i in req.body.matchups ) {
+				tmp_matchups.push(req.body.matchups[i]._id);
+			}	
+			new_page.matchups = tmp_matchups;
+		}
+
+		if ( req.body.news ) {
+			var tmp_news = [];
+			for ( i in req.body.news ) {
+				tmp_news.push(req.body.news[i]._id);
+			}	
+			new_page.news = tmp_news;
+		}
 
 		Page.create(new_page, function (err, page) {
 		  if (err) return console.log(err);
@@ -128,9 +149,39 @@ module.exports = function(app, passport) {
 		tmp_page.headline = req.body.headline;
 		tmp_page.banner = req.body.banner;
 		tmp_page.description = req.body.description;
-		tmp_page.matchups = req.body.matchups;
-		tmp_page.photos = req.body.photos;
-		tmp_page.news = req.body.news;
+
+		console.log('req.body.photos: ' + util.inspect(req.body.photos));
+		if ( req.body.photos ) {
+			var tmp_photos = [];
+			for ( i in req.body.photos ) {
+				tmp_photos.push(req.body.photos[i]._id);
+			}	
+			tmp_page.photos = tmp_photos;
+		}
+
+		console.log('tmp_photos: ' + util.inspect(tmp_photos));
+
+		console.log('req.body.matchups: ' + util.inspect(req.body.matchups));
+
+		if ( req.body.matchups ) {
+
+			var tmp_matchups = [];
+			for ( i in req.body.matchups ) {
+				tmp_matchups.push(req.body.matchups[i]._id);
+			}	
+			tmp_page.matchups   	= tmp_matchups;
+		}
+		console.log('tmp_matchups: ' + util.inspect(tmp_page.matchups));
+
+		console.log('req.body.news: ' + util.inspect(req.body.news));
+		if ( req.body.news ) {
+			var tmp_news = [];
+			for ( i in req.body.news ) {
+				tmp_news.push(req.body.news[i]._id);
+			}	
+			tmp_page.news = tmp_news;
+		}
+		console.log('tmp_news: ' + util.inspect(tmp_news));
 
 		Page
 			.findOne({ slug: req.params.slug })

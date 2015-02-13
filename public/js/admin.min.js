@@ -22,11 +22,8 @@ var Page = React.createClass({displayName: "Page",
       video: {}, 
       icon: {}, 
       matchups: [], 
-      tmp_matchups: [''], 
       photos: [], 
-      tmp_photos: [], 
       news: [], 
-      tmp_news: [],
       submitted: false };
   },
   
@@ -101,7 +98,6 @@ var Page = React.createClass({displayName: "Page",
 
 
   handleRemoveMatchup: function(matchup) {
-
     var self = this,
         current_matchups = self.state.matchups, 
         found_matchup;
@@ -120,18 +116,27 @@ var Page = React.createClass({displayName: "Page",
   },
 
   newMatchupSaved: function(content) {
-    console.log('newMatchupSaved');
-    var current_matchups = this.state.matchups;
+    console.log("new matchup saved: "+ util.inspect(content));
+    var self = this,
+        current_matchups = self.state.matchups, 
+        found_matchup;
 
-    var new_matchups = current_matchups.concat(content);
+    if (content.identifier) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i].identifier == content.identifier ){
+          found_matchup = i;
+        }
+      }
+      current_matchups[found_matchup] = content;
 
-    this.setState({matchups: new_matchups});
+      self.setState({matchups: current_matchups });      
+    }
   },
 
   newMatchup: function() {
     console.log('newMatchup');
     var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random()});
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: []});
     this.setState({matchups: new_matchups});
   },
 
@@ -144,11 +149,11 @@ var Page = React.createClass({displayName: "Page",
 
   newNewsSaved: function(content) {
     console.log('newNewsSaved');
-    var current_news = this.state.news;
+    // var current_news = this.state.news;
 
-    var new_news = current_news.concat(content);
+    // var new_news = current_news.concat(content);
 
-    this.setState({news: new_news});
+    // this.setState({news: new_news});
   },
 
 
@@ -194,6 +199,10 @@ var Page = React.createClass({displayName: "Page",
           }
         }.bind(self));
     }
+  },
+
+  testContent: function(){
+    console.log(util.inspect(this.state));
   },
 
   render: function () {
@@ -289,7 +298,9 @@ var Page = React.createClass({displayName: "Page",
 
         React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
 
-        React.createElement("a", {className: "submit", onClick: this.submitContent}, "save page")
+        React.createElement("a", {className: "submit", onClick: this.submitContent}, "save page"), 
+        React.createElement("a", {className: "submit", onClick: this.testContent}, "test")
+
       )
     );
   }
@@ -391,24 +402,27 @@ var Matchup = React.createClass({displayName: "Matchup",
         name: '', 
         status: 'show', 
         opponent: '', 
-        date: '2015-01-01', 
-        time: '', 
         ticket: '', 
         location: '', 
         home: false, 
-        scores: [],
-        tmp_photos: [],
         photos: [],
         games: [] };
   },
 
   componentWillMount: function(){
     var self = this;
-    console.log('self: '+util.inspect(self));
-    console.log('self.props.slug: '+self.props.slug);
-    console.log('self.props.photos: '+self.props.photos);
-
-    var tmp_matchup = self.props;
+    // console.log('self: '+util.inspect(self.props));
+    var tmp_matchup = {};
+        tmp_matchup.name = self.props.name, 
+        tmp_matchup.slug = self.props.slug, 
+        tmp_matchup.status = self.props.status, 
+        tmp_matchup.opponent = self.props.opponent, 
+        tmp_matchup.ticket = self.props.ticket, 
+        tmp_matchup.location = self.props.location, 
+        tmp_matchup.home = self.props.home, 
+        tmp_matchup.photos = self.props.photos,
+        tmp_matchup.games = self.props.games; 
+        tmp_matchup.identifier = self.props.identifier; 
 
 
     self.setState(tmp_matchup);
@@ -446,7 +460,6 @@ var Matchup = React.createClass({displayName: "Matchup",
 
   handleNewPhoto: function(photo) {
     var self = this,
-        current_tmp_photos = self.state.tmp_photos,
         current_photos = self.state.photos;
 
     console.log('handleNewPhoto:' + util.inspect(photo));
@@ -458,9 +471,8 @@ var Matchup = React.createClass({displayName: "Matchup",
         console.log(res)
         if (res.text) {
           var new_photo = JSON.parse(res.text);
-          var new_tmp_photos = current_tmp_photos.concat(new_photo);
-          var new_photos = current_photos.concat(new_photo._id);
-          self.setState({tmp_photos: new_tmp_photos, photos: new_photos });
+          var new_photos = current_photos.concat(new_photo);
+          self.setState({photos: new_photos });
         }
       }.bind(self));
   },
@@ -468,19 +480,9 @@ var Matchup = React.createClass({displayName: "Matchup",
   handleRemovePhoto: function(photo) {
 
     var self = this,
-        current_tmp_photos = self.state.tmp_photos,
         current_photos = self.state.photos;
 
-    var found_tmp_photo, found_photo;
-
-    for ( i in  current_tmp_photos) {
-      if ( current_tmp_photos[i]._id == photo._id ){
-        found_tmp_photo = i;
-      }
-    }
-
-    current_tmp_photos.splice(found_tmp_photo, 1);
-
+    var found_photo;
     for ( i in  current_photos) {
       if ( current_photos[i] == photo._id ){
         found_photo = i;
@@ -488,7 +490,7 @@ var Matchup = React.createClass({displayName: "Matchup",
     }
     current_photos.splice(found_photo, 1);
 
-    self.setState({tmp_photos: current_tmp_photos, photos: current_photos });
+    self.setState({photos: current_photos });
   },
 
   // Score Stuff
@@ -602,8 +604,6 @@ var Matchup = React.createClass({displayName: "Matchup",
 
     var name = self.state.name,
         opponent = self.state.opponent,
-        date = self.state.date,
-        time = self.state.time,
         ticket = self.state.ticket,
         location = self.state.location,
         home = self.state.home,
@@ -626,7 +626,7 @@ var Matchup = React.createClass({displayName: "Matchup",
 
     if ((status == 'new') || (status == 'edit')) {
       return (
-        React.createElement("div", {className: "matchup"}, 
+        React.createElement("div", {className: "game"}, 
            status == 'new' ? 
             React.createElement("h3", null, "New matchup") 
           : 
@@ -637,13 +637,6 @@ var Matchup = React.createClass({displayName: "Matchup",
           React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket Link"})), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
           React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
-
-          React.createElement("h5", null, "Date: "), 
-          React.createElement(DatePicker, {
-                  hideFooter: true, 
-                  date: date, 
-                  onChange: self.dateChange}), 
-          React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
 
            photos ?
             React.createElement("div", {className: "photos"}, 
@@ -667,26 +660,14 @@ var Matchup = React.createClass({displayName: "Matchup",
       )
     } else {
 
-      var us_scores = scores.map(function(object) {
-        return React.createElement("span", null, object.us);
-      });
-
-      var them_scores = scores.map(function(object) {
-        return React.createElement("span", null, object.them);
-      });
-
       return (
         React.createElement("div", {className: "game"}, 
           React.createElement("h3", null, name), 
           React.createElement("ul", null, 
             React.createElement("li", null, "Opponent: ", opponent), 
-            React.createElement("li", null, "Date: ", moment(date).format('MMMM Do YYYY')), 
-            React.createElement("li", null, "Time: ", time), 
             React.createElement("li", null, "Ticket Link: ", ticket), 
             React.createElement("li", null, "Location: ", location), 
-            React.createElement("li", null, "Home?: ", home ? "True" : 'False'), 
-            React.createElement("li", null, "Us: ", us_scores), 
-            React.createElement("li", null, "Them: ", them_scores)
+            React.createElement("li", null, "Home?: ", home ? "True" : 'False')
           ), 
 
            photos ?

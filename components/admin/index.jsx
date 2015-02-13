@@ -21,11 +21,8 @@ var Page = React.createClass({
       video: {}, 
       icon: {}, 
       matchups: [], 
-      tmp_matchups: [''], 
       photos: [], 
-      tmp_photos: [], 
       news: [], 
-      tmp_news: [],
       submitted: false };
   },
   
@@ -100,7 +97,6 @@ var Page = React.createClass({
 
 
   handleRemoveMatchup: function(matchup) {
-
     var self = this,
         current_matchups = self.state.matchups, 
         found_matchup;
@@ -119,18 +115,27 @@ var Page = React.createClass({
   },
 
   newMatchupSaved: function(content) {
-    console.log('newMatchupSaved');
-    var current_matchups = this.state.matchups;
+    console.log("new matchup saved: "+ util.inspect(content));
+    var self = this,
+        current_matchups = self.state.matchups, 
+        found_matchup;
 
-    var new_matchups = current_matchups.concat(content);
+    if (content.identifier) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i].identifier == content.identifier ){
+          found_matchup = i;
+        }
+      }
+      current_matchups[found_matchup] = content;
 
-    this.setState({matchups: new_matchups});
+      self.setState({matchups: current_matchups });      
+    }
   },
 
   newMatchup: function() {
     console.log('newMatchup');
     var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random()});
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: []});
     this.setState({matchups: new_matchups});
   },
 
@@ -143,11 +148,11 @@ var Page = React.createClass({
 
   newNewsSaved: function(content) {
     console.log('newNewsSaved');
-    var current_news = this.state.news;
+    // var current_news = this.state.news;
 
-    var new_news = current_news.concat(content);
+    // var new_news = current_news.concat(content);
 
-    this.setState({news: new_news});
+    // this.setState({news: new_news});
   },
 
 
@@ -193,6 +198,10 @@ var Page = React.createClass({
           }
         }.bind(self));
     }
+  },
+
+  testContent: function(){
+    console.log(util.inspect(this.state));
   },
 
   render: function () {
@@ -289,6 +298,8 @@ var Page = React.createClass({
         <PhotosUploader photos={this.handleNewPhoto} />
 
         <a className='submit' onClick={this.submitContent}>save page</a>
+        <a className='submit' onClick={this.testContent}>test</a>
+
       </div>
     );
   }

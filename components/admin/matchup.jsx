@@ -86,24 +86,27 @@ var Matchup = React.createClass({
         name: '', 
         status: 'show', 
         opponent: '', 
-        date: '2015-01-01', 
-        time: '', 
         ticket: '', 
         location: '', 
         home: false, 
-        scores: [],
-        tmp_photos: [],
         photos: [],
         games: [] };
   },
 
   componentWillMount: function(){
     var self = this;
-    console.log('self: '+util.inspect(self));
-    console.log('self.props.slug: '+self.props.slug);
-    console.log('self.props.photos: '+self.props.photos);
-
-    var tmp_matchup = self.props;
+    // console.log('self: '+util.inspect(self.props));
+    var tmp_matchup = {};
+        tmp_matchup.name = self.props.name, 
+        tmp_matchup.slug = self.props.slug, 
+        tmp_matchup.status = self.props.status, 
+        tmp_matchup.opponent = self.props.opponent, 
+        tmp_matchup.ticket = self.props.ticket, 
+        tmp_matchup.location = self.props.location, 
+        tmp_matchup.home = self.props.home, 
+        tmp_matchup.photos = self.props.photos,
+        tmp_matchup.games = self.props.games; 
+        tmp_matchup.identifier = self.props.identifier; 
 
 
     self.setState(tmp_matchup);
@@ -141,7 +144,6 @@ var Matchup = React.createClass({
 
   handleNewPhoto: function(photo) {
     var self = this,
-        current_tmp_photos = self.state.tmp_photos,
         current_photos = self.state.photos;
 
     console.log('handleNewPhoto:' + util.inspect(photo));
@@ -153,9 +155,8 @@ var Matchup = React.createClass({
         console.log(res)
         if (res.text) {
           var new_photo = JSON.parse(res.text);
-          var new_tmp_photos = current_tmp_photos.concat(new_photo);
-          var new_photos = current_photos.concat(new_photo._id);
-          self.setState({tmp_photos: new_tmp_photos, photos: new_photos });
+          var new_photos = current_photos.concat(new_photo);
+          self.setState({photos: new_photos });
         }
       }.bind(self));
   },
@@ -163,19 +164,9 @@ var Matchup = React.createClass({
   handleRemovePhoto: function(photo) {
 
     var self = this,
-        current_tmp_photos = self.state.tmp_photos,
         current_photos = self.state.photos;
 
-    var found_tmp_photo, found_photo;
-
-    for ( i in  current_tmp_photos) {
-      if ( current_tmp_photos[i]._id == photo._id ){
-        found_tmp_photo = i;
-      }
-    }
-
-    current_tmp_photos.splice(found_tmp_photo, 1);
-
+    var found_photo;
     for ( i in  current_photos) {
       if ( current_photos[i] == photo._id ){
         found_photo = i;
@@ -183,7 +174,7 @@ var Matchup = React.createClass({
     }
     current_photos.splice(found_photo, 1);
 
-    self.setState({tmp_photos: current_tmp_photos, photos: current_photos });
+    self.setState({photos: current_photos });
   },
 
   // Score Stuff
@@ -297,8 +288,6 @@ var Matchup = React.createClass({
 
     var name = self.state.name,
         opponent = self.state.opponent,
-        date = self.state.date,
-        time = self.state.time,
         ticket = self.state.ticket,
         location = self.state.location,
         home = self.state.home,
@@ -321,7 +310,7 @@ var Matchup = React.createClass({
 
     if ((status == 'new') || (status == 'edit')) {
       return (
-        <div className="matchup">
+        <div className="game">
           { status == 'new' ? 
             <h3>New matchup</h3> 
           : 
@@ -332,13 +321,6 @@ var Matchup = React.createClass({
           <h5><input type="text" value={ticket} onChange={this.handleTicketChange} placeholder="Ticket Link" /></h5>
           <h5><input type="text" value={location} onChange={this.handleLocationChange} placeholder="Location" /></h5>
           <h5 className="home">Home: <input type="checkbox" checked={home} onChange={this.handleHomeChange} /></h5>
-
-          <h5>Date: </h5>
-          <DatePicker
-                  hideFooter={true}
-                  date={date} 
-                  onChange={self.dateChange}  />
-          <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
 
           { photos ?
             <div className="photos">
@@ -362,26 +344,14 @@ var Matchup = React.createClass({
       )
     } else {
 
-      var us_scores = scores.map(function(object) {
-        return <span>{object.us}</span>;
-      });
-
-      var them_scores = scores.map(function(object) {
-        return <span>{object.them}</span>;
-      });
-
       return (
         <div className="game">
           <h3>{name}</h3>
           <ul>
             <li>Opponent: {opponent}</li>
-            <li>Date: {moment(date).format('MMMM Do YYYY')}</li>
-            <li>Time: {time}</li>
             <li>Ticket Link: {ticket}</li>
             <li>Location: {location}</li>
             <li>Home?: {home ? "True" : 'False'}</li>
-            <li>Us: {us_scores}</li>
-            <li>Them: {them_scores}</li>
           </ul>
 
           { photos ?

@@ -1,5 +1,5 @@
-var Matchup = require('../models/matchup');
-
+var Matchup = require('../models/matchup'),
+	util = require('util');
 module.exports = function(app, passport) {
 	// Add New matchup
 	app.post('/api/matchups/new', isLoggedIn, function(req, res) {
@@ -128,7 +128,12 @@ module.exports = function(app, passport) {
 
 				matchup.save(function (err) {
 					if (err) return console.log(err);
-					res.send(matchup);
+					Matchup
+						.findOne({ slug: matchup.slug })
+						.populate('photos')
+						.exec( function (err, new_matchup) {
+							res.send(new_matchup);
+						});
 				});
 			});
 	});

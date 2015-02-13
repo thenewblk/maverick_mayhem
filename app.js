@@ -41,7 +41,7 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash());
 
 require('./routes/index')(app, passport);
-require('./routes/game')(app, passport);
+require('./routes/matchup')(app, passport);
 require('./routes/news')(app, passport);
 require('./routes/photo')(app, passport);
 require('./routes/page')(app, passport);
