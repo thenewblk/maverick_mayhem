@@ -69,9 +69,9 @@ module.exports = function(app, passport) {
 	});
 
 	// Display matchup
-	app.get('/api/matchups/:slug', isLoggedIn, function(req, res) {
+	app.get('/api/matchups/:id', isLoggedIn, function(req, res) {
 		Matchup
-			.findOne({ slug: req.params.slug })
+			.findOne({ _id: req.params.id })
 			.populate('photos')
 			.exec( function (err, matchup) {
 			  	if (err) return console.log(err);
@@ -80,9 +80,9 @@ module.exports = function(app, passport) {
 	});
 
 	// Display Edit matchup Form
-	app.get('/api/matchups/:slug/edit', isLoggedIn, function(req, res) {
+	app.get('/api/matchups/:id/edit', isLoggedIn, function(req, res) {
 		Matchup
-			.findOne({ slug: req.params.slug })
+			.findOne({ _id: req.params.id })
 			.exec( function (err, matchup) {
 			  if (err) { console.log(err); }
 				res.send(matchup);
@@ -90,7 +90,7 @@ module.exports = function(app, passport) {
 	});
 
 	// Edit matchup
-	app.post('/api/matchups/:slug/edit', isLoggedIn, function(req, res) {
+	app.post('/api/matchups/:id/edit', isLoggedIn, function(req, res) {
 		var edit_matchup = {};
 		edit_matchup.name 		= req.body.name;
 		edit_matchup.opponent 	= req.body.opponent;
@@ -111,7 +111,7 @@ module.exports = function(app, passport) {
 		}
 
 		Matchup
-			.findOne({ slug: req.params.slug })
+			.findOne({ _id: req.params.id })
 			.exec(function (err, matchup) {
 			  if (err) return console.log(err);
 
@@ -129,7 +129,7 @@ module.exports = function(app, passport) {
 				matchup.save(function (err) {
 					if (err) return console.log(err);
 					Matchup
-						.findOne({ slug: matchup.slug })
+						.findOne({ _id: matchup.id })
 						.populate('photos')
 						.exec( function (err, new_matchup) {
 							res.send(new_matchup);
@@ -139,9 +139,9 @@ module.exports = function(app, passport) {
 	});
 	
 	// Delete matchup
-	app.delete('/api/matchups/:slug/delete', isLoggedIn, function(req, res) {
+	app.delete('/api/matchups/:id/delete', isLoggedIn, function(req, res) {
 		Matchup
-			.findOne({ slug: req.params.slug })
+			.findOne({ _id: req.params.id })
 			.remove( function (err, matchup) {
 			  	if (err) return console.log(err);
 				res.send(true);

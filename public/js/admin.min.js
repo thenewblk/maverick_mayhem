@@ -148,12 +148,21 @@ var Page = React.createClass({displayName: "Page",
   },
 
   newNewsSaved: function(content) {
-    console.log('newNewsSaved');
-    // var current_news = this.state.news;
+    console.log("new new saved: "+ util.inspect(content));
+    var self = this,
+        current_news = self.state.news, 
+        found_new;
 
-    // var new_news = current_news.concat(content);
+    if (content.identifier) {
+      for ( i in  current_news) {
+        if ( current_news[i].identifier == content.identifier ){
+          found_new = i;
+        }
+      }
+      current_news[found_new] = content;
 
-    // this.setState({news: new_news});
+      self.setState({news: current_news });      
+    }
   },
 
 
@@ -171,7 +180,7 @@ var Page = React.createClass({displayName: "Page",
       }
       current_news.splice(found_new, 1);
 
-      self.setState({tmp_news: current_tmp_news, news: current_news });      
+      self.setState({news: current_news });      
     }
   },
 
@@ -216,6 +225,7 @@ var Page = React.createClass({displayName: "Page",
     var matchups = self.state.matchups.map(function(object) {
       return React.createElement(Matchup, {
         name: object.name, 
+        _id: object._id, 
         slug: object.slug, 
         opponent: object.opponent, 
         ticket: object.ticket, 
@@ -260,7 +270,7 @@ var Page = React.createClass({displayName: "Page",
         remove_news: self.handleRemoveNews, 
         new_news: self.newNewsSaved, 
 
-        identifier: Math.random()})
+        identifier: object.identifier})
     });
 
     return (
@@ -413,6 +423,7 @@ var Matchup = React.createClass({displayName: "Matchup",
     var self = this;
     // console.log('self: '+util.inspect(self.props));
     var tmp_matchup = {};
+        tmp_matchup._id = self.props._id, 
         tmp_matchup.name = self.props.name, 
         tmp_matchup.slug = self.props.slug, 
         tmp_matchup.status = self.props.status, 
@@ -484,7 +495,7 @@ var Matchup = React.createClass({displayName: "Matchup",
 
     var found_photo;
     for ( i in  current_photos) {
-      if ( current_photos[i] == photo._id ){
+      if ( current_photos[i]._id == photo._id ){
         found_photo = i;
       }
     }
@@ -576,7 +587,7 @@ var Matchup = React.createClass({displayName: "Matchup",
     console.log('editContent: '+util.inspect(self.state));
     // self.setState({submitted: true});
     request
-      .post('/api/matchups/'+self.state.slug+'/edit')
+      .post('/api/matchups/'+self.state._id+'/edit')
       .send(tmp_matchup)
       .end(function(res) {
         console.log(res)
@@ -596,6 +607,10 @@ var Matchup = React.createClass({displayName: "Matchup",
 
   dateChange: function(moment, dateText) {
     this.setState({date: moment}); 
+  },
+
+  printPhotos: function(){
+    console.log(util.inspect(this.state.photos));
   },
 
 
@@ -645,6 +660,8 @@ var Matchup = React.createClass({displayName: "Matchup",
             ) 
             : '', 
           
+
+          React.createElement("a", {className: "submit", onClick: self.printPhotos}, "print photos"), 
 
           React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
           

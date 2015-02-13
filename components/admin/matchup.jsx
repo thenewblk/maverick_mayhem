@@ -97,6 +97,7 @@ var Matchup = React.createClass({
     var self = this;
     // console.log('self: '+util.inspect(self.props));
     var tmp_matchup = {};
+        tmp_matchup._id = self.props._id, 
         tmp_matchup.name = self.props.name, 
         tmp_matchup.slug = self.props.slug, 
         tmp_matchup.status = self.props.status, 
@@ -168,7 +169,7 @@ var Matchup = React.createClass({
 
     var found_photo;
     for ( i in  current_photos) {
-      if ( current_photos[i] == photo._id ){
+      if ( current_photos[i]._id == photo._id ){
         found_photo = i;
       }
     }
@@ -260,7 +261,7 @@ var Matchup = React.createClass({
     console.log('editContent: '+util.inspect(self.state));
     // self.setState({submitted: true});
     request
-      .post('/api/matchups/'+self.state.slug+'/edit')
+      .post('/api/matchups/'+self.state._id+'/edit')
       .send(tmp_matchup)
       .end(function(res) {
         console.log(res)
@@ -280,6 +281,10 @@ var Matchup = React.createClass({
 
   dateChange: function(moment, dateText) {
     this.setState({date: moment}); 
+  },
+
+  printPhotos: function(){
+    console.log(util.inspect(this.state.photos));
   },
 
 
@@ -329,6 +334,8 @@ var Matchup = React.createClass({
             </div> 
             : ''
           }
+
+          <a className='submit' onClick={self.printPhotos}>print photos</a> 
 
           <PhotosUploader photos={this.handleNewPhoto} />
           

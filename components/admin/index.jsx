@@ -147,12 +147,21 @@ var Page = React.createClass({
   },
 
   newNewsSaved: function(content) {
-    console.log('newNewsSaved');
-    // var current_news = this.state.news;
+    console.log("new new saved: "+ util.inspect(content));
+    var self = this,
+        current_news = self.state.news, 
+        found_new;
 
-    // var new_news = current_news.concat(content);
+    if (content.identifier) {
+      for ( i in  current_news) {
+        if ( current_news[i].identifier == content.identifier ){
+          found_new = i;
+        }
+      }
+      current_news[found_new] = content;
 
-    // this.setState({news: new_news});
+      self.setState({news: current_news });      
+    }
   },
 
 
@@ -170,7 +179,7 @@ var Page = React.createClass({
       }
       current_news.splice(found_new, 1);
 
-      self.setState({tmp_news: current_tmp_news, news: current_news });      
+      self.setState({news: current_news });      
     }
   },
 
@@ -215,6 +224,7 @@ var Page = React.createClass({
     var matchups = self.state.matchups.map(function(object) {
       return <Matchup 
         name={object.name}
+        _id={object._id}
         slug={object.slug} 
         opponent={object.opponent}
         ticket={object.ticket}
@@ -259,7 +269,7 @@ var Page = React.createClass({
         remove_news={self.handleRemoveNews}
         new_news={self.newNewsSaved}
 
-        identifier={Math.random()} />
+        identifier={object.identifier} />
     });
 
     return (
