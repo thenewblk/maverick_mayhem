@@ -80,6 +80,7 @@ var Game = React.createClass({
   componentWillMount: function(){
     var self = this;
     var tmp_game = {};
+    tmp_game._id = self.props._id,
     tmp_game.identifier = self.props.identifier,
     tmp_game.date = self.props.date,
     tmp_game.time = self.props.time,
@@ -136,7 +137,6 @@ var Game = React.createClass({
 
   render: function () {
     var self = this;
-    console.log("self: " + self );
     var date = self.state.date,
         time = self.state.time,
         status = self.state.status,
