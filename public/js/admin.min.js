@@ -735,7 +735,7 @@ var Matchup = React.createClass({displayName: "Matchup",
     console.log('content: ' + util.inspect(content));
     console.log('current_games: ' + util.inspect(current_games));
     for(var i in current_games) {
-      if (current_games[i].identifier == content.identifier){
+      if ((current_games[i].identifier == content.identifier) || (current_games[i]._id == content._id)){
         current_games[i].date = content.date;
         current_games[i].time = content.time;
         current_games[i].scores = content.scores;
@@ -764,7 +764,7 @@ var Matchup = React.createClass({displayName: "Matchup",
         scores: object.scores, 
          
         remove_game: self.handleRemoveGame, 
-
+        _id: object._id, 
         identifier: object.identifier || Math.random(), 
 
         submit: self.handleGameChange})
