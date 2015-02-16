@@ -30,13 +30,42 @@ pageSchema.pre('save', function (next) {
   next();
 });
 
+pageSchema.virtual('last_matchup').get(function () {
+  var today = moment();
+  var tmp_last_matchup;
+  for (i=0; i < this.matchups.length; i++ ) {
+
+    if (moment(this.matchups[i].games[this.matchups[i].games.length - 1].date).isBefore(today)) {
+        tmp_last_matchup = this.matchups[i];
+    }
+  }
+  return tmp_last_matchup
+});
+
+pageSchema.methods.getPeriod = function (i) {
+  if (this.slug == "hockey"){ 
+    if (i < 4 ) {
+      return tools.ordinal(i);
+    } else {
+      return "OT";
+    }
+  } else {
+    return tools.ordinal(i);
+  }
+};
+
 pageSchema.virtual('next_matchup').get(function () {
   var today = moment();
+  var tmp_last_matchup;
+  for (i=this.matchups.length -1; i > -1; i-- ) {
 
-
-
-  next();
+    if (moment(this.matchups[i].games[0].date).isAfter(today)) {
+        tmp_last_matchup = this.matchups[i];
+    }
+  }
+  return tmp_last_matchup
 });
+
 
 
 pageSchema.plugin( deepPopulate );

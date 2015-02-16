@@ -1,6 +1,7 @@
 var mongoose = require( 'mongoose' ),
     moment = require( 'moment' ),
     tools = require( '../lib/utils' ),
+    util = require( 'util' ),
     Schema = mongoose.Schema;
 
 var matchupSchema = mongoose.Schema({
@@ -30,6 +31,12 @@ matchupSchema.pre('save', function (next) {
   this.updated_at = moment().format("M.D.YYYY");
   this.updated_date = moment().format();
 
+  var tmp_dates = this.games.sort(function(a,b){
+    return new Date(a.date) - new Date(b.date);
+  });
+
+  this.games = tmp_dates;
+
   this.slug = tools.slugify(this.name);
   next();
 });
@@ -41,9 +48,9 @@ matchupSchema.virtual('date').get(function () {
     years = [];
 
   var games_length = self.games.length; 
-  if ( games_length > 1 ) {
+  if ( this.games.length > 1 ) {
 
-    for (i in games_length) {
+    for (i=0; i < this.games.length; i++) {
       months.push(moment(self.games[i].date).format('MMM'));
       days.push(moment(self.games[i].date).format('D'));
       years.push(moment(self.games[i].date).format('YYYY'));
@@ -53,15 +60,15 @@ matchupSchema.virtual('date').get(function () {
         de_days = tools.uniq(days),
         de_years = tools.uniq(years);
 
-    if (months.length == 1) {
+    if (de_months.length == 1) {
 
       if (de_days.length > 1) {
         return de_months[0] + ' ' + de_days[0] + '-' + de_days[games_length-1] + ', ' + de_years[0];
       } else {
-        return months[0] + ' ' + days[0] + ', ' + years[0];
+        return de_months[0] + ' ' + de_days[0] + ', ' + de_years[0];
       }
     } else {
-      return 'fuck you';
+      return de_months[0] + ' ' + de_days[0] + '-' + de_days[games_length-1] + ', ' + de_de_years[0];
     }
 
 
@@ -88,6 +95,25 @@ matchupSchema.virtual('total_them').get(function () {
 matchupSchema.virtual('formatted_date').get(function () {
   return moment(this.date).format('MMMM Do, YYYY');
 });
+
+matchupSchema.methods.getUsTotal = function (game) {
+  var total = game.scores.reduce(function(a, b) {
+    return a + b.us;
+  }, 0);
+  return total;
+};
+
+matchupSchema.methods.getThemTotal = function (game) {
+  var total = game.scores.reduce(function(a, b) {
+    return a + b.them;
+  }, 0);
+  return total;
+};
+
+
+matchupSchema.methods.getSmallDate = function (i) {
+  return moment(this.date).format('MMM. D');
+};
 
 matchupSchema.methods.getPeriod = function (i) {
   return tools.ordinal(i);

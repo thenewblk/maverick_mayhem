@@ -93,9 +93,9 @@ var Instagram = require('./models/instagram'),
     }
   });
   
-    pollTags();
+    // pollTags();
   // if ( process.env.NODE_ENV == 'staging' ) {
-    setInterval( pollInstagram , 6000);
+    // setInterval( pollInstagram , 6000);
   // }
   // if ( process.env.NODE_ENV == 'production' ) {
     // setInterval( pollInstagram , 6000);

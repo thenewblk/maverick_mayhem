@@ -260,6 +260,10 @@
 	}
 }
 
+.page_container {
+	position: relative;
+}
+
 @import "page";
 @import "dropzone";
 @import "index";

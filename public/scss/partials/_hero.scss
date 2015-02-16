@@ -10,7 +10,7 @@
   }
 
   @include respond-to(medium) {
-    height: 550px;
+    height: 650px;
   }
 
   @include respond-to(large) {
@@ -33,7 +33,7 @@
   left: 0px;
   min-width: 100%;
   min-height: 100%;
-  height: 100.5%;
+  height: 100%;
   width: 100%;
   z-index: 1;
   background: transparent url(../img/bkgrd_pattern_BLK.svg);
