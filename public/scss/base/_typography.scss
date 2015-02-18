@@ -54,8 +54,7 @@ h2, .h2 {
 }
 
 .sport__headline {
-  padding: 60px 0;
-  text-align: center;
+  padding: 60px 80px;
 
   @include respond-to(mobile) {
     padding: 20px 0;

@@ -415,52 +415,6 @@
           </div>
         </div>
       </div>
-
-      <div class="sport-recap">
-        <div class="sport__headline matchup_headline">
-          <h2><%= page.headline %></h2>
-        </div>
-        <div class="last_matchup">
-            <p class="content_title">Last Matchup:</p>
-            <div class="game_toggle">
-            <% page.last_matchup.games.forEach(function(game, index){ %>
-                <div class="game_label<% if(index == 0){ %> active<% } %>" data-id="<%= game._id %>">Game <%= index +1 %> | <%= page.last_matchup.getSmallDate(game.date) %> </div>
-            <% }); %>
-            </div>
-
-            <% page.last_matchup.games.forEach(function(game, index){ %>
-                <table class="last_matchup_table sport__scoreboard sport__scoreboard-hockey<% if(index == 0){ %> active<% } %>" data-id="<%= game._id %>">
-                  <thead>
-                    <tr class="scoreboard__header">
-                      <th class="team-name">&nbsp;</th>
-                      <% game.scores.forEach(function(score, index){ %>
-                        <th><%= page.getPeriod(index +1) %></th>
-                      <% }); %>
-                      <th class="score-total">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="team visitor">
-                      <td class="team-name">Omaha</td>
-                      <% game.scores.forEach(function(score, index){ %>
-                        <td class="score"><%= score.us %></td>
-                      <% }); %>
-                      <td class="score"><%= page.last_matchup.getUsTotal(game) %></td>
-                    </tr>
-                    <tr class="team away">
-                      <td class="team-name"><%= page.last_matchup.opponent %></td>
-                      <% game.scores.forEach(function(score, index){ %>
-                        <td class="score"><%= score.them %></td>
-                      <% }); %>
-                      <td class="score"><%= page.last_matchup.getThemTotal(game) %></td>
-                      <!-- <td class="score score-winner">4</td> -->
-                    </tr>
-                  </tbody>
-                </table>
-            <% }); %>
-          </div>
-      </div>
-
       <div class="photo-gallery" id="photo-gallery"></div>
     </div> 
 

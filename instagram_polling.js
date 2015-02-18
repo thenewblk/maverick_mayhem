@@ -15,7 +15,7 @@ var Instagram = require('./models/instagram'),
 
   var instagram_tags = [
     'maverickmayhem',
-    // 'mavspirit'
+    'mavspirit'
   ];  
 
 

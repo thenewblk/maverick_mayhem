@@ -112,9 +112,8 @@ module.exports = function(app, passport) {
 			.deepPopulate('matchups matchups.photos matchups.games photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
-			  	var tmp_matchups = [];
-
-			  	res.send(page);
+			  	
+			  	res.send(page.toObject({ virtuals: true }));
 
 			  		
 		});

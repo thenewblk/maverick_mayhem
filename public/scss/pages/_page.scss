@@ -4,7 +4,7 @@
 	display: table;
 	width: 375px;
 	z-index: 2;
-	right: 0;
+	right: 55px;
 	top: 75px;
 	margin: 0 20px;
 
@@ -78,6 +78,7 @@
 		width: 100%;
 		top: 50px;
 		padding: 0 15px;
+		right: 0;
 		.page_title {
 			width: 45%;
 				text-align: right;
@@ -224,18 +225,21 @@
 .matchup_headline {
 	display: inline-block;
 	width: 100%;
+	text-align: center;
 	@include respond-to(small) {
 		width: 100%;
 	}
 
 	@include respond-to(medium) {
 		width: 50%;
+		text-align: left;
 	}
 
 	@include respond-to(large) {
 		width: 69%;
 		display: inline-block;
 	}
+
 }
 
 .last_matchup {
@@ -255,13 +259,15 @@
 		width: 375px;
 		margin-top: 0;
 		display: inline-block;
+		position: absolute;
+		right: 75px;
 	}
 
 	@include respond-to(large) {
 		width: 375px;
 		margin-top: -100px;
 		position: absolute;
-		right: 20px;
+		right: 75px;
 		display: inline-block;
 	 }
 
@@ -314,6 +320,124 @@
 	}
 	.last_matchup_table.active {
 		display: table;
+	}
+}
+
+
+.previous_matchup, .next_matchup {
+	width: 50px;
+	position: relative;
+	display: inline-block;
+	color: white;
+	font-size: 11px;
+	text-transform: uppercase;
+	cursor: pointer;
+	.label {
+		line-height: 30px;
+		width: 100%;
+		text-align: center;
+		display: inline-block;
+	}
+
+	@include respond-to(smaller) {
+		display: none;
+	}
+
+}
+
+.next_matchup {
+	position: absolute;
+	right: 15px;
+	top: 75px;
+}
+
+
+.previous_matchup {
+	position: absolute;
+	left: 15px;
+	top: 75px;
+}
+
+.matchup_photos {
+	display: table;
+	margin: auto;
+	width: 100%;
+	padding: 0 15px;
+	.matchup_photo {
+		height: 300px;
+		width: 100%;
+		display: table;
+		position: relative;
+		background-size: cover,9px;
+		background-position: center;
+		opacity: 0;
+		float: left;
+		// transition: opacity .8s ease-out;
+		transition: 0.15s ease-out;
+		.description {
+			opacity: 0;
+			display: table-cell;
+			text-align: center;
+			vertical-align: middle;
+			color: white;
+			padding: 20px;
+			height: 100%;
+			transition: 0.15s ease-out;
+			img {
+				width: 40px;
+				display: table;
+				margin: 0 auto 20px;
+			}
+		}
+	}
+	.matchup_photo:hover {
+		background-blend-mode: multiply !important;
+		.description {
+			opacity: 1;
+		}
+	}
+	.matchup_photo.loaded {
+		opacity: 1;
+	}
+	@include respond-to(smallimage){
+		width: 500px;
+		padding: 0;
+		.matchup_photo.loaded, .matchup_photo {
+			height: 250px;
+			width: 250px;
+		}
+	}
+	@include respond-to(small){
+		width: 768px;
+		padding: 0;
+		.matchup_photo.loaded, .matchup_photo {
+			height: 256px;
+			width: 256px;
+		}
+	}
+	@include respond-to(medium){
+		width: 960px;
+		padding: 0;
+		.matchup_photo.loaded, .matchup_photo {
+			height: 320px;
+			width: 320px;
+		}
+	}
+	@include respond-to(large){
+		width: 1140px;
+		padding: 0;
+		.matchup_photo.loaded, .matchup_photo {
+			height: 380px;
+			width: 380px;
+		}
+	}
+	@include respond-to(xlarge){
+		width: 1520px;
+		padding: 0;
+		.matchup_photo.loaded, .matchup_photo {
+			height: 380px;
+			width: 380px;
+		}
 	}
 }
 

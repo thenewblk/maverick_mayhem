@@ -42,18 +42,6 @@ pageSchema.virtual('last_matchup').get(function () {
   return tmp_last_matchup
 });
 
-pageSchema.methods.getPeriod = function (i) {
-  if (this.slug == "hockey"){ 
-    if (i < 4 ) {
-      return tools.ordinal(i);
-    } else {
-      return "OT";
-    }
-  } else {
-    return tools.ordinal(i);
-  }
-};
-
 pageSchema.virtual('next_matchup').get(function () {
   var today = moment();
   var tmp_last_matchup;
@@ -66,7 +54,17 @@ pageSchema.virtual('next_matchup').get(function () {
   return tmp_last_matchup
 });
 
-
+pageSchema.methods.getPeriod = function (i) {
+  if (this.slug == "hockey"){ 
+    if (i < 4 ) {
+      return tools.ordinal(i);
+    } else {
+      return "OT";
+    }
+  } else {
+    return tools.ordinal(i);
+  }
+};
 
 pageSchema.plugin( deepPopulate );
  

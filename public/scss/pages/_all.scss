@@ -50,7 +50,7 @@
 
 .sport-recap {
   margin-bottom: 80px;
-
+  position: relative;
   @include respond-to(mobile) {
     margin-bottom: 10px;
   }

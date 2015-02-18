@@ -78,20 +78,6 @@ matchupSchema.virtual('date').get(function () {
 
 });
 
-matchupSchema.virtual('total_us').get(function () {
-  var total = this.scores.reduce(function(a, b) {
-    return a + b.us;
-  }, 0);
-  return total;
-});
-
-matchupSchema.virtual('total_them').get(function () {
-  var total = this.scores.reduce(function(a, b) {
-    return a + b.them;
-  }, 0);
-  return total;
-});
-
 matchupSchema.virtual('formatted_date').get(function () {
   return moment(this.date).format('MMMM Do, YYYY');
 });
@@ -112,7 +98,7 @@ matchupSchema.methods.getThemTotal = function (game) {
 
 
 matchupSchema.methods.getSmallDate = function (i) {
-  return moment(this.date).format('MMM. D');
+  return moment(i).format('MMM. D');
 };
 
 matchupSchema.methods.getPeriod = function (i) {
