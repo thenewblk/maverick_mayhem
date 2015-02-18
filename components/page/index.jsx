@@ -36,11 +36,10 @@ var Photo = React.createClass({
     var self = this;
     var divStyles = {
       backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev' + self.props.url + '), url(../img/bkgrd_pattern_RED.svg)',
-      backgroundBlendMode: 'normal',
     };
     return (
       <div className={"matchup_photo "+self.state.className} style={divStyles}>
-        <div className="description">
+        <div className="description" style={divStyles}>
           <img src="../img/expand_img.svg" />
           <p>{self.props.description}</p>
         </div>

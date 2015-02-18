@@ -37,11 +37,10 @@ var Photo = React.createClass({displayName: "Photo",
     var self = this;
     var divStyles = {
       backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev' + self.props.url + '), url(../img/bkgrd_pattern_RED.svg)',
-      backgroundBlendMode: 'normal',
     };
     return (
       React.createElement("div", {className: "matchup_photo "+self.state.className, style: divStyles}, 
-        React.createElement("div", {className: "description"}, 
+        React.createElement("div", {className: "description", style: divStyles}, 
           React.createElement("img", {src: "../img/expand_img.svg"}), 
           React.createElement("p", null, self.props.description)
         )

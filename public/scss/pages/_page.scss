@@ -369,6 +369,7 @@
 		display: table;
 		position: relative;
 		background-size: cover,9px;
+		background-blend-mode: normal;
 		background-position: center;
 		opacity: 0;
 		float: left;
@@ -379,6 +380,9 @@
 			display: table-cell;
 			text-align: center;
 			vertical-align: middle;
+			background-size: cover,9px;
+			background-blend-mode: multiply;
+			background-position: center;
 			color: white;
 			padding: 20px;
 			height: 100%;
@@ -391,8 +395,8 @@
 		}
 	}
 	.matchup_photo:hover {
-		background-blend-mode: multiply !important;
 		.description {
+			
 			opacity: 1;
 		}
 	}
