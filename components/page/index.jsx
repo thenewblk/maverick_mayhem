@@ -24,7 +24,6 @@ var Photo = React.createClass({
 
 
 
-// we will call this function when the image has finished loading
   notify_complete: function() {
     var self = this;
     self.setState({className: "loaded"});
@@ -200,7 +199,15 @@ var Page = React.createClass({
         .end(function(res) {
           if (res.text) {
             var Page = JSON.parse(res.text);
-            Page.tmp_photos = Page.last_matchup.photos;
+
+
+            var tmp_matchups = Page.matchups.sort(function(a,b){
+              return new Date(a.games[0].date) - new Date(b.games[0].date);
+            });
+
+            Page.matchups = tmp_matchups;
+
+
             Page.current_matchup = Page.last_matchup;
             self.setState(Page);
           }

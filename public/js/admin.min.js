@@ -186,7 +186,10 @@ var Page = React.createClass({displayName: "Page",
 
   submitContent: function(){
     var self = this;
-    self.setState({submitted: true});
+    var tmp_matchups = self.state.matchups.sort(function(a,b){
+      return new Date(a.games[0].date) - new Date(b.games[0].date);
+    });
+    self.setState({submitted: true, matchups: tmp_matchups});
     if (self.state.status == "new") {
       request
         .post('/api/pages/new')
