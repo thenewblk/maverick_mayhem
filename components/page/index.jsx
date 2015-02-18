@@ -83,7 +83,8 @@ var MatchupScores = React.createClass({
   getInitialState: function() {
     return { 
       games: [],
-      current_game: ''
+      current_game: '',
+      opponent: ''
     }
   },
 
@@ -147,7 +148,7 @@ var MatchupScores = React.createClass({
                 <td className="score">{getUsTotal(game)}</td>
               </tr>
               <tr className="team away">
-                <td className="team-name">Opponent</td>
+                <td className="team-name">{self.state.opponent}</td>
                 {them_scores}
                 <td className="score">{ getThemTotal(game) }</td>
               </tr>
@@ -268,7 +269,7 @@ var Page = React.createClass({
           <div className="sport__headline matchup_headline">
             <h2>{ current_matchup.name ? current_matchup.name : ''}</h2>
           </div>
-          { current_matchup.games ? <MatchupScores key={current_matchup._id} games={current_matchup.games} current_game={current_matchup.games[0]._id}/> : ''}
+          { current_matchup.games ? <MatchupScores key={current_matchup._id} games={current_matchup.games} current_game={current_matchup.games[0]._id} opponent={current_matchup.opponent}/> : ''}
           <span onClick={self.nextMatchup} className="next_matchup"><img src="../img/arrow_right.svg" /><span className="label">Next</span></span>
         </div>
         

@@ -84,7 +84,8 @@ var MatchupScores = React.createClass({displayName: "MatchupScores",
   getInitialState: function() {
     return { 
       games: [],
-      current_game: ''
+      current_game: '',
+      opponent: ''
     }
   },
 
@@ -148,7 +149,7 @@ var MatchupScores = React.createClass({displayName: "MatchupScores",
                 React.createElement("td", {className: "score"}, getUsTotal(game))
               ), 
               React.createElement("tr", {className: "team away"}, 
-                React.createElement("td", {className: "team-name"}, "Opponent"), 
+                React.createElement("td", {className: "team-name"}, self.state.opponent), 
                 them_scores, 
                 React.createElement("td", {className: "score"},  getThemTotal(game) )
               )
@@ -269,7 +270,7 @@ var Page = React.createClass({displayName: "Page",
           React.createElement("div", {className: "sport__headline matchup_headline"}, 
             React.createElement("h2", null,  current_matchup.name ? current_matchup.name : '')
           ), 
-           current_matchup.games ? React.createElement(MatchupScores, {key: current_matchup._id, games: current_matchup.games, current_game: current_matchup.games[0]._id}) : '', 
+           current_matchup.games ? React.createElement(MatchupScores, {key: current_matchup._id, games: current_matchup.games, current_game: current_matchup.games[0]._id, opponent: current_matchup.opponent}) : '', 
           React.createElement("span", {onClick: self.nextMatchup, className: "next_matchup"}, React.createElement("img", {src: "../img/arrow_right.svg"}), React.createElement("span", {className: "label"}, "Next"))
         ), 
         
