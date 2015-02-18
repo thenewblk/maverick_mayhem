@@ -300,16 +300,6 @@ var Page = React.createClass({
         : '' }
         <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
         
-        { photos ?
-          <div className="photos">
-            <h2 className="page_edit_title">Photos</h2>
-            {photos}
-          </div> 
-          : ''
-        }
-
-        <PhotosUploader photos={this.handleNewPhoto} />
-
         <a className='submit' onClick={this.submitContent}>save page</a>
         <a className='submit' onClick={this.testContent}>test</a>
 

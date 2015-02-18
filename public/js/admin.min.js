@@ -301,16 +301,6 @@ var Page = React.createClass({displayName: "Page",
         : '', 
         React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement("span", {className: "fa fa-plus"}), "New News"), 
         
-         photos ?
-          React.createElement("div", {className: "photos"}, 
-            React.createElement("h2", {className: "page_edit_title"}, "Photos"), 
-            photos
-          ) 
-          : '', 
-        
-
-        React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
-
         React.createElement("a", {className: "submit", onClick: this.submitContent}, "save page"), 
         React.createElement("a", {className: "submit", onClick: this.testContent}, "test")
 
@@ -347,7 +337,8 @@ var Score = React.createClass({displayName: "Score",
     tmp_score.identifier = self.props.identifier,
     tmp_score.us = self.props.us,
     tmp_score.them = self.props.them,
-    tmp_score.status = self.props.status;
+    tmp_score.status = self.props.status,
+    tmp_score.game_status = self.props.game_status;
 
     self.setState(tmp_score);
   },
@@ -380,9 +371,10 @@ var Score = React.createClass({displayName: "Score",
 
     var us = self.state.us,
         them = self.state.them,
-        status = self.state.status;
+        status = self.state.status,
+        game_status = self.state.game_status;
         
-    if (( status == 'new' ) || ( status == 'edit' )) {
+    if ((game_status == 'edit') &( status == 'new' ) || ( status == 'edit' )) {
       return (
         React.createElement("div", {className: "score"}, 
           React.createElement("input", {type: "number", value: us, onChange: this.handleUsChange, placeholder: "Us"}), 
@@ -390,11 +382,17 @@ var Score = React.createClass({displayName: "Score",
           React.createElement("a", {className: "submit", onClick: this.submitContent}, "save")
         )
       )
-    } else {
+    } else if (game_status == 'edit') {
       return (
         React.createElement("div", {className: "score"}, 
           us, ", ", them, 
           React.createElement("span", {onClick: this.handleEdit}, "Edit")
+        )
+      )
+    } else  {
+      return (
+        React.createElement("div", {className: "score"}, 
+          us, ", ", them
         )
       )
     }
@@ -414,7 +412,9 @@ var Game = React.createClass({displayName: "Game",
     tmp_game.date = self.props.date,
     tmp_game.time = self.props.time,
     tmp_game.scores = self.props.scores,
-    tmp_game.status = self.props.status || [];
+    tmp_game.matchup_status = self.props.matchup_status,
+    tmp_game.status = self.props.status;
+
     console.log('game: ' + util.inspect(tmp_game));
     self.setState(tmp_game);
   },
@@ -468,24 +468,24 @@ var Game = React.createClass({displayName: "Game",
     var self = this;
     var date = self.state.date,
         time = self.state.time,
+        matchup_status = self.state.matchup_status,
         status = self.state.status,
         scores = self.state.scores;
 
     var the_scores = scores.map(function(object) {
       var identifier = object.identifier || object._id;
-      var status = object.status || "show";
+      var object_status = object.status || "show";
       return React.createElement(Score, {
         us: object.us, 
         them: object.them, 
-        status: status, 
-
+        status: object_status, 
+        game_status: status, 
         identifier: identifier, 
         key: identifier, 
-
         submit: self.handleScoreChange})
     });
         
-    if (( status == 'new' ) || ( status == 'edit' )) {
+    if ((matchup_status == 'edit') & ( status == 'new' ) || ( status == 'edit' )) {
       return (
         React.createElement("div", {className: "game"}, 
           React.createElement("h5", null, "Date: "), 
@@ -506,13 +506,21 @@ var Game = React.createClass({displayName: "Game",
           React.createElement("a", {className: "submit", onClick: this.submitContent}, "save")
         )
       )
-    } else {
+    } else if (matchup_status == 'edit') {
       return (
         React.createElement("div", {className: "score"}, 
           React.createElement("p", null, date), 
           React.createElement("p", null, time), 
           the_scores, 
           React.createElement("span", {onClick: this.handleEdit}, "Edit")
+        )
+      )
+    } else {
+      return (
+        React.createElement("div", {className: "score"}, 
+          React.createElement("p", null, date), 
+          React.createElement("p", null, time), 
+          the_scores
         )
       )
     }
@@ -550,7 +558,6 @@ var Matchup = React.createClass({displayName: "Matchup",
 
 
     self.setState(tmp_matchup);
-
   },
 
   componentDidMount: function(){},
@@ -765,7 +772,7 @@ var Matchup = React.createClass({displayName: "Matchup",
         date: object.date, 
         time: object.time, 
         scores: object.scores, 
-         
+        matchup_status: status, 
         remove_game: self.handleRemoveGame, 
         _id: object._id, 
         identifier: object.identifier || Math.random(), 
@@ -776,8 +783,8 @@ var Matchup = React.createClass({displayName: "Matchup",
     var photos = self.state.photos.map(function(object) {
       return React.createElement(Photo, {
         url: object.url, 
-        _id: object._id, 
-
+        _id: object._id || Math.random(), 
+        matchup_status: status, 
         key: object._id, 
         featured: object.featured, 
         description: object.description, 
@@ -1031,10 +1038,11 @@ var Photo = React.createClass({displayName: "Photo",
   componentWillMount: function() {
     var self = this;
     var tmp_photo = {};
-    tmp_photo.identifier = self.props.identifier;
-    tmp_photo.url = self.props.url;
-    tmp_photo.featured = self.props.featured;
-    tmp_photo._id = self.props._id;
+    tmp_photo.identifier = self.props.identifier,
+    tmp_photo.url = self.props.url,
+    tmp_photo.featured = self.props.featured,
+    tmp_photo._id = self.props._id,
+    tmp_photo.matchup_status = self.props.matchup_status,
     tmp_photo.description = self.props.description;
     
     self.setState(tmp_photo);
@@ -1154,7 +1162,8 @@ var Photo = React.createClass({displayName: "Photo",
         featured = self.state.featured,
         identifier = this.state.identifier,
         _id = this.state._id,
-        status = this.state.status;
+        status = this.state.status,
+        matchup_status = this.state.matchup_status;
 
     var className = 'content-container';
     if (status == 'show') {
@@ -1163,10 +1172,12 @@ var Photo = React.createClass({displayName: "Photo",
               url ? React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url})  : '', 
               description ? React.createElement("p", null, description) : '', 
               featured ? React.createElement("p", null, "Featured")  : '', 
-              React.createElement("div", {className: "half_buttons"}, 
-                React.createElement("a", {className: "submit", onClick: self.handleEdit}, "Edit"), 
-                React.createElement("a", {className: "submit", onClick: self.handleRemove}, "delete")
-              )
+               (matchup_status == 'edit') ?
+                React.createElement("div", {className: "half_buttons"}, 
+                  React.createElement("a", {className: "submit", onClick: self.handleEdit}, "Edit"), 
+                  React.createElement("a", {className: "submit", onClick: self.handleRemove}, "delete")
+                )
+              : ''
         ) )
     } else if (status == 'edit'){
       return ( 

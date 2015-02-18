@@ -93,12 +93,11 @@ var Instagram = require('./models/instagram'),
     }
   });
   
+  if ( process.env.NODE_ENV == 'development' ) {
+    // setInterval( pollInstagram , 4000);
+  }
+  if ( process.env.NODE_ENV == 'production' ) {
     pollTags();
-  // if ( process.env.NODE_ENV == 'staging' ) {
-    setInterval( pollInstagram , 4000);
-  // }
-  // if ( process.env.NODE_ENV == 'production' ) {
-    // setInterval( pollInstagram , 6000);
-    // setInterval( pollTags , 108000);  
-  // }
+    setInterval( pollInstagram , 6000);
+  }
     

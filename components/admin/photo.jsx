@@ -17,10 +17,11 @@ var Photo = React.createClass({
   componentWillMount: function() {
     var self = this;
     var tmp_photo = {};
-    tmp_photo.identifier = self.props.identifier;
-    tmp_photo.url = self.props.url;
-    tmp_photo.featured = self.props.featured;
-    tmp_photo._id = self.props._id;
+    tmp_photo.identifier = self.props.identifier,
+    tmp_photo.url = self.props.url,
+    tmp_photo.featured = self.props.featured,
+    tmp_photo._id = self.props._id,
+    tmp_photo.matchup_status = self.props.matchup_status,
     tmp_photo.description = self.props.description;
     
     self.setState(tmp_photo);
@@ -140,7 +141,8 @@ var Photo = React.createClass({
         featured = self.state.featured,
         identifier = this.state.identifier,
         _id = this.state._id,
-        status = this.state.status;
+        status = this.state.status,
+        matchup_status = this.state.matchup_status;
 
     var className = 'content-container';
     if (status == 'show') {
@@ -149,10 +151,12 @@ var Photo = React.createClass({
               {url ? <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />  : '' }
               {description ? <p>{description}</p> : '' }
               {featured ? <p>Featured</p>  : '' }
-              <div className='half_buttons'>
-                <a className='submit' onClick={self.handleEdit}>Edit</a> 
-                <a className='submit' onClick={self.handleRemove}>delete</a> 
-              </div>
+              { (matchup_status == 'edit') ?
+                <div className='half_buttons'>
+                  <a className='submit' onClick={self.handleEdit}>Edit</a> 
+                  <a className='submit' onClick={self.handleRemove}>delete</a> 
+                </div>
+              : ''}
         </div> )
     } else if (status == 'edit'){
       return ( 
