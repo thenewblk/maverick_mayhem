@@ -121,7 +121,7 @@ var MatchupScores = React.createClass({displayName: "MatchupScores",
         if(game._id == self.state.current_game){ 
            active = true;
         }
-        var periods = game.scores.map(function(object) {
+        var periods = game.scores.map(function(object, index) {
           return React.createElement("th", null,  getPeriod(index +1) )
         });
 
