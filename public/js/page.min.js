@@ -5,50 +5,6 @@ var React = require('react'),
     moment = require('moment'),
     tools = require('../../lib/utils');
 
-
-var Content = window.slug || {};
-
-var Photo = React.createClass({displayName: "Photo",
-  getInitialState: function() {
-    return { 
-      className: 'loading',
-    };
-  },
-
-  componentWillMount: function(){
-    var self = this;
-    var my_image = new Image();
-    my_image.onload = this.notify_complete;
-
-    my_image.src = "https://s3.amazonaws.com/maverickmayhem-dev" + self.props.url;
-  },
-
-
-
-  notify_complete: function() {
-    var self = this;
-    self.setState({className: "loaded"});
-
-  },
-
-  componentDidMount: function () {},
-
-  render: function(){
-    var self = this;
-    var divStyles = {
-      backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev' + self.props.url + '), url(../img/bkgrd_pattern_RED.svg)',
-    };
-    return (
-      React.createElement("div", {className: "matchup_photo "+self.state.className, style: divStyles}, 
-        React.createElement("div", {className: "description", style: divStyles}, 
-          React.createElement("img", {src: "../img/expand_img.svg"}), 
-          React.createElement("p", null, self.props.description)
-        )
-      )
-      )
-  }
-});
-
 function getPeriod(i) {
   if (this.slug == "hockey"){ 
     if (i < 4 ) {
@@ -78,6 +34,49 @@ function getThemTotal(game) {
 function getSmallDate(i) {
   return moment(i).format('MMM. D');
 };
+
+
+var Content = window.slug || {};
+
+var Photo = React.createClass({displayName: "Photo",
+  getInitialState: function() {
+    return { 
+      className: 'loading',
+    };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var my_image = new Image();
+    my_image.onload = this.onLoad;
+    my_image.src = "https://s3.amazonaws.com/maverickmayhem-dev" + self.props.url;
+  },
+
+
+
+  onLoad: function() {
+    var self = this;
+    self.setState({className: "loaded"});
+
+  },
+
+  componentDidMount: function () {},
+
+  render: function(){
+    var self = this;
+    var divStyles = {
+      backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev' + self.props.url + '), url(../img/bkgrd_pattern_RED.svg)',
+    };
+    return (
+      React.createElement("div", {className: "matchup_photo "+self.state.className, style: divStyles}, 
+        React.createElement("div", {className: "description", style: divStyles}, 
+          React.createElement("img", {src: "../img/expand_img.svg"}), 
+          React.createElement("p", null, self.props.description)
+        )
+      )
+      )
+  }
+});
 
 var MatchupScores = React.createClass({displayName: "MatchupScores",
   getInitialState: function() {

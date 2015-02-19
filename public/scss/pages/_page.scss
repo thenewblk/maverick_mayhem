@@ -367,13 +367,13 @@
 		height: 300px;
 		width: 100%;
 		display: table;
+		table-layout: fixed;
 		position: relative;
 		background-size: cover,9px;
 		background-blend-mode: normal;
 		background-position: center;
 		opacity: 0;
 		float: left;
-		// transition: opacity .8s ease-out;
 		transition: 0.15s ease-out;
 		.description {
 			opacity: 0;
@@ -386,7 +386,10 @@
 			color: white;
 			padding: 20px;
 			height: 100%;
+			width: 200%;
 			transition: 0.15s ease-out;
+			position: relative;
+			z-index: 1;
 			img {
 				width: 40px;
 				display: table;
@@ -403,12 +406,40 @@
 	.matchup_photo.loaded {
 		opacity: 1;
 	}
+
+	.matchup_photo.instagram {
+		height: 260px;
+		width: 100%;
+		margin: 20px 0;
+		.description {
+			padding: 0;
+		}
+		.instagram_wrapper {
+			overflow: scroll;
+			max-height: 100%;
+			padding: 15px;
+			width: 100%;
+
+		}
+		.instagram-icon {
+			width: 30px;
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+		}
+	}
+
 	@include respond-to(smallimage){
 		width: 500px;
 		padding: 0;
 		.matchup_photo.loaded, .matchup_photo {
 			height: 250px;
 			width: 250px;
+		}
+		.matchup_photo.instagram {
+			height: 210px;
+			width: 210px;
+			margin: 20px;
 		}
 	}
 	@include respond-to(small){
@@ -418,6 +449,10 @@
 			height: 256px;
 			width: 256px;
 		}
+		.matchup_photo.instagram {
+			height: 216px;
+			width: 216px;
+		}
 	}
 	@include respond-to(medium){
 		width: 960px;
@@ -425,6 +460,10 @@
 		.matchup_photo.loaded, .matchup_photo {
 			height: 320px;
 			width: 320px;
+		}
+		.matchup_photo.instagram {
+			height: 280px;
+			width: 280px;
 		}
 	}
 	@include respond-to(large){
@@ -434,6 +473,10 @@
 			height: 380px;
 			width: 380px;
 		}
+		.matchup_photo.instagram {
+			height: 340px;
+			width: 340px;
+		}
 	}
 	@include respond-to(xlarge){
 		width: 1520px;
@@ -441,6 +484,10 @@
 		.matchup_photo.loaded, .matchup_photo {
 			height: 380px;
 			width: 380px;
+		}
+		.matchup_photo.instagram {
+			height: 340px;
+			width: 340px;
 		}
 	}
 }

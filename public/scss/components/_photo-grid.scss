@@ -32,17 +32,14 @@
   }
 
   .photo__description {
-    padding: 10px 20px 0 20px;
     font-size: em(12px);
-    line-height: rem(28px);
+    line-height: rem(20px);
     text-align: center;
 
     @include respond-to(medium) {
-      padding: 20px 40px 0 40px;
     }
 
     @include respond-to(medium) {
-      padding: 20px 60px 0 60px;
     }
   }
 
@@ -64,15 +61,28 @@
 
     &:hover { opacity: 1; }
   }
+  .bkgd_scribble {
+    background-image: url(../img/scribble_bkgrd.svg);
+    background-repeat: no-repeat;
+    background-size: 90%;
+    background-position: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
 }
 
 .user__profile-picture {
   display: block;
   width: 80px;
   height: 80px;
-  margin: 14% auto 0 auto;
+  margin: 0 auto 15px;
   border-radius: 50%;
-  overflow: hidden;
+  overflow: hidden; 
+  background-size: cover;
 
   @include respond-to(mobile) {
     width: 60px;

@@ -37,6 +37,7 @@
     "react-inlinesvg": "^0.2.4",
     "react-loadermixin": "^1.0.4",
     "react-responsive": "0.0.4",
+    "react-responsive-mixin": "^0.3.3",
     "react-router": "^0.11.6",
     "react.animate": "^1.0.0",
     "serve-favicon": "~2.1.3",

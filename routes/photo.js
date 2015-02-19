@@ -27,6 +27,8 @@ module.exports = function(app, passport) {
 	app.get('/api/photos/', function(req, res) {
 		Photo
 			.find({})
+			.sort('-updated_date')
+			.limit(30)
 			.exec( function (err, photos) {
 			  	if (err) return console.log(err);
 				res.send(photos);
