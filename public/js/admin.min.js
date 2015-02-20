@@ -485,7 +485,7 @@ var Game = React.createClass({displayName: "Game",
         submit: self.handleScoreChange})
     });
         
-    if ((matchup_status == 'edit') & ( status == 'new' ) || ( status == 'edit' )) {
+    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' ) || ( status == 'edit' )) {
       return (
         React.createElement("div", {className: "game"}, 
           React.createElement("h5", null, "Date: "), 

@@ -166,7 +166,7 @@ var Game = React.createClass({
         submit={self.handleScoreChange} />
     });
         
-    if ((matchup_status == 'edit') & ( status == 'new' ) || ( status == 'edit' )) {
+    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' ) || ( status == 'edit' )) {
       return (
         <div className="game">
           <h5>Date: </h5>

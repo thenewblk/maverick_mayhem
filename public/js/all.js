@@ -10238,7 +10238,7 @@ var navigation = document.querySelector("header");
 var headroom  = new Headroom(navigation);
 headroom.init({
    // vertical offset in px before element is first unpinned
-    offset : 100,
+    offset : 300,
     // scroll tolerance in px before state changes
     // tolerance : 0,
     // or you can specify tolerance individually for up/down scroll

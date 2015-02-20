@@ -4,10 +4,14 @@
 #header {
   @include clearfix;
   position: fixed;
-  padding-top: 14px;
+  padding: 14px 0;
   z-index: 1000;
   width: 100%;
   font-size: em(14px);
+}
+
+#header.headeroom--not-top {
+  background: rgba(0,0,0,0.8);
 }
 
 /**
@@ -93,3 +97,5 @@
 .headroom--unpinned {
   transform: translateY(-100%);
 }
+
+
