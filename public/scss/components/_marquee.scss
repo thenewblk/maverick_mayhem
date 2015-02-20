@@ -1,30 +1,46 @@
 .marquee {
-  padding: 28px 0;
+  // padding: 28px 0;
   background-color: $gray2;
-  font-size: em(18px);
-  font-weight: 700;
-  text-align: center;
+  font-size: em(25px);
+  // font-weight: 700;
+  line-height: 1;
+  max-height: 60px;
   overflow: hidden;
   white-space: nowrap;
+  font-family: $museo-slab, $base-font-family;
 }
 .marquee__list {
   margin: 0;
   padding: 0;
   list-style: none;
+  -webkit-transition-property: all;
+  transition-property: all;
+  white-space:nowrap;
+  display:inline-block;
+  overflow:hidden;
 }
 
 .marquee__list-item {
   display: inline-block;
+  padding: 18px 0;
+  margin: 0;
   color: $white;
 
-  &:last-child::after {
+  &:nth-child(4n+1)::before {
     content: '';
     margin-right: 0;
   }
 
-  &::after {
+  &::before {
     display: inline-block;
-    margin: 0 10px;
-    content: ' | ';
+    margin: 0 30px 0 20px;
+    content: ':::';
+    color: $brand_red;
   }
+}
+
+.marquee__list-graphic {
+  background: transparent url(../img/ticker-mm-hashtag.svg) no-repeat 0 0;
+  width: 530px;
+  margin-left: 20px;
 }

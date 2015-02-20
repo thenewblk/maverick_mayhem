@@ -10235,19 +10235,6 @@ var $video = $('#video-background'),
 
 
 var navigation = document.querySelector("header");
-// var headroom  = new Headroom(navigation);
-// headroom.init({
-//    // vertical offset in px before element is first unpinned
-//     offset : 500,
-//     // scroll tolerance in px before state changes
-//     // tolerance : 0,
-//     // or you can specify tolerance individually for up/down scroll
-//     tolerance : {
-//         up : 5,
-//         down : 200
-//     },
-// });
-
 
 var headroom = new Headroom(navigation, {
   "offset": 500,
@@ -10255,6 +10242,37 @@ var headroom = new Headroom(navigation, {
 });
 
 headroom.init();
+
+
+var $t = $('.marquee');
+var $tw = $('.marquee__list');
+var $w = $(window);
+var width = $tw.width();
+var wwidth = $w.width();
+console.log(width);
+
+$tw.bind("transitionend", function(){
+  $tw.css({'-webkit-transition':'all linear 0s',
+            'transition':'all linear 0s'});
+  tickerSet();
+});
+
+
+// while($tw.height() < $w.height()){
+//   fs++;
+//   // $t.css("font-size",fs+"px");
+// }
+
+
+function tickerSet(){
+  $tw.css({'-webkit-transform':'translate3d('+wwidth+'px,0,0)','transform':'translate3d('+wwidth+'px,0,0)'});
+  window.setInterval(function(){
+    $tw.css({'-webkit-transition':'all linear '+(((width+wwidth)/500)*4)+'s','transition':'all linear '+(((width+wwidth)/500)*4)+'s'});
+    $tw.css({'-webkit-transform':'translate3d('+(width*-1)+'px,0,0)','transform':'translate3d('+(width*-1)+'px,0,0)'});
+  },1)
+}
+
+tickerSet();
 
 $(function () {
 
