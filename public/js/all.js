@@ -10235,18 +10235,26 @@ var $video = $('#video-background'),
 
 
 var navigation = document.querySelector("header");
-var headroom  = new Headroom(navigation);
-headroom.init({
-   // vertical offset in px before element is first unpinned
-    offset : 300,
-    // scroll tolerance in px before state changes
-    // tolerance : 0,
-    // or you can specify tolerance individually for up/down scroll
-    tolerance : {
-        up : 5,
-        down : 200
-    },
+// var headroom  = new Headroom(navigation);
+// headroom.init({
+//    // vertical offset in px before element is first unpinned
+//     offset : 500,
+//     // scroll tolerance in px before state changes
+//     // tolerance : 0,
+//     // or you can specify tolerance individually for up/down scroll
+//     tolerance : {
+//         up : 5,
+//         down : 200
+//     },
+// });
+
+
+var headroom = new Headroom(navigation, {
+  "offset": 500,
+  "tolerance": 20,
 });
+
+headroom.init();
 
 $(function () {
 
