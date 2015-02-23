@@ -1,32 +1,51 @@
-#new_page {
-	background: white;
-	padding: 15px;
-	input {
-		width: 100%;
-		text-align: center;
-		line-height: 2;
-	}
-}
-
 .matchups {
 	margin: 15px 0;
 }
 #new_page {
+	background: black;
+	padding: 15px;
+	color: white;
+	border: #333 1px solid;
+	input {
+		width: 100%;
+		text-align: center;
+		line-height: 2;
+		color: black;
+	}
 	.matchup {
-		border: 1px solid #eee;
+		border: 1px solid #333;
 		padding: 15px;
-		width: 50%;
-		display: inline-block;
 		vertical-align: top;
-		h3 {
-			color: $black;
-			text-align: center;
-		}
+		position: relative;
+		padding-bottom: 45px;
+		margin: 15px 0;
+		
 		.home {
 			input[type="checkbox"] {
 				display: inline-block;
 				width: inherit;
 			}
+		}
+	}
+
+	.games {
+		.game {
+			border: 1px solid #333;
+			padding: 15px;
+			display: inline-block;
+			width: 50%;
+
+			.game_title {
+				margin: 0;
+				font-size: 1.5em;
+			}
+			table {
+				background: #222;
+			}
+		}
+		.game:nth-child(2n) {
+			margin-left: 1%;
+			width: 49%;
 		}
 	}
 }
@@ -47,6 +66,49 @@
 .submit:hover {
 	background: $black;
 }
+.edit_buttons {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	height: 30px;
+	.edit_button  {
+		float: right;
+		display: inline-block;
+		text-align: center;
+		line-height: 30px;
+		font-size: 12px;
+		cursor: pointer;
+		transition: 0.15s ease-out;
+		padding: 0 30px;
+		color: #666;
+	}
+
+	.edit_button:hover {
+		color: $brand_red;
+	}
+
+
+	.edit_button.red {
+		background: $brand_red;
+		color: white;
+		text-transform: uppercase;
+	}
+
+	.edit_button.border{
+		border: 1px solid #333;
+		color: $brand_red;
+		text-transform: uppercase;
+		border-right: none;
+		border-bottom: none;
+	}
+	.edit_button.border:hover {
+		background: #333;
+		color: $brand_red;
+	}
+}
+
+
+
 
 .sport-recap {
   margin-bottom: 80px;
@@ -65,7 +127,7 @@
 }
 
 .image-container {
-	background: #eee;
+	background: #333;
 	border: #ccc dashed 2px;
 	position: relative;
 	.image-uploader-label {
@@ -78,7 +140,7 @@
 	}
 	.image-uploader {
 		position: relative;
-		background: #eee;
+		background: #333;
 		border: none;
 	}
 	.upload-icon {
@@ -94,15 +156,32 @@
 
 .page_edit_title {
 	text-align: center;
-	color: $black;
+	color: #999;
+}
+
+.page_edit_title_small {
+	color: white;
+	padding: 15px;
+	margin: 0;
+	font-size: 1.5em;
+}
+
+.page_edit_title_box {
+	color: white;
+	border: 1px #333 solid;
+	text-transform: uppercase;
+	font-weight: bold;
+	line-height: 3;
+	text-align: center;
+	margin-bottom: 10px;
 }
 
 .photos {
 	margin: 15px 0;
-	background: #eee;
+	border: #333 1px solid;
 	@include clearfix;
 	.photo {
-		width: 50%;
+		width: 25%;
 		padding: 15px;
 		display: inline-block;
 		vertical-align: top;
@@ -144,7 +223,7 @@
 .new_game {
 	width: 100%;
 	text-align: center;
-	background: #eee;
+	background: #333;
 	border: 2px dashed #ddd;
 	padding: 15px;
 	font-size: 15px;
@@ -177,7 +256,7 @@
 
 	.dp-week-day-names {
 		height: 40px;
-		background: #eee;
+		background: #333;
 	}
 	.dp-value {
 		color: white;
@@ -267,3 +346,4 @@
 @import "page";
 @import "dropzone";
 @import "index";
+@import "admin";

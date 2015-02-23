@@ -112,7 +112,7 @@ module.exports = function(app, passport) {
 			.deepPopulate('matchups matchups.photos matchups.games photos news')
 			.exec( function (err, page) {
 			  	if (err) return console.log(err);
-			  	
+			  	console.log('page: '+util.inspect(page));
 			  	res.send(page.toObject({ virtuals: true }));
 
 			  		

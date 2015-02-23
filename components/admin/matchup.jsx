@@ -5,7 +5,40 @@ var React = require('react'),
     Dropzone = require('../dropzone.js'),
     Photo = require('./photo.jsx'),
     PhotosUploader = require('./photos_uploader.jsx'),
-    DatePicker = require('react-date-picker');
+    DatePicker = require('react-date-picker'),
+    tools = require('../../lib/utils');
+
+function getPeriod(i) {
+  if (this.slug == "hockey"){ 
+    if (i < 4 ) {
+      return tools.ordinal(i);
+    } else {
+      return "OT";
+    }
+  } else {
+    return tools.ordinal(i);
+  }
+}
+
+function getUsTotal(game) {
+  var total = game.scores.reduce(function(a, b) {
+    return a + b.us;
+  }, 0);
+  return total;
+};
+
+function getThemTotal(game) {
+  var total = game.scores.reduce(function(a, b) {
+    return a + b.them;
+  }, 0);
+  return total;
+};
+
+function getSmallDate(i) {
+  return moment(i).format('MMM. D');
+};
+
+
 
 var Score = React.createClass({
   getInitialState: function() {
@@ -151,7 +184,8 @@ var Game = React.createClass({
         time = self.state.time,
         matchup_status = self.state.matchup_status,
         status = self.state.status,
-        scores = self.state.scores;
+        scores = self.state.scores,
+        identifier = self.state.identifier;
 
     var the_scores = scores.map(function(object) {
       var identifier = object.identifier || object._id;
@@ -165,6 +199,21 @@ var Game = React.createClass({
         key={identifier}
         submit={self.handleScoreChange} />
     });
+
+
+        var periods = scores.map(function(object, index) {
+          return <th>{ getPeriod(index +1) }</th>
+        });
+
+        var us_scores = scores.map(function(score) {
+          return <td className="score">{ score.us }</td>
+        });
+
+        var them_scores = scores.map(function(score) {
+          return <td className="score">{ score.them }</td>
+        });
+
+
         
     if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' ) || ( status == 'edit' )) {
       return (
@@ -189,19 +238,67 @@ var Game = React.createClass({
       )
     } else if (matchup_status == 'edit') {
       return (
-        <div className="score">
-          <p>{date}</p>
+        <div className="game">
+          <p className="game_title">Game {this.props.index + 1}</p>
+          <p>{moment(date).format("MMMM Do, YYYY")}</p>
           <p>{time}</p>
-          {the_scores}
+          <p className="game_title">Score</p>
+          <table className="last_matchup_table sport__scoreboard sport__scoreboard-hockey active">
+            <thead>
+              <tr className="scoreboard__header">
+                <th className="team-name">&nbsp;</th>
+                {periods}
+                <th className="score-total">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="team visitor">
+                <td className="team-name">Omaha</td>
+                {us_scores}
+                <td className="score">{getUsTotal(self.state)}</td>
+              </tr>
+              <tr className="team away">
+                <td className="team-name">Opponent</td>
+                {them_scores}
+                <td className="score">{ getThemTotal(self.state) }</td>
+              </tr>
+            </tbody>
+          </table>
           <span onClick={this.handleEdit}>Edit</span>
+          <div className='edit_buttons'>
+            <a className='edit_button border' onClick={self.handleEdit}>Edit</a> 
+            
+          </div>
         </div>
       )
     } else {
       return (
-        <div className="score">
-          <p>{date}</p>
+        <div className="game">
+          <p className="game_title">Game {this.props.index + 1}</p>
+          <p>{moment(date).format("MMMM Do, YYYY")}</p>
           <p>{time}</p>
-          {the_scores}
+          <p className="game_title">Score</p>
+          <table className="last_matchup_table sport__scoreboard sport__scoreboard-hockey active">
+            <thead>
+              <tr className="scoreboard__header">
+                <th className="team-name">&nbsp;</th>
+                {periods}
+                <th className="score-total">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="team visitor">
+                <td className="team-name">Omaha</td>
+                {us_scores}
+                <td className="score">{getUsTotal(self.state)}</td>
+              </tr>
+              <tr className="team away">
+                <td className="team-name">Opponent</td>
+                {them_scores}
+                <td className="score">{ getThemTotal(self.state) }</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       )
     }
@@ -447,7 +544,7 @@ var Matchup = React.createClass({
         home = self.state.home,
         status = self.state.status;
 
-    var games = self.state.games.map(function(object) {
+    var games = self.state.games.map(function(object, index) {
       return <Game 
         status={object.status}
         date={object.date} 
@@ -457,6 +554,8 @@ var Matchup = React.createClass({
         remove_game={self.handleRemoveGame}
         _id = {object._id}
         identifier={object.identifier || Math.random()} 
+
+        index={index}
 
         submit={self.handleGameChange} />
     });
@@ -495,7 +594,7 @@ var Matchup = React.createClass({
 
           { photos ?
             <div className="photos">
-              <h3 className="page_edit_title">Photos</h3>
+              <p className="page_edit_title_small">Photos</p>
               {photos}
             </div> 
             : ''
@@ -503,13 +602,15 @@ var Matchup = React.createClass({
 
           <PhotosUploader photos={this.handleNewPhoto} />
           
-          <div className='half_buttons'>
+          <div className='edit_buttons'>
+            
             { status == 'new' ? 
-              <a className='submit' onClick={self.submitContent}>new save</a> 
+              <a className='edit_button border' onClick={self.submitContent}>new save</a> 
             : 
-              <a className='submit' onClick={self.editContent}>edit save</a> 
+              <a className='edit_button border' onClick={self.editContent}>save</a> 
             }
-            <a className='submit' onClick={self.cancelEdit}>cancel</a> 
+            <a className='edit_button' onClick={self.cancelEdit}>Cancel</a> 
+            
           </div>
         </div>
       )
@@ -517,26 +618,11 @@ var Matchup = React.createClass({
 
       return (
         <div className="matchup">
-          <h3>{name}</h3>
-          <h3>{date}</h3>
-          <ul>
-            <li>Opponent: {opponent}</li>
-            <li>Ticket Link: {ticket}</li>
-            <li>Location: {location}</li>
-            <li>Home?: {home ? "True" : 'False'}</li>
-          </ul>
-          {games}
-          { photos ?
-            <div className="photos">
-              <h3 className="page_edit_title">Photos</h3>
-              {photos}
-            </div> 
-            : ''
-          }
+          <h3>{name} - {moment(this.props.date).format('MMMM Do, YYYY')}</h3>
 
-          <div className='half_buttons'>
-            <a className='submit' onClick={self.handleEdit}>edit</a> 
-            <a className='submit' onClick={self.handleRemove}>remove</a> 
+          <div className='edit_buttons'>
+            <a className='edit_button red' onClick={self.handleEdit}>edit</a> 
+            <a className='edit_button' onClick={self.handleRemove}>remove</a> 
           </div>
         </div>
       )

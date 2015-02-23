@@ -29,7 +29,8 @@ var Page = React.createClass({
   componentWillMount: function(){
     var self = this;
 
-    if (Content) {
+    if (Content.length) {
+      console.log('Content: '+Content);
 
       request
         .get('/api/pages/'+Content)
@@ -42,6 +43,8 @@ var Page = React.createClass({
             console.log(Page)
           }
         }.bind(self));
+    } else {
+      console.log('No Content found.');
     }
   },
   handleNameChange: function(event) {
@@ -222,7 +225,9 @@ var Page = React.createClass({
     var name = self.state.name,
         headline = self.state.headline,
         banner = self.state.banner,
-        description = self.state.description;  
+        description = self.state.description,
+        status = self.state.status;
+
 
     var matchups = self.state.matchups.map(function(object) {
       return <Matchup 
@@ -236,6 +241,8 @@ var Page = React.createClass({
         games={object.games}
         photos={object.photos}
         status={object.status}
+
+        date={object.date}
 
         remove_matchup={self.handleRemoveMatchup}
 
@@ -275,36 +282,64 @@ var Page = React.createClass({
         identifier={object.identifier} />
     });
 
-    return (
-      <div className="page">
-        <h2 className="page_edit_title">Edit Page</h2>
-        <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
-        <h5><input type="text" value={headline} onChange={this.handleHeadlineChange} placeholder="Headline" /></h5>
-        <h5><input type="text" value={banner} onChange={this.handleBannerChange} placeholder="Banner" /></h5>
-        <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
- 
-        { matchups ?
-          <div className="games">
-            <h2 className="page_edit_title">Matchups</h2>
-            {matchups}
-          </div> 
-        : '' }
-        <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
+    if (status == 'new') {
+      return (
+        <div className="page">
+          <h2 className="page_edit_title">New Page</h2>
+          <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
+          <h5><input type="text" value={headline} onChange={this.handleHeadlineChange} placeholder="Headline" /></h5>
+          <h5><input type="text" value={banner} onChange={this.handleBannerChange} placeholder="Banner" /></h5>
+          <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
+   
+          { matchups ?
+            <div className="games">
+              <p className="page_edit_title_box">Matches</p>
+              {matchups}
+            </div> 
+          : '' }
+          <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
 
 
-        { news ?
-          <div className="games">
-            <h2 className="page_edit_title">News</h2>
-            {news}
-          </div> 
-        : '' }
-        <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
-        
-        <a className='submit' onClick={this.submitContent}>save page</a>
-        <a className='submit' onClick={this.testContent}>test</a>
+          { news ?
+            <div className="games">
+              <p className="page_edit_title_box">Press</p>
+              {news}
+            </div> 
+          : '' }
+          <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
+          
+          <a className='submit' onClick={this.submitContent}>save page</a>
+          <a className='submit' onClick={this.testContent}>test</a>
 
-      </div>
-    );
+        </div>
+      );
+    } else if (status == 'edit') {
+      return (
+        <div className="page">
+          <h2 className="page_edit_title">Edit {name}</h2>
+          { matchups ?
+            <div className="games">
+              <p className="page_edit_title_box">Matches</p>
+              {matchups}
+            </div> 
+          : '' }
+          <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
+
+
+          { news ?
+            <div className="games">
+              <p className="page_edit_title_box">Press</p>
+              {news}
+            </div> 
+          : '' }
+          <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
+          
+          <a className='submit' onClick={this.submitContent}>save page</a>
+          <a className='submit' onClick={this.testContent}>test</a>
+
+        </div>
+      );
+    }
   }
 });
 

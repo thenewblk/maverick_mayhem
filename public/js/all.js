@@ -10298,16 +10298,6 @@ $(function () {
   });
 
 
-  // $('.last_matchup .game_label').on('click', function () {
-  //   var id = $(this).data('id');
-  //   $('.last_matchup .game_label').removeClass('active');
-  //   $(this).addClass('active');
-  //   $(".last_matchup .last_matchup_table").removeClass('active');
-  //   $(".last_matchup .last_matchup_table[data-id='"+id+"']").addClass('active');
-  // });
-
-
-
   $('.arena-btn--play').on('click', function () {
     $(this).parent().parent().remove();
     $('.video-container').css('background-image', 'none');
