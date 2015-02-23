@@ -1279,40 +1279,33 @@ var Photo = React.createClass({displayName: "Photo",
         status = this.state.status,
         matchup_status = this.state.matchup_status;
 
+        var divStyles = {
+          backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev'+url+')'
+        };
+
+
     var className = 'content-container';
     if (status == 'show') {
       return ( 
-        React.createElement("div", {className: "photo", ref: "contentwrapper"}, 
-              url ? React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url})  : '', 
+        React.createElement("div", {className: "photo", ref: "contentwrapper", style: divStyles}, 
               description ? React.createElement("p", null, description) : '', 
-              featured ? React.createElement("p", null, "Featured")  : '', 
                (matchup_status == 'edit') ?
-                React.createElement("div", {className: "half_buttons"}, 
-                  React.createElement("a", {className: "submit", onClick: self.handleEdit}, "Edit"), 
-                  React.createElement("a", {className: "submit", onClick: self.handleRemove}, "delete")
+                React.createElement("div", {className: "photo_buttons"}, 
+                  React.createElement("a", {className: "photo_button", onClick: self.handleEdit}, "Edit"), 
+                  React.createElement("a", {className: "photo_button", onClick: self.handleRemove}, "delete")
                 )
               : ''
         ) )
     } else if (status == 'edit'){
       return ( 
         React.createElement("div", {className: "photo image-container"}, 
-          url ? 
-            React.createElement("div", {className: "photo_edit"}, 
-              React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url}), 
-              React.createElement("span", {className: "close_it", onClick: self.removeUrl}, "×")
-            )
-              :
-            React.createElement("div", null, 
-              React.createElement("div", {className: "image-uploader dropzone uploader-"+_id}, 
-                React.createElement("div", {className: "dz-default dz-message"}, React.createElement("span", {className: "fa fa-image upload-icon"}), React.createElement("span", null, "Drop files here to upload"))
-              )
-            ), 
-          
+          React.createElement("div", {className: "photo_edit"}, 
+            React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url})
+          ), 
           React.createElement("input", {className: "description_input", type: "text", placeholder: "Description", value: description, onChange: self.handleDescriptionChange}), 
-          React.createElement("p", null, "Featured: ", React.createElement("input", {type: "checkbox", checked: featured, onChange: this.handleFeaturedChange})), 
-          React.createElement("div", {className: "half_buttons"}, 
-            React.createElement("a", {className: "submit", onClick: self.submitContent}, "save"), 
-            React.createElement("a", {className: "submit", onClick: self.cancelEdit}, "cancel")
+          React.createElement("div", {className: "photo_buttons"}, 
+            React.createElement("a", {className: "photo_button", onClick: self.submitContent}, "save"), 
+            React.createElement("a", {className: "photo_button", onClick: self.cancelEdit}, "cancel")
           )
         )
       )

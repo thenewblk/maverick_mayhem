@@ -144,40 +144,33 @@ var Photo = React.createClass({
         status = this.state.status,
         matchup_status = this.state.matchup_status;
 
+        var divStyles = {
+          backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev'+url+')'
+        };
+
+
     var className = 'content-container';
     if (status == 'show') {
       return ( 
-        <div className='photo' ref='contentwrapper'>
-              {url ? <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />  : '' }
+        <div className='photo' ref='contentwrapper' style={divStyles}>
               {description ? <p>{description}</p> : '' }
-              {featured ? <p>Featured</p>  : '' }
               { (matchup_status == 'edit') ?
-                <div className='half_buttons'>
-                  <a className='submit' onClick={self.handleEdit}>Edit</a> 
-                  <a className='submit' onClick={self.handleRemove}>delete</a> 
+                <div className='photo_buttons'>
+                  <a className='photo_button' onClick={self.handleEdit}>Edit</a> 
+                  <a className='photo_button' onClick={self.handleRemove}>delete</a> 
                 </div>
               : ''}
         </div> )
     } else if (status == 'edit'){
       return ( 
         <div className='photo image-container'>
-          {url ? 
-            <div className="photo_edit">
-              <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />
-              <span className="close_it"  onClick={self.removeUrl}>×</span>
-            </div>
-              :
-            <div>
-              <div className={"image-uploader dropzone uploader-"+_id}>
-                <div className="dz-default dz-message"><span className="fa fa-image upload-icon"></span><span>Drop files here to upload</span></div>
-              </div>
-            </div>
-          }
+          <div className="photo_edit">
+            <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />
+          </div>
           <input className='description_input' type="text" placeholder="Description" value={description} onChange={self.handleDescriptionChange} />
-          <p>Featured: <input type="checkbox" checked={featured} onChange={this.handleFeaturedChange} /></p>
-          <div className='half_buttons'>
-            <a className='submit' onClick={self.submitContent}>save</a> 
-            <a className='submit' onClick={self.cancelEdit}>cancel</a> 
+          <div className='photo_buttons'>
+            <a className='photo_button' onClick={self.submitContent}>save</a> 
+            <a className='photo_button' onClick={self.cancelEdit}>cancel</a> 
           </div>
         </div>
       )

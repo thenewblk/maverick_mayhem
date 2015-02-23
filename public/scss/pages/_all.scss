@@ -181,12 +181,46 @@
 .photos {
 	margin: 15px 0;
 	border: #333 1px solid;
+	padding: 15px;
 	@include clearfix;
 	.photo {
-		width: 25%;
+		width: 290px;
+		height: 290px;
 		padding: 15px;
 		display: inline-block;
 		vertical-align: top;
+		background-size: cover;
+		background-position: center;
+		overflow: hidden;
+		position: relative;
+		margin: 5px;
+
+		.photo_buttons {
+			position: absolute;
+			max-height: 50px;
+			bottom: -50px;
+			left: 0;
+			width: 100%;
+			transition: 0.15s ease-out;
+			.photo_button {
+				width: 50%;
+				display: inline-block;
+				background: black;
+				text-align: center;
+				line-height: 2.5;
+				border: 1px solid #333;
+				cursor: pointer;
+				&:hover {
+					background: $brand_red;
+				} 
+			}
+		}
+		&:hover {
+			.photo_buttons {
+				bottom: 0;
+			}
+		}
+
 	}
 }
 
