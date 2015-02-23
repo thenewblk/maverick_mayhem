@@ -18,7 +18,7 @@
 		vertical-align: top;
 		position: relative;
 		padding-bottom: 45px;
-		margin: 15px 0;
+		margin: 15px;
 		
 		.home {
 			input[type="checkbox"] {
@@ -34,7 +34,9 @@
 			padding: 15px;
 			display: inline-block;
 			width: 50%;
-
+			position: relative;
+			padding-bottom: 45px;
+			margin-bottom: 10px;
 			.game_title {
 				margin: 0;
 				font-size: 1.5em;
@@ -221,11 +223,10 @@
 }
 
 .new_game {
-	width: 100%;
 	text-align: center;
 	background: #333;
-	border: 2px dashed #ddd;
 	padding: 15px;
+	margin: 15px;
 	font-size: 15px;
 	cursor: pointer;
 	transition: 0.15s ease-out;
@@ -238,7 +239,6 @@
 .new_game:hover {
 	background: $brand_red;
 	color: white;
-	border: solid 2px $brand_red;
 }
 
 .date-picker {

@@ -229,7 +229,7 @@ var Page = React.createClass({
         status = self.state.status;
 
 
-    var matchups = self.state.matchups.map(function(object) {
+    var matchups = self.state.matchups.reverse().map(function(object) {
       return <Matchup 
         name={object.name}
         _id={object._id}
@@ -247,6 +247,8 @@ var Page = React.createClass({
         remove_matchup={self.handleRemoveMatchup}
 
         identifier={object.identifier}
+
+        key={object.identifier}
         new_matchup={self.newMatchupSaved} />
     }); 
 
@@ -263,7 +265,7 @@ var Page = React.createClass({
         identifier={Math.random()} />
     });
 
-    var news = self.state.news.map(function(object) {
+    var news = self.state.news.reverse().map(function(object) {
       console.log('news: '+util.inspect(object));
       return <News 
         title={object.title} 
@@ -290,23 +292,20 @@ var Page = React.createClass({
           <h5><input type="text" value={headline} onChange={this.handleHeadlineChange} placeholder="Headline" /></h5>
           <h5><input type="text" value={banner} onChange={this.handleBannerChange} placeholder="Banner" /></h5>
           <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
-   
-          { matchups ?
-            <div className="games">
-              <p className="page_edit_title_box">Matches</p>
-              {matchups}
-            </div> 
-          : '' }
-          <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
+
+          <div className="games">
+            <p className="page_edit_title_box">Matches</p>
+            <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
+            {matchups}
+          </div> 
+          
 
 
-          { news ?
-            <div className="games">
-              <p className="page_edit_title_box">Press</p>
-              {news}
-            </div> 
-          : '' }
-          <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
+          <div className="games">
+            <p className="page_edit_title_box">Press</p>
+            <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
+            {news}
+          </div> 
           
           <a className='submit' onClick={this.submitContent}>save page</a>
           <a className='submit' onClick={this.testContent}>test</a>
@@ -317,22 +316,17 @@ var Page = React.createClass({
       return (
         <div className="page">
           <h2 className="page_edit_title">Edit {name}</h2>
-          { matchups ?
-            <div className="games">
-              <p className="page_edit_title_box">Matches</p>
-              {matchups}
-            </div> 
-          : '' }
-          <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
+          <div className="games">
+            <p className="page_edit_title_box">Matches</p>
+            <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
+            {matchups}
+          </div> 
 
-
-          { news ?
-            <div className="games">
-              <p className="page_edit_title_box">Press</p>
-              {news}
-            </div> 
-          : '' }
-          <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
+          <div className="games">
+            <p className="page_edit_title_box">Press</p>
+            <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
+            {news}
+          </div> 
           
           <a className='submit' onClick={this.submitContent}>save page</a>
           <a className='submit' onClick={this.testContent}>test</a>

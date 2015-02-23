@@ -230,7 +230,7 @@ var Page = React.createClass({displayName: "Page",
         status = self.state.status;
 
 
-    var matchups = self.state.matchups.map(function(object) {
+    var matchups = self.state.matchups.reverse().map(function(object) {
       return React.createElement(Matchup, {
         name: object.name, 
         _id: object._id, 
@@ -248,6 +248,8 @@ var Page = React.createClass({displayName: "Page",
         remove_matchup: self.handleRemoveMatchup, 
 
         identifier: object.identifier, 
+
+        key: object.identifier, 
         new_matchup: self.newMatchupSaved})
     }); 
 
@@ -264,7 +266,7 @@ var Page = React.createClass({displayName: "Page",
         identifier: Math.random()})
     });
 
-    var news = self.state.news.map(function(object) {
+    var news = self.state.news.reverse().map(function(object) {
       console.log('news: '+util.inspect(object));
       return React.createElement(News, {
         title: object.title, 
@@ -291,23 +293,20 @@ var Page = React.createClass({displayName: "Page",
           React.createElement("h5", null, React.createElement("input", {type: "text", value: headline, onChange: this.handleHeadlineChange, placeholder: "Headline"})), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: banner, onChange: this.handleBannerChange, placeholder: "Banner"})), 
           React.createElement("h5", null, React.createElement("input", {type: "text", value: description, onChange: this.handleDescriptionChange, placeholder: "Description"})), 
-   
-           matchups ?
-            React.createElement("div", {className: "games"}, 
-              React.createElement("p", {className: "page_edit_title_box"}, "Matches"), 
-              matchups
-            ) 
-          : '', 
-          React.createElement("h6", {className: "new_game", onClick: this.newMatchup}, React.createElement("span", {className: "fa fa-plus"}), "New Matchup"), 
+
+          React.createElement("div", {className: "games"}, 
+            React.createElement("p", {className: "page_edit_title_box"}, "Matches"), 
+            React.createElement("h6", {className: "new_game", onClick: this.newMatchup}, React.createElement("span", {className: "fa fa-plus"}), "New Matchup"), 
+            matchups
+          ), 
+          
 
 
-           news ?
-            React.createElement("div", {className: "games"}, 
-              React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
-              news
-            ) 
-          : '', 
-          React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement("span", {className: "fa fa-plus"}), "New News"), 
+          React.createElement("div", {className: "games"}, 
+            React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
+            React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement("span", {className: "fa fa-plus"}), "New News"), 
+            news
+          ), 
           
           React.createElement("a", {className: "submit", onClick: this.submitContent}, "save page"), 
           React.createElement("a", {className: "submit", onClick: this.testContent}, "test")
@@ -318,22 +317,17 @@ var Page = React.createClass({displayName: "Page",
       return (
         React.createElement("div", {className: "page"}, 
           React.createElement("h2", {className: "page_edit_title"}, "Edit ", name), 
-           matchups ?
-            React.createElement("div", {className: "games"}, 
-              React.createElement("p", {className: "page_edit_title_box"}, "Matches"), 
-              matchups
-            ) 
-          : '', 
-          React.createElement("h6", {className: "new_game", onClick: this.newMatchup}, React.createElement("span", {className: "fa fa-plus"}), "New Matchup"), 
+          React.createElement("div", {className: "games"}, 
+            React.createElement("p", {className: "page_edit_title_box"}, "Matches"), 
+            React.createElement("h6", {className: "new_game", onClick: this.newMatchup}, React.createElement("span", {className: "fa fa-plus"}), "New Matchup"), 
+            matchups
+          ), 
 
-
-           news ?
-            React.createElement("div", {className: "games"}, 
-              React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
-              news
-            ) 
-          : '', 
-          React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement("span", {className: "fa fa-plus"}), "New News"), 
+          React.createElement("div", {className: "games"}, 
+            React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
+            React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement("span", {className: "fa fa-plus"}), "New News"), 
+            news
+          ), 
           
           React.createElement("a", {className: "submit", onClick: this.submitContent}, "save page"), 
           React.createElement("a", {className: "submit", onClick: this.testContent}, "test")
@@ -618,7 +612,6 @@ var Game = React.createClass({displayName: "Game",
               )
             )
           ), 
-          React.createElement("span", {onClick: this.handleEdit}, "Edit"), 
           React.createElement("div", {className: "edit_buttons"}, 
             React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "Edit")
             
@@ -972,7 +965,7 @@ var Matchup = React.createClass({displayName: "Matchup",
 
       return (
         React.createElement("div", {className: "matchup"}, 
-          React.createElement("h3", null, name, " - ", moment(this.props.date).format('MMMM Do, YYYY')), 
+          React.createElement("h3", null, name), 
 
           React.createElement("div", {className: "edit_buttons"}, 
             React.createElement("a", {className: "edit_button red", onClick: self.handleEdit}, "edit"), 

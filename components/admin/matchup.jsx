@@ -264,7 +264,6 @@ var Game = React.createClass({
               </tr>
             </tbody>
           </table>
-          <span onClick={this.handleEdit}>Edit</span>
           <div className='edit_buttons'>
             <a className='edit_button border' onClick={self.handleEdit}>Edit</a> 
             
@@ -618,7 +617,7 @@ var Matchup = React.createClass({
 
       return (
         <div className="matchup">
-          <h3>{name} - {moment(this.props.date).format('MMMM Do, YYYY')}</h3>
+          <h3>{name}</h3>
 
           <div className='edit_buttons'>
             <a className='edit_button red' onClick={self.handleEdit}>edit</a> 
