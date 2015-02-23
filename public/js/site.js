@@ -27,17 +27,10 @@ $tw.bind("transitionend", function(){
   tickerSet();
 });
 
-
-// while($tw.height() < $w.height()){
-//   fs++;
-//   // $t.css("font-size",fs+"px");
-// }
-
-
 function tickerSet(){
   $tw.css({'-webkit-transform':'translate3d('+wwidth+'px,0,0)','transform':'translate3d('+wwidth+'px,0,0)'});
   window.setInterval(function(){
-    $tw.css({'-webkit-transition':'all linear '+(((width+wwidth)/500)*4)+'s','transition':'all linear '+(((width+wwidth)/500)*4)+'s'});
+    $tw.css({'-webkit-transition':'all linear '+(((width+wwidth)/500)*5)+'s','transition':'all linear '+(((width+wwidth)/500)*5)+'s'});
     $tw.css({'-webkit-transform':'translate3d('+(width*-1)+'px,0,0)','transform':'translate3d('+(width*-1)+'px,0,0)'});
   },1)
 }
