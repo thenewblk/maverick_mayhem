@@ -55,3 +55,64 @@
 		border: 1px $brand_red solid;
 	}
 }
+#new_page {
+
+
+	.Scores {
+		background: #222;
+		padding: 10px;
+		position: relative;
+		margin-bottom: 15px;
+		.team_labels {
+			display: inline-block;
+			vertical-align: top;
+		}
+
+		.score.edit_click {
+			display: inline-block;
+			vertical-align: top;
+			padding: 0 10px;
+			cursor: pointer;
+			.us, .them {
+				display: block;
+			}
+		}
+		.new_score_button {
+			width: 35px;
+			background: #cf0a2c;
+			display: inline-block;
+			float: right;
+			position: absolute;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			padding: 20px 5px;
+			cursor: pointer;
+		}
+		.new_score_button:hover {
+			background: #333;
+		}
+
+		.score.edit_view {
+			display: inline-block;
+			vertical-align: top;
+			input.us_input, input.them_input  {
+				display: block;
+				width: 37px;
+				line-height: 1;
+				margin: auto;
+			}
+			.score_submit {
+				background: $brand_red;
+				cursor: pointer;
+				padding: 2px 5px;
+				text-transform: uppercase;
+				font-size: .7em;
+			}
+			.score_submit:hover {
+				background: #333;
+			}
+		}
+	}
+
+}

@@ -4,104 +4,6 @@ var React = require('react'),
     util = require('util'),
     ResponsiveMixin = require('react-responsive-mixin');
 
-var Instagram = React.createClass({displayName: "Instagram",
-  getInitialState: function() {
-    return { 
-      className: 'loading',
-    };
-  },
-  componentDidMount: function () {},
-
-  componentWillMount: function(){
-    var self = this;
-    var my_image = new Image();
-    my_image.onload = this.onLoad;
-    my_image.src = self.props.images.standard_resolution.url;
-  },
-
-
-
-  onLoad: function() {
-    var self = this;
-    self.setState({className: "loaded"});
-
-  },
-
-
-  render: function() {
-    var self = this;
-    var userCaption = (self.props.caption.length > 160 ? self.props.caption.slice(0, 160) + ' ...' : self.props.caption);
-    // var userCaption = self.props.caption;
-    var divStyles = {
-      backgroundImage: 'url(' + self.props.images.standard_resolution.url + '), url(../img/bkgrd_pattern_DARKBLK.svg)',
-    };
-
-    var userStyles = {
-      backgroundImage: 'url(' + self.props.user.profile_picture + ')',
-    };
-    // var truncate = function(str,num){
-    //   var words = str.split(' ');
-    //   words = words.splice(0,num);
-    //   return words.join(' ');
-    // }
-    return (
-      React.createElement("div", {className: "matchup_photo instagram "+self.state.className, style: divStyles}, 
-        React.createElement("div", {className: "description", style: divStyles}, 
-          React.createElement("div", {className: "instagram_wrapper"}, 
-            React.createElement("div", {className: "user__profile-picture", style: userStyles}), 
-            React.createElement("p", {className: "photo__description"}, userCaption), 
-            React.createElement("p", {className: "instagram__user"}, 
-              React.createElement("a", {href: self.props.link, target: "_blank"}, 
-                "@", self.props.user.username
-              )
-            )
-          ), 
-          React.createElement("div", {className: "bkgd_scribble"})
-        ), 
-        React.createElement("img", {className: "instagram-icon", src: "/img/icon--instagram.svg"})
-      )
-    )
-  }
-});
-
-var InstagramList = React.createClass({displayName: "InstagramList",
-  getInitialState: function() {
-    return { instagrams: [] };
-  },
-  componentWillMount: function(){
-    var self = this;
-
-    request
-      .get('/api/instagrams/')
-      .end(function(res) {
-        console.log(res)
-        if (res.text) {
-          var instagrams = JSON.parse(res.text);
-          self.setState({instagrams: instagrams});
-        }
-      }.bind(self));
-
-  },
-
-  componentDidMount: function () {
-        // $('.instagram .imageloader.loaded img').velocity('transition.slideUpBigIn');
-  },
-
-  render: function() {
-    var self = this;
-
-    var instagrams = self.state.instagrams.map(function(object) {
-      return React.createElement(Instagram, {images: object.images, user: object.user, link: object.link, caption: object.caption.text})
-    });
-
-    return (
-      React.createElement("div", {className: "instagrams"}, 
-        instagrams
-      )
-    )
-  }
-});
-
 var Photo = React.createClass({displayName: "Photo",
   getInitialState: function() {
     return { 
@@ -142,20 +44,42 @@ var Photo = React.createClass({displayName: "Photo",
   }
 });
 
-var PhotoList = React.createClass({displayName: "PhotoList",
+var News = React.createClass({displayName: "News",
+  componentDidMount: function () {},
+
+  render: function(){
+    var self = this;
+    var divStyles = {
+      background: 'url(' + self.props.image + ') no-repeat center',
+    };
+    return (
+
+      React.createElement("li", {className: "news__list-item", style: divStyles}, 
+        React.createElement("a", {target: "_blank", href: self.props.link}, 
+          React.createElement("h4", {className: "news__title"}, React.createElement("span", {className: "news__title__inner"}, self.props.title, React.createElement("em", {className: "news__byline"}, "by ", self.props.credit)))
+        )
+      )
+
+
+
+      )
+  }
+});
+
+var AssetList = React.createClass({displayName: "AssetList",
   getInitialState: function() {
-    return { photos: [] };
+    return { photos: [], news: [] };
   },
   componentWillMount: function(){
     var self = this;
 
     request
-      .get('/api/photos/')
+      .get('/api/pages/our-house')
       .end(function(res) {
         console.log(res)
         if (res.text) {
           var photos = JSON.parse(res.text);
-          self.setState({photos: photos});
+          self.setState(photos);
         }
       }.bind(self));
 
@@ -167,132 +91,38 @@ var PhotoList = React.createClass({displayName: "PhotoList",
 
   render: function() {
     var self = this;
+
+    var news = self.state.news.map(function(object) {
+      return React.createElement(News, {link: object.link, title: object.title, image: object.image, credit: object.credit, key: object._id})
+    });
 
     var photos = self.state.photos.map(function(object) {
       return React.createElement(Photo, {url: object.url, description: object.description, key: object._id})
     });
 
     return (
-      React.createElement("div", {className: "matchup_photos"}, 
-        photos
+      React.createElement("div", null, 
+        React.createElement("div", {className: "container"}, 
+          React.createElement("div", {className: "news arena"}, 
+            React.createElement("ul", {className: "news__list"}, 
+              news
+            )
+          )
+        ), 
+        React.createElement("div", {className: "matchup_photos"}, 
+          photos
+        )
       )
     )
   }
 });
 
-var CombinedList = React.createClass({displayName: "CombinedList",
-  mixins: [ResponsiveMixin],
-  getInitialState: function() {
-    return { photos: [], instagrams: [], combined: [], two_column: [], four_column: [], render: 'a' };
-  },
-  componentWillMount: function(){
-    var self = this;
-
-    request
-      .get('/api/photos/')
-      .end(function(res) {
-        console.log(res)
-        if (res.text) {
-          var photos = JSON.parse(res.text);
-
-
-          request
-            .get('/api/instagrams/')
-            .end(function(res) {
-              console.log(res)
-              if (res.text) {
-                var instagrams = JSON.parse(res.text);
-
-
-                var rend_photos = photos.map(function(object) {
-                  return React.createElement(Photo, {url: object.url, description: object.description, key: object._id})
-                });
-
-                var rend_instagrams = instagrams.map(function(object) {
-                  return React.createElement(Instagram, {images: object.images, user: object.user, link: object.link, caption: object.caption.text})
-                });
-
-                var combined = rend_photos.map(function(v,i) { 
-                    return [v, rend_instagrams[i]];
-                  }).reduce(function(a,b) { return a.concat(b); });
-
-
-                var two_column = rend_photos.map(function(v,i) { 
-                      if ( (i % 2) == 0 ) {
-                        return [v, rend_instagrams[i]];
-                      } else {
-                        return [rend_instagrams[i], v];
-                      }
-                      
-                  }).reduce(function(a,b) { return a.concat(b); });
-
-                  var four_column = rend_photos.map(function(v,i) { 
-                      if (  ((i % 4) === 0 ) || (((i-1) % 4) === 0 )   ) {
-                        return [v, rend_instagrams[i]];
-                      } else {
-                        return [rend_instagrams[i], v];
-                      }
-                      
-                  }).reduce(function(a,b) { return a.concat(b); });
-
-
-                self.setState({combined: combined, two_column: two_column, four_column: four_column, photos: photos, instagrams: instagrams});
-
-
-              }
-            }.bind(self));
-        }
-      }.bind(self));
-
-
-  },
-
-  componentDidMount: function () {
-        // $('.instagram .imageloader.loaded img').velocity('transition.slideUpBigIn');
-
-    this.media({maxWidth: 500}, function () {
-      this.setState({render: 'combined'});
-    }.bind(this));
-    this.media({minWidth:501, maxWidth: 767}, function () {
-      this.setState({render: 'two'});
-    }.bind(this));
-    this.media({minWidth:768, maxWidth: 1519}, function () {
-      this.setState({render: 'combined'});
-    }.bind(this));
-    this.media({minWidth: 1520}, function () {
-      this.setState({render: 'four'});
-    }.bind(this));
-
-  },
-
-  render: function() {
-    var self = this;
-    
-    var render_grid;
-
-    if (self.state.render == 'two') {
-      render_grid = self.state.two_column;
-    } else if (self.state.render == 'four') {
-      render_grid = self.state.four_column;
-    } else {
-      render_grid = self.state.combined;
-    }
-
-    
-
-    return (
-      React.createElement("div", {className: "matchup_photos"}, 
-        render_grid
-      )
-    )
-  }
-});
 
 
 
 React.renderComponent(
-  CombinedList(),
-  document.getElementById('instagrams')
+  AssetList(),
+  document.getElementById('content')
 )
 
 },{"react":156,"react-responsive-mixin":6,"superagent":157,"util":5}],2:[function(require,module,exports){

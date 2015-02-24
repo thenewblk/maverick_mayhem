@@ -17,23 +17,37 @@ module.exports = function(app, passport) {
 
 	// Display page
 	app.get('/:slug', function(req, res) {
-		Page
-			.findOne({ slug: req.params.slug })
-			.deepPopulate('matchups matchups.games photos news')
-			.exec( function (err, page) {
-			  	if (err) return console.log(err);
-			  	var title;
-			  	if (page) {
-			  		title = " - " + page.name + ' Edit';
-			  	} else {
-			  		title = '';
-			  	}
-				res.render('pages/show', {
-					page: page,
-					title: title,
-					user: req.user
-				});
-		});
+		if ( req.params.slug == 'our-house' ) {
+			Page
+				.findOne({ slug: req.params.slug })
+				.populate('photos news')
+				.exec( function (err, page) {
+				  	if (err) return console.log(err);
+					res.render('arena', {
+						page: page,
+						title: ' - Arena',
+						user: req.user
+					});
+			});
+		} else {
+			Page
+				.findOne({ slug: req.params.slug })
+				.deepPopulate('matchups matchups.games photos news')
+				.exec( function (err, page) {
+				  	if (err) return console.log(err);
+				  	var title;
+				  	if (page) {
+				  		title = " - " + page.name + ' Edit';
+				  	} else {
+				  		title = '';
+				  	}
+					res.render('pages/show', {
+						page: page,
+						title: title,
+						user: req.user
+					});
+			});
+		}
 	});
 
 

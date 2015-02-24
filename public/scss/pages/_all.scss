@@ -3,9 +3,9 @@
 }
 #new_page {
 	background: black;
-	padding: 15px;
 	color: white;
-	border: #333 1px solid;
+	position: relative;
+	padding-bottom: 45px;
 	input {
 		width: 100%;
 		text-align: center;
@@ -27,12 +27,20 @@
 			}
 		}
 	}
+	.matchup.show {
+		display: block;
+		padding-bottom: 15px;
+		h3 {
+			margin: 0;
+		}
+	}
 
 	.games {
 		.game {
 			border: 1px solid #333;
 			padding: 15px;
 			display: inline-block;
+			vertical-align: top;
 			width: 50%;
 			position: relative;
 			padding-bottom: 45px;
@@ -96,6 +104,14 @@
 		text-transform: uppercase;
 	}
 
+	.edit_button.red:hover {
+		background: #333;
+	}
+
+	.edit_button.test {
+		display: none;
+	}
+
 	.edit_button.border{
 		border: 1px solid #333;
 		color: $brand_red;
@@ -108,9 +124,6 @@
 		color: $brand_red;
 	}
 }
-
-
-
 
 .sport-recap {
   margin-bottom: 80px;
@@ -129,9 +142,9 @@
 }
 
 .image-container {
-	background: #333;
-	border: #ccc dashed 2px;
+	border: #333 1px solid;
 	position: relative;
+	border-top: none;
 	.image-uploader-label {
 		padding: 15px 0;
 		position: absolute;
@@ -142,8 +155,9 @@
 	}
 	.image-uploader {
 		position: relative;
-		background: #333;
+		background: black;
 		border: none;
+		color: #555;
 	}
 	.upload-icon {
 		font-size: 2em;
@@ -182,6 +196,8 @@
 	margin: 15px 0;
 	border: #333 1px solid;
 	padding: 15px;
+	margin-bottom: 0;
+	border-bottom: 0;
 	@include clearfix;
 	.photo {
 		width: 290px;

@@ -3,12 +3,11 @@ var React = require('react'),
     util = require('util'),
     Dropzone = require('../dropzone.js');
 
-var Isvg = require('react-inlinesvg');
-
 var Content = window.slug || {};
 
-var Matchup = require('./matchup.jsx'),
-    News = require('./news.jsx'),
+var Isvg = require('react-inlinesvg');
+
+var News = require('./news.jsx'),
     Photo = require('./photo.jsx'),
     PhotosUploader = require('./photos_uploader.jsx');
 
@@ -22,7 +21,6 @@ var Page = React.createClass({
       description: '', 
       video: {}, 
       icon: {}, 
-      matchups: [], 
       photos: [], 
       news: [], 
       submitted: false };
@@ -35,7 +33,7 @@ var Page = React.createClass({
       console.log('Content: '+Content);
 
       request
-        .get('/api/pages/'+Content)
+        .get('/api/pages/our-house')
         .end(function(res) {
           console.log(res)
           if (res.text) {
@@ -98,68 +96,6 @@ var Page = React.createClass({
     current_photos.splice(found_photo, 1);
 
     self.setState({photos: current_photos });
-  },
-
-
-  handleRemoveMatchup: function(matchup) {
-    var self = this,
-        current_matchups = self.state.matchups, 
-        found_matchup;
-
-    if (matchup._id) {
-      for ( i in  current_matchups) {
-        if ( current_matchups[i] == matchup._id ){
-          found_matchup = i;
-        }
-      }
-      current_matchups.splice(found_matchup, 1);
-
-      self.setState({matchups: current_matchups });      
-    }
-
-  },
-
-  handleNewRemoveMatchup: function(matchup) {
-    var self = this,
-        current_matchups = self.state.matchups, 
-        found_matchup;
-
-    if (matchup._id) {
-      for ( i in  current_matchups) {
-        if ( current_matchups[i].identifier == matchup._id ){
-          found_matchup = i;
-        }
-      }
-      current_matchups.splice(found_matchup, 1);
-
-      self.setState({matchups: current_matchups });      
-    }
-
-  },
-
-  newMatchupSaved: function(content) {
-    console.log("new matchup saved: "+ util.inspect(content));
-    var self = this,
-        current_matchups = self.state.matchups, 
-        found_matchup;
-
-    if (content.identifier) {
-      for ( i in  current_matchups) {
-        if ( current_matchups[i].identifier == content.identifier ){
-          found_matchup = i;
-        }
-      }
-      current_matchups[found_matchup] = content;
-
-      self.setState({matchups: current_matchups });      
-    }
-  },
-
-  newMatchup: function() {
-    console.log('newMatchup');
-    var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: []});
-    this.setState({matchups: new_matchups});
   },
 
   newNews: function() {
@@ -266,32 +202,6 @@ var Page = React.createClass({
         description = self.state.description,
         status = self.state.status;
 
-
-    var matchups = self.state.matchups.reverse().map(function(object) {
-      return <Matchup 
-        name={object.name}
-        _id={object._id}
-        slug={object.slug} 
-        opponent={object.opponent}
-        ticket={object.ticket}
-        location={object.location}
-        home={object.home}
-        games={object.games}
-        photos={object.photos}
-        status={object.status}
-
-        date={object.date}
-        time={object.time}
-
-        remove_matchup={self.handleRemoveMatchup}
-        remove_new_matchup={self.handleNewRemoveMatchup}
-
-        identifier={object.identifier}
-
-        key={object._id || object.identifier}
-        new_matchup={self.newMatchupSaved} />
-    }); 
-
     var photos = self.state.photos.map(function(object) {
       return <Photo 
         url={object.url} 
@@ -331,23 +241,23 @@ var Page = React.createClass({
         <div className="page">
           <h2 className="page_edit_title">New Page</h2>
           <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
-          <h5><input type="text" value={headline} onChange={this.handleHeadlineChange} placeholder="Headline" /></h5>
-          <h5><input type="text" value={banner} onChange={this.handleBannerChange} placeholder="Banner" /></h5>
           <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
-
-          <div className="games">
-            <p className="page_edit_title_box">Matches</p>
-            <h6 className="new_game" onClick={this.newMatchup}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
-            {matchups}
-          </div> 
-          
-
 
           <div className="games">
             <p className="page_edit_title_box">Press</p>
             <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
             {news}
           </div> 
+
+          { photos ?
+            <div className="photos">
+              <p className="page_edit_title_small">Photos</p>
+              {photos}
+            </div> 
+            : ''
+          }
+
+          <PhotosUploader photos={this.handleNewPhoto} />
           
           <a className='submit' onClick={this.submitContent}>save page</a>
           <a className='submit' onClick={this.testContent}>test</a>
@@ -358,17 +268,23 @@ var Page = React.createClass({
       return (
         <div className="page">
           <h2 className="page_edit_title">Edit {name}</h2>
-          <div className="games">
-            <p className="page_edit_title_box">Matches</p>
-            <h6 className="new_game" onClick={this.newMatchup}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
-            {matchups}
-          </div> 
 
           <div className="games">
             <p className="page_edit_title_box">Press</p>
             <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
             {news}
           </div> 
+
+          { photos ?
+            <div className="photos">
+              <p className="page_edit_title_small">Photos</p>
+              {photos}
+            </div> 
+            : ''
+          }
+
+          <PhotosUploader photos={this.handleNewPhoto} />
+
           <div className='edit_buttons'>
             <a className='edit_button red' onClick={this.submitContent}>post</a>
             <a className='edit_button' href={"/"+self.state.slug}>Cancel</a>
