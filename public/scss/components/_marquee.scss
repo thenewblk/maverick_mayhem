@@ -10,18 +10,20 @@
   font-family: $museo-slab, $base-font-family;
 }
 .marquee__list {
+  position: relative;
   margin: 0;
   padding: 0;
   list-style: none;
   -webkit-transition-property: all;
   transition-property: all;
   white-space:nowrap;
-  display:inline-block;
+  // display:inline-block;
   overflow:hidden;
 }
 
 .marquee__list-item {
-  display: inline-block;
+  // display: inline-block;
+  float: left;
   padding: 18px 0;
   margin: 0;
   color: $white;
@@ -32,7 +34,8 @@
   }
 
   &::before {
-    display: inline-block;
+    // display: inline-block;
+    float: left;
     margin: 0 30px 0 20px;
     content: ':::';
     color: $brand_red;

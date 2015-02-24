@@ -2,6 +2,8 @@
   box-sizing: border-box;
 }
 
+@-ms-viewport { width: auto !important; }
+
 img, media {
   display: block;
   max-width: 100%;

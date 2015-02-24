@@ -33,6 +33,7 @@
   padding: 0;
   max-height: 245px;
   overflow-y: scroll;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 .news__list-item {

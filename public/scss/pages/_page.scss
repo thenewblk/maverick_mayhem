@@ -13,8 +13,8 @@
 		.icon--mav-mayhem {
 			vertical-align: middle;
 			line-height: 0;
-			display: inline-block;		
-			width: 200px; 
+			display: inline-block;
+			width: 200px;
 			margin-right: 25px;
 		}
 		#sport_icon {
@@ -36,7 +36,7 @@
 		}
 		.content_title:before {
 			content: '';
-			background-image: url(/img/dot_1.svg); 
+			background-image: url(/img/dot_1.svg);
 			background-repeat: no-repeat;
 			width: 10px;
 			height: 10px;
@@ -49,7 +49,7 @@
 		}
 		.ticket_button {
 			position: relative;
-			text-align: center; 
+			text-align: center;
 			a {
 				position: absolute;
 				width: 100%;
@@ -118,7 +118,7 @@
 
   	}
 
-	
+
 }
 .play_button, .play_button.mobile {
 	position: absolute;
@@ -137,7 +137,7 @@
 		width: 50px;
 		display: inline-block;
 		vertical-align: middle;
-		margin-right: 15px; 
+		margin-right: 15px;
 
 		path#outer_circle {
 			fill: #CF0A2C;
@@ -146,7 +146,7 @@
 		path#inner_triangle {
 			fill: black;
 			transition: 0.15s ease-out;
-		}	
+		}
 	}
 	&:hover {
 		transition: 0.15s ease-out;
@@ -156,7 +156,7 @@
 		}
 		svg#play_button path#inner_triangle {
 			fill: white;
-		}	
+		}
 	}
 	@include respond-to(smaller) {
 		display: none;
@@ -177,7 +177,7 @@
 			width: 50px;
 			display: inline-block;
 			vertical-align: middle;
-			margin-right: 15px; 
+			margin-right: 15px;
 
 			path#outer_circle {
 				fill: #CF0A2C;
@@ -186,7 +186,7 @@
 			path#inner_triangle {
 				fill: white;
 				transition: 0.15s ease-out;
-			}	
+			}
 		}
 	}
 }
@@ -279,7 +279,7 @@
 	}
 	.content_title:before {
 		content: '';
-		background-image: url(/img/dot_1.svg); 
+		background-image: url(/img/dot_1.svg);
 		background-repeat: no-repeat;
 		width: 10px;
 		height: 10px;
@@ -287,7 +287,7 @@
 		display: inline-block;
 	}
 	.game_toggle {
-		
+
 		display: table;
 		width: 100%;
 		text-align: center;
@@ -390,6 +390,7 @@
 			transition: 0.15s ease-out;
 			position: relative;
 			z-index: 1;
+      -ms-overflow-style: none;
 			img {
 				width: 40px;
 				display: table;
@@ -399,7 +400,7 @@
 	}
 	.matchup_photo:hover {
 		.description {
-			
+
 			opacity: 1;
 		}
 	}
