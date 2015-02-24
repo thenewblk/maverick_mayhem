@@ -3,6 +3,8 @@ var React = require('react'),
     util = require('util'),
     Dropzone = require('../dropzone.js');
 
+var Content = window.slug || {};
+
 var Isvg = require('react-inlinesvg');
 
 var News = require('./news.jsx'),
