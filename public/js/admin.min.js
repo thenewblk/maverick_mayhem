@@ -399,6 +399,8 @@ var React = require('react'),
     DatePicker = require('react-date-picker'),
     tools = require('../../lib/utils');
 
+var Isvg = require('react-inlinesvg');
+
 function getPeriod(i) {
   if (this.slug == "hockey"){ 
     if (i < 4 ) {
@@ -487,17 +489,17 @@ var Score = React.createClass({displayName: "Score",
         
     if ((game_status == 'edit') &( status == 'new' ) || ( status == 'edit' )) {
       return (
-        React.createElement("div", {className: "score"}, 
-          React.createElement("input", {type: "text", value: us, onChange: this.handleUsChange, placeholder: "Us"}), 
-          React.createElement("input", {type: "text", value: them, onChange: this.handleThemChange, placeholder: "Them"}), 
-          React.createElement("a", {className: "submit", onClick: this.submitContent}, "save")
+        React.createElement("div", {className: "score  edit_view"}, 
+          React.createElement("input", {className: "us_input", type: "text", value: us, onChange: this.handleUsChange, placeholder: "Us"}), 
+          React.createElement("input", {className: "them_input", type: "text", value: them, onChange: this.handleThemChange, placeholder: "Them"}), 
+          React.createElement("a", {className: "score_submit", onClick: this.submitContent}, "save")
         )
       )
     } else if (game_status == 'edit') {
       return (
-        React.createElement("div", {className: "score"}, 
-          us, ", ", them, 
-          React.createElement("span", {onClick: this.handleEdit}, "Edit")
+        React.createElement("div", {className: "score edit_click", onClick: this.handleEdit}, 
+          React.createElement("span", {className: "us"}, us), 
+          React.createElement("span", {className: "them"}, them)
         )
       )
     } else  {
@@ -540,6 +542,18 @@ var Game = React.createClass({displayName: "Game",
     this.setState({status: 'edit'});
   },
 
+  handleRemove: function(){
+    console.log('handleRemoveGame:');
+    console.log(' this.state._id:'+this.state._id);
+    console.log(' this.state.identifier:'+this.state.identifier);
+
+
+    if (this.state._id) {
+      this.props.remove_game({_id: this.state._id});
+    } else if ( this.state.identifier ) {
+      this.props.remove_game({_id: this.state.identifier});
+    }
+  },
 
   handleScoreChange: function(content) {
     var current_scores = this.state.scores;
@@ -612,7 +626,7 @@ var Game = React.createClass({displayName: "Game",
 
 
         
-    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' ) || ( status == 'edit' )) {
+    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' )) {
       return (
         React.createElement("div", {className: "game"}, 
           React.createElement("h5", null, "Date: "), 
@@ -623,14 +637,38 @@ var Game = React.createClass({displayName: "Game",
           
           React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
 
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button border", onClick: this.submitContent}, "save")
+          )
+        )
+      )
+    } else if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'edit' )) {
+      return (
+        React.createElement("div", {className: "game"}, 
+          React.createElement("h5", null, "Date: "), 
+          React.createElement(DatePicker, {
+                  hideFooter: true, 
+                  date: date, 
+                  onChange: self.dateChange}), 
+          
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
+          
+          React.createElement("h5", null, "Scores: "), 
            the_scores ?
             React.createElement("div", {className: "Scores"}, 
-              the_scores
+
+              React.createElement("div", {className: "team_labels"}, 
+                React.createElement("div", {className: "uno_label"}, "UNO"), 
+                React.createElement("div", {className: "uno_label"}, "Opponent")
+              ), 
+              the_scores, 
+              React.createElement("span", {className: "new_score_button", onClick: this.newScore}, React.createElement(Isvg, {className: "plus-icon", src: "/img/icon--plus.svg"}))
             ) 
           : '', 
 
-          React.createElement("h6", {onClick: this.newScore}, "New Score"), 
-          React.createElement("a", {className: "submit", onClick: this.submitContent}, "save")
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button border", onClick: this.submitContent}, "save")
+          )
         )
       )
     } else if (matchup_status == 'edit') {
@@ -644,26 +682,23 @@ var Game = React.createClass({displayName: "Game",
             React.createElement("thead", null, 
               React.createElement("tr", {className: "scoreboard__header"}, 
                 React.createElement("th", {className: "team-name"}, " "), 
-                periods, 
-                React.createElement("th", {className: "score-total"}, "Total")
+                periods
               )
             ), 
             React.createElement("tbody", null, 
               React.createElement("tr", {className: "team visitor"}, 
                 React.createElement("td", {className: "team-name"}, "Omaha"), 
-                us_scores, 
-                React.createElement("td", {className: "score"}, getUsTotal(self.state))
+                us_scores
               ), 
               React.createElement("tr", {className: "team away"}, 
                 React.createElement("td", {className: "team-name"}, "Opponent"), 
-                them_scores, 
-                React.createElement("td", {className: "score"},  getThemTotal(self.state) )
+                them_scores
               )
             )
           ), 
           React.createElement("div", {className: "edit_buttons"}, 
-            React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "Edit")
-            
+            React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "Edit"), 
+            React.createElement("a", {className: "edit_button", onClick: self.handleRemove}, "Remove")
           )
         )
       )
@@ -678,20 +713,17 @@ var Game = React.createClass({displayName: "Game",
             React.createElement("thead", null, 
               React.createElement("tr", {className: "scoreboard__header"}, 
                 React.createElement("th", {className: "team-name"}, " "), 
-                periods, 
-                React.createElement("th", {className: "score-total"}, "Total")
+                periods
               )
             ), 
             React.createElement("tbody", null, 
               React.createElement("tr", {className: "team visitor"}, 
                 React.createElement("td", {className: "team-name"}, "Omaha"), 
-                us_scores, 
-                React.createElement("td", {className: "score"}, getUsTotal(self.state))
+                us_scores
               ), 
               React.createElement("tr", {className: "team away"}, 
                 React.createElement("td", {className: "team-name"}, "Opponent"), 
-                them_scores, 
-                React.createElement("td", {className: "score"},  getThemTotal(self.state) )
+                them_scores
               )
             )
           )
@@ -812,7 +844,6 @@ var Matchup = React.createClass({displayName: "Matchup",
     }
 
     this.setState({ scores: current_scores});
-
   },
 
   newScore: function() {
@@ -934,6 +965,28 @@ var Matchup = React.createClass({displayName: "Matchup",
   },
 
 
+  handleRemoveGame: function(content) {
+
+    console.log('Matchup - handleRemoveGame:');
+    console.log(' content:'+util.inspect(content));
+
+
+
+    var current_games = this.state.games;
+    var found_game;
+    for(var i in current_games) {
+      if ((current_games[i].identifier == content._id) || (current_games[i]._id == content._id)){
+        found_game = i;
+      }
+    }
+    if (found_game) {
+      current_games.splice(found_game, 1);
+    }
+
+    this.setState({ games: current_games});
+  },
+
+
   render: function () {
     var self = this;
 
@@ -954,7 +1007,9 @@ var Matchup = React.createClass({displayName: "Matchup",
         matchup_status: status, 
         remove_game: self.handleRemoveGame, 
         _id: object._id, 
-        identifier: object.identifier || Math.random(), 
+        identifier: object.identifier || object._id, 
+
+        key: object.identifier || object._id, 
 
         index: index, 
 
@@ -1038,7 +1093,7 @@ var Matchup = React.createClass({displayName: "Matchup",
 });
 
 module.exports = Matchup;
-},{"../../lib/utils":7,"../dropzone.js":6,"./photo.jsx":4,"./photos_uploader.jsx":5,"moment":12,"react":189,"react-date-picker":17,"superagent":190,"util":11}],3:[function(require,module,exports){
+},{"../../lib/utils":7,"../dropzone.js":6,"./photo.jsx":4,"./photos_uploader.jsx":5,"moment":12,"react":189,"react-date-picker":17,"react-inlinesvg":30,"superagent":190,"util":11}],3:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
     util = require('util');

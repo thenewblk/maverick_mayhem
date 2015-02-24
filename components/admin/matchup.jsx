@@ -8,6 +8,8 @@ var React = require('react'),
     DatePicker = require('react-date-picker'),
     tools = require('../../lib/utils');
 
+var Isvg = require('react-inlinesvg');
+
 function getPeriod(i) {
   if (this.slug == "hockey"){ 
     if (i < 4 ) {
@@ -96,17 +98,17 @@ var Score = React.createClass({
         
     if ((game_status == 'edit') &( status == 'new' ) || ( status == 'edit' )) {
       return (
-        <div className="score">
-          <input type="text" value={us} onChange={this.handleUsChange} placeholder="Us" />
-          <input type="text" value={them} onChange={this.handleThemChange} placeholder="Them" />
-          <a className='submit' onClick={this.submitContent}>save</a>
+        <div className="score  edit_view">
+          <input className="us_input" type="text" value={us} onChange={this.handleUsChange} placeholder="Us" />
+          <input className="them_input" type="text" value={them} onChange={this.handleThemChange} placeholder="Them" />
+          <a className='score_submit' onClick={this.submitContent}>save</a>
         </div>
       )
     } else if (game_status == 'edit') {
       return (
-        <div className="score">
-          {us}, {them}
-          <span onClick={this.handleEdit}>Edit</span>
+        <div className="score edit_click" onClick={this.handleEdit}>
+          <span className="us">{us}</span>
+          <span className="them">{them}</span>
         </div>
       )
     } else  {
@@ -149,6 +151,18 @@ var Game = React.createClass({
     this.setState({status: 'edit'});
   },
 
+  handleRemove: function(){
+    console.log('handleRemoveGame:');
+    console.log(' this.state._id:'+this.state._id);
+    console.log(' this.state.identifier:'+this.state.identifier);
+
+
+    if (this.state._id) {
+      this.props.remove_game({_id: this.state._id});
+    } else if ( this.state.identifier ) {
+      this.props.remove_game({_id: this.state.identifier});
+    }
+  },
 
   handleScoreChange: function(content) {
     var current_scores = this.state.scores;
@@ -221,7 +235,7 @@ var Game = React.createClass({
 
 
         
-    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' ) || ( status == 'edit' )) {
+    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' )) {
       return (
         <div className="game">
           <h5>Date: </h5>
@@ -232,14 +246,38 @@ var Game = React.createClass({
           
           <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
 
+          <div className="edit_buttons">
+            <a className='edit_button border' onClick={this.submitContent}>save</a>
+          </div>
+        </div>
+      )
+    } else if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'edit' )) {
+      return (
+        <div className="game">
+          <h5>Date: </h5>
+          <DatePicker
+                  hideFooter={true}
+                  date={date} 
+                  onChange={self.dateChange}  />
+          
+          <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
+          
+          <h5>Scores: </h5>
           { the_scores ?
             <div className="Scores">
+
+              <div className="team_labels">
+                <div className="uno_label">UNO</div>
+                <div className="uno_label">Opponent</div>
+              </div>
               {the_scores}
+              <span className="new_score_button" onClick={this.newScore}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></span>
             </div> 
           : '' }
 
-          <h6 onClick={this.newScore}>New Score</h6>
-          <a className='submit' onClick={this.submitContent}>save</a>
+          <div className="edit_buttons">
+            <a className='edit_button border' onClick={this.submitContent}>save</a>
+          </div>
         </div>
       )
     } else if (matchup_status == 'edit') {
@@ -254,25 +292,22 @@ var Game = React.createClass({
               <tr className="scoreboard__header">
                 <th className="team-name">&nbsp;</th>
                 {periods}
-                <th className="score-total">Total</th>
               </tr>
             </thead>
             <tbody>
               <tr className="team visitor">
                 <td className="team-name">Omaha</td>
                 {us_scores}
-                <td className="score">{getUsTotal(self.state)}</td>
               </tr>
               <tr className="team away">
                 <td className="team-name">Opponent</td>
                 {them_scores}
-                <td className="score">{ getThemTotal(self.state) }</td>
               </tr>
             </tbody>
           </table>
           <div className='edit_buttons'>
             <a className='edit_button border' onClick={self.handleEdit}>Edit</a> 
-            
+            <a className='edit_button' onClick={self.handleRemove}>Remove</a> 
           </div>
         </div>
       )
@@ -288,19 +323,16 @@ var Game = React.createClass({
               <tr className="scoreboard__header">
                 <th className="team-name">&nbsp;</th>
                 {periods}
-                <th className="score-total">Total</th>
               </tr>
             </thead>
             <tbody>
               <tr className="team visitor">
                 <td className="team-name">Omaha</td>
                 {us_scores}
-                <td className="score">{getUsTotal(self.state)}</td>
               </tr>
               <tr className="team away">
                 <td className="team-name">Opponent</td>
                 {them_scores}
-                <td className="score">{ getThemTotal(self.state) }</td>
               </tr>
             </tbody>
           </table>
@@ -421,7 +453,6 @@ var Matchup = React.createClass({
     }
 
     this.setState({ scores: current_scores});
-
   },
 
   newScore: function() {
@@ -543,6 +574,28 @@ var Matchup = React.createClass({
   },
 
 
+  handleRemoveGame: function(content) {
+
+    console.log('Matchup - handleRemoveGame:');
+    console.log(' content:'+util.inspect(content));
+
+
+
+    var current_games = this.state.games;
+    var found_game;
+    for(var i in current_games) {
+      if ((current_games[i].identifier == content._id) || (current_games[i]._id == content._id)){
+        found_game = i;
+      }
+    }
+    if (found_game) {
+      current_games.splice(found_game, 1);
+    }
+
+    this.setState({ games: current_games});
+  },
+
+
   render: function () {
     var self = this;
 
@@ -563,7 +616,9 @@ var Matchup = React.createClass({
         matchup_status={status}
         remove_game={self.handleRemoveGame}
         _id = {object._id}
-        identifier={object.identifier || Math.random()} 
+        identifier={object.identifier || object._id}
+
+        key={object.identifier || object._id} 
 
         index={index}
 
