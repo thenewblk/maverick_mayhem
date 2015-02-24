@@ -6,8 +6,8 @@
           <div class="hero__content-wrap hero__content-home">
             <div class="hero__content">
               <img src="img/hashtag_MM_HOME.svg" alt="">
-              <p>This site belongs to all Mavericks–the underdogs who look at the world and the rules and order imposed on it by conformity and small-mindedness and say: Not for me.</p>
-              <a class="btn--show-pride" href="#instagrams">Show your pride</a>
+              <p>This site belongs to all Mavericks – fans, players, campus, and community. Tag your photos and posts and join the conversation.</p>
+              <a class="btn--show-pride" href="#instagrams">Make Some Noise</a>
             </div>
           </div>
         </div>
@@ -38,5 +38,10 @@
 
       <div id="instagrams"></div>
     </div>
-    <script src="/js/index.js"></script><!-- END #main -->
+
+    <% if (process.env.NODE_ENV == 'production') { %>
+      <script src="/js/index.min.js" async></script>
+    <% } else { %>
+      <script src="/js/index.js" async></script>
+    <% } %>
 <%- include ./layouts/_site_footer.ejs %>

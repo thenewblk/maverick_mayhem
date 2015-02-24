@@ -17,7 +17,7 @@ body {
  */
 a {
   color: $white;
-
+  text-decoration: none;
   &:hover {
     text-decoration: none;
   }
@@ -63,4 +63,10 @@ h2, .h2 {
       font-size: em(24px);
     }
   }
+}
+
+
+::selection {
+  background: $brand_red;
+  color: white;
 }

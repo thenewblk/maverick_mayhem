@@ -71,22 +71,14 @@
       </div>
     </div>
 
-      <div class="container">
-        <div class="news arena">
-          <ul class="news__list">
-            <li class="news__list-item" style="background: url(http://bloximages.newyork1.vip.townnews.com/omaha.com/content/tncms/assets/v3/editorial/3/84/384b2c85-7d5b-5550-839b-899d41db399c/54309ec6f049b.image.jpg?resize=1024%2C683) no-repeat center;">
-              <a target="_blank" href="http://www.omaha.com/news/metro/uno-s-rising-arena-finances-both-solid/article_c1e9bd99-ae9c-51cc-872e-281c53255a87.html">
-                <h4 class="news__title"><span>UNO's rising arena, finances both solid<em class="news__byline">by OWH</em></span></h4>
-              </a>
-            </li>
-            <li class="news__list-item" style="background: url(http://www.ketv.com/image/view/-/30748710/highRes/1/-/maxh/630/maxw/1200/-/qj0c5oz/-/UNO-tour-9-JPG.jpg) no-repeat center;">
-              <a target="_blank" href="http://www.ketv.com/news/exclusive-look-at-new-uno-arena/30748514">
-                <h4 class="news__title"><span>Exclusive look at new UNO arena<em class="news__byline">by KETV</em></span></h4>
-              </a>
-            </li>
-          </ul>
-        </div>
+      <div id="content"></div>
 
-      </div>
+      <% if (process.env.NODE_ENV == 'production') { %>
+        <script src="/js/arena-show.min.js" async></script>
+      <% } else { %>
+        <script src="/js/arena-show.js" async></script>
+      <% } %>
+
+
     </div> <!-- END #main -->
 <%- include ./layouts/_site_footer.ejs %>

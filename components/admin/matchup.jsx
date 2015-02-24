@@ -633,11 +633,11 @@ var Matchup = React.createClass({
     } else {
 
       return (
-        <div className="matchup">
+        <div className="matchup show">
           <h3>{name}</h3>
 
           <div className='edit_buttons'>
-            <a className='edit_button red' onClick={self.handleEdit}>edit</a> 
+            <a className='edit_button border' onClick={self.handleEdit}>edit</a> 
             <a className='edit_button' onClick={self.handleRemove}>remove</a> 
           </div>
         </div>
