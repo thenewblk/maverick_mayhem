@@ -22,7 +22,15 @@
   &:active {
     color: $brand_red;
   }
-
+  #navicon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+  }
+  #navicon path {
+    fill: #CF0A2C;
+  }
+  
   .nav-show & {
     display: none;
   }
@@ -34,13 +42,33 @@
   position: relative;
   z-index: 1;
   opacity: 0;
-  text-indent: em(-9999px);
-  overflow: hidden;
   cursor: pointer;
 
   .nav-show & {
     display: block;
     opacity: 1;
+    display: block;
+    opacity: 1;
+    height: 45px;
+  }
+  #close-icon {
+    display: inline-block;
+    float: right;
+    width: 45px;
+    height: 45px;
+    background: black;
+    padding: 10px;
+    border: 1px solid #333;
+    border-bottom: none;
+    path {
+       fill: #808080;
+       transition: 0.15s ease-out;
+    }
+    &:hover {
+      path {
+         fill: $brand_red;
+      }  
+    }
   }
 }
 

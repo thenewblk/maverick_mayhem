@@ -30,7 +30,8 @@ module.exports = function(app, passport) {
 			  	}
 				res.render('pages/show', {
 					page: page,
-					title: title
+					title: title,
+					user: req.user
 				});
 		});
 	});
@@ -50,7 +51,8 @@ module.exports = function(app, passport) {
 			  	
 				res.render('pages/edit', {
 					page: page,
-					title: title
+					title: title,
+					user: req.user
 				});
 		});
 	});

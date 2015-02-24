@@ -168,7 +168,7 @@ var Photo = React.createClass({
             <img src={"https://s3.amazonaws.com/maverickmayhem-dev"+url} />
           </div>
           <input className='description_input' type="text" placeholder="Description" value={description} onChange={self.handleDescriptionChange} />
-          <div className='photo_buttons'>
+          <div className='photo_buttons  edit_photo'>
             <a className='photo_button' onClick={self.submitContent}>save</a> 
             <a className='photo_button' onClick={self.cancelEdit}>cancel</a> 
           </div>

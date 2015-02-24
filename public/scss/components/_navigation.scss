@@ -17,6 +17,13 @@
 }
 
 .menu__list--item {
+  border: #333 1px solid;
+  border-bottom: none;
+  text-align: center;
+  padding: 0 30px;
+  &:last-child {
+    border-bottom: #333 1px solid;
+  }
   a {
     @include transition(color 0.2s);
     text-decoration: none;
@@ -32,17 +39,15 @@
  * $MAIN NAVIGATION
  */
 .nav--primary {
-  float: right;
-  margin-right: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 15px;
 }
 
 .menu--main-menu,
 .menu--mobile-menu {
   display: none;
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 40px;
   max-width: 320px;
   background-color: $black;
 
@@ -74,7 +79,10 @@
 .nav--secondary {
   float: left;
   text-transform: uppercase;
-
+  .menu__list--item {
+    border: none;
+    padding: 0;
+  }
   @media (max-width: 479px) {
     display: none;
   }
@@ -86,5 +94,81 @@
   .menu__list--item {
     margin-right: 24px;
     line-height: em(36px);
+  }
+}
+
+
+.nav--primary.admin {
+  .logout {
+    background: $brand_red;
+    display: block;
+    float: left;
+    width: 100%;
+    position: absolute;
+    z-index: -1;
+    line-height: 44px;
+    padding: 0 10px;
+    border: #333 1px solid;
+  }
+  .logout:hover {
+    transition: 0.15s ease-out;
+    background: black;
+  }
+  .btn--menu {
+
+    color: $brand_red;
+    &:hover,
+    &:active {
+      color: white;
+      #navicon path {
+        fill: white;
+      }
+    }
+    #navicon {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+    #navicon path {
+      fill: $brand_red;
+    }
+    
+    .nav-show & {
+      display: none;
+    }
+  }
+
+  .menu__list--item { 
+    height: 60px;
+    padding: 0;
+    .page_title {
+      float: left;
+    }
+    .page_edit {
+      float: right;
+    }
+    a:hover {
+      color: $black;
+    }
+  }
+
+  .menu--main-menu,
+  .menu--mobile-menu {
+    background: $brand_red;
+  }
+
+  .btn--menu-close.icon--close {
+    
+    #close-icon {
+      background: $brand_red;
+      path {
+        fill: white;
+      }
+      &:hover {
+        path {
+          fill: $black;
+        }
+      }
+    }
   }
 }
