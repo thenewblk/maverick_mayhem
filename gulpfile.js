@@ -44,7 +44,6 @@ gulp.task('build-reacts', folders(srcFolder, function(folder){
 //         .pipe(gulp.dest('./public/js/'));
 // });
 
-
 // Lint Task
 gulp.task('lint', function() {
     return gulp.src('public/js/*.js')
@@ -56,16 +55,14 @@ gulp.task('lint', function() {
 gulp.task('build-styles', function() {
   return gulp.src('./public/scss/*.scss')
           .pipe(sourcemaps.init())
-          .pipe(sass())
+            .pipe(sass({
+              errLogToConsole: true,
+              style: 'expanded'
+            }))
           .pipe(sourcemaps.write())
+          .pipe(autoprefixer())
           .pipe(gulp.dest('./public/css'))
           .pipe(livereload());
-});
-
-gulp.task('autoprefixer', function() {
-  return gulp.src('./public/css/main.css')
-          .pipe(autoprefixer())
-          .pipe(gulp.dest('./public/css'));
 });
 
 // Concatenate JS
@@ -82,7 +79,7 @@ gulp.task('build-scripts', function() {
 gulp.task('watch', function() {
     livereload.listen();
     gulp.watch('components/**/*.jsx', ['build-reacts']);
-    gulp.watch('public/scss/**/*.scss', ['stylesheets']);
+    gulp.watch('public/scss/**/*.scss', ['build-styles']);
     gulp.watch('public/js/site.js', ['build-scripts']);
 });
 
@@ -95,7 +92,5 @@ gulp.task('develop', function () {
 })
 
 // Default Task
-// gulp.task('default', ['lint', 'sass', 'scripts', 'watch']);
-gulp.task('default', ['stylesheets', 'watch', 'develop', 'build-scripts', 'build-reacts' ]);
-// Stylesheets
-gulp.task('stylesheets', ['build-styles', 'autoprefixer']);
+gulp.task('default', ['build-styles', 'develop', 'build-scripts', 'build-reacts', 'watch' ]);
+
