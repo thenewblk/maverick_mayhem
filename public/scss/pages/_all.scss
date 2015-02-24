@@ -261,20 +261,19 @@
 
 .new_game {
 	text-align: center;
-	background: #333;
-	padding: 15px;
+	background: $brand_red;
+	padding: 5px 15px;
 	margin: 15px;
 	font-size: 15px;
 	cursor: pointer;
 	transition: 0.15s ease-out;
-	.fa {
-		display: block;
-		font-size: 22px;
+	.plus-icon svg {
+		width: 25px;
 	}
 }
 
 .new_game:hover {
-	background: $brand_red;
+	background: #333;
 	color: white;
 }
 

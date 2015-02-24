@@ -58,11 +58,17 @@ var Score = React.createClass({
   },
 
   handleUsChange: function(event) {
-    this.setState({us: event.target.value});
+    var self = this;
+    if ( (event.target.value % 1) == 0 ) {
+      self.setState({us: event.target.value});
+    } 
   },
 
   handleThemChange: function(event) {
-    this.setState({them: event.target.value});
+    var self = this;
+    if ( (event.target.value % 1) == 0 ) {
+      self.setState({them: event.target.value});
+    } 
   },
 
   handleEdit: function() {
@@ -91,8 +97,8 @@ var Score = React.createClass({
     if ((game_status == 'edit') &( status == 'new' ) || ( status == 'edit' )) {
       return (
         <div className="score">
-          <input type="number" value={us} onChange={this.handleUsChange} placeholder="Us" />
-          <input type="number" value={them} onChange={this.handleThemChange} placeholder="Them" />
+          <input type="text" value={us} onChange={this.handleUsChange} placeholder="Us" />
+          <input type="text" value={them} onChange={this.handleThemChange} placeholder="Them" />
           <a className='submit' onClick={this.submitContent}>save</a>
         </div>
       )
@@ -436,6 +442,11 @@ var Matchup = React.createClass({
     this.props.remove_matchup({_id: this.state._id});
   },
 
+  handleRemoveNew: function(){
+    this.props.remove_new_matchup({_id: 4});
+  },
+
+
   submitContent: function(){
     var self = this;
     var tmp_matchup = self.state;
@@ -604,11 +615,17 @@ var Matchup = React.createClass({
           <div className='edit_buttons'>
             
             { status == 'new' ? 
-              <a className='edit_button border' onClick={self.submitContent}>new save</a> 
+              <span>
+                <a className='edit_button border' onClick={self.submitContent}>save</a> 
+                <a className='edit_button' onClick={self.handleRemoveNew}>Cancel</a>
+              </span> 
             : 
-              <a className='edit_button border' onClick={self.editContent}>save</a> 
+              <span>
+                <a className='edit_button border' onClick={self.editContent}>save</a> 
+                <a className='edit_button' onClick={self.cancelEdit}>Cancel</a> 
+              </span>
             }
-            <a className='edit_button' onClick={self.cancelEdit}>Cancel</a> 
+            
             
           </div>
         </div>

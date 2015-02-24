@@ -50,6 +50,11 @@ var News = React.createClass({
     this.props.remove_news({_id: this.state._id});
   },
 
+
+  handleRemoveNew: function(){
+    this.props.remove_new_news({_id: 4});
+  },
+
   submitContent: function(){
     var self = this;
     request
@@ -109,9 +114,9 @@ var News = React.createClass({
           <h5><input type="text" value={image} onChange={this.handleImageChange} placeholder="Image" /></h5>
           <h5><input type="text" value={credit} onChange={this.handleCreditChange} placeholder="Credit" /></h5>
           
-          <div className='half_buttons'>
-            <a className='submit' onClick={self.submitContent}>save</a> 
-            <a className='submit' onClick={self.cancelEdit}>cancel</a> 
+          <div className='edit_buttons'>
+            <a className='edit_button red' onClick={self.submitContent}>save</a> 
+            <a className='edit_button' onClick={self.handleRemoveNew}>cancel</a> 
           </div>
         </div>
       )
@@ -124,9 +129,9 @@ var News = React.createClass({
           <h5><input type="text" value={image} onChange={this.handleImageChange} placeholder="Image" /></h5>
           <h5><input type="text" value={credit} onChange={this.handleCreditChange} placeholder="Credit" /></h5>
           
-          <div className='half_buttons'>
-            <a className='submit' onClick={self.editContent}>save</a> 
-            <a className='submit' onClick={self.cancelEdit}>cancel</a> 
+          <div className='edit_buttons'>
+            <a className='edit_button red' onClick={self.editContent}>save</a> 
+            <a className='edit_button' onClick={self.cancelEdit}>cancel</a> 
           </div>
         </div>
       )
@@ -140,9 +145,9 @@ var News = React.createClass({
             <li>Image: {image}</li>
             <li>Credit: {credit}</li>
           </ul>
-          <div className='half_buttons'>
-            <a className='submit' onClick={self.handleEdit}>edit</a> 
-            <a className='submit' onClick={self.handleRemove}>remove</a> 
+          <div className='edit_buttons'>
+            <a className='edit_button border' onClick={self.handleEdit}>edit</a> 
+            <a className='edit_button' onClick={self.handleRemove}>remove</a> 
           </div>
         </div>
       )

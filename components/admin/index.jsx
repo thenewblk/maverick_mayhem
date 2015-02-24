@@ -3,6 +3,8 @@ var React = require('react'),
     util = require('util'),
     Dropzone = require('../dropzone.js');
 
+var Isvg = require('react-inlinesvg');
+
 var Content = window.slug || {};
 
 var Matchup = require('./matchup.jsx'),
@@ -117,6 +119,24 @@ var Page = React.createClass({
 
   },
 
+  handleNewRemoveMatchup: function(matchup) {
+    var self = this,
+        current_matchups = self.state.matchups, 
+        found_matchup;
+
+    if (matchup._id) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i].identifier == matchup._id ){
+          found_matchup = i;
+        }
+      }
+      current_matchups.splice(found_matchup, 1);
+
+      self.setState({matchups: current_matchups });      
+    }
+
+  },
+
   newMatchupSaved: function(content) {
     console.log("new matchup saved: "+ util.inspect(content));
     var self = this,
@@ -186,6 +206,24 @@ var Page = React.createClass({
     }
   },
 
+  handleRemoveNewNews: function(object) {
+
+    var self = this,
+        current_news = self.state.news,
+        found_new;
+
+    if (object._id) {
+      for ( i in  current_news) {
+        if ( current_news[i].identifier == object._id ){
+          found_new = i;
+        }
+      }
+      current_news.splice(found_new, 1);
+
+      self.setState({news: current_news });      
+    }
+  },
+
   submitContent: function(){
     var self = this;
     var tmp_matchups = self.state.matchups.sort(function(a,b){
@@ -243,12 +281,14 @@ var Page = React.createClass({
         status={object.status}
 
         date={object.date}
+        time={object.time}
 
         remove_matchup={self.handleRemoveMatchup}
+        remove_new_matchup={self.handleNewRemoveMatchup}
 
         identifier={object.identifier}
 
-        key={object.identifier}
+        key={object._id || object.identifier}
         new_matchup={self.newMatchupSaved} />
     }); 
 
@@ -279,6 +319,8 @@ var Page = React.createClass({
         key={object._id}
 
         remove_news={self.handleRemoveNews}
+        remove_new_news={self.handleRemoveNewNews}
+
         new_news={self.newNewsSaved}
 
         identifier={object.identifier} />
@@ -295,7 +337,7 @@ var Page = React.createClass({
 
           <div className="games">
             <p className="page_edit_title_box">Matches</p>
-            <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
+            <h6 className="new_game" onClick={this.newMatchup}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
             {matchups}
           </div> 
           
@@ -303,7 +345,7 @@ var Page = React.createClass({
 
           <div className="games">
             <p className="page_edit_title_box">Press</p>
-            <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
+            <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
             {news}
           </div> 
           
@@ -318,13 +360,13 @@ var Page = React.createClass({
           <h2 className="page_edit_title">Edit {name}</h2>
           <div className="games">
             <p className="page_edit_title_box">Matches</p>
-            <h6 className="new_game" onClick={this.newMatchup}><span className="fa fa-plus"></span>New Matchup</h6>
+            <h6 className="new_game" onClick={this.newMatchup}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
             {matchups}
           </div> 
 
           <div className="games">
             <p className="page_edit_title_box">Press</p>
-            <h6 className="new_game" onClick={this.newNews}><span className="fa fa-plus"></span>New News</h6>
+            <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
             {news}
           </div> 
           

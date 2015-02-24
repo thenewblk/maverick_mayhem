@@ -31,6 +31,8 @@
   list-style: none;
   margin: 10px 0;
   padding: 0;
+  max-height: 245px;
+  overflow-y: scroll;
 }
 
 .news__list-item {
