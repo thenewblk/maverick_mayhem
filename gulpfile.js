@@ -64,10 +64,8 @@ gulp.task('build-styles', function() {
 
 gulp.task('autoprefixer', function() {
   return gulp.src('./public/css/main.css')
-          .pipe(autoprefixer({
-            browsers: ['last 2 versions'],
-            cascade: false
-          }));
+          .pipe(autoprefixer())
+          .pipe(gulp.dest('./public/css'));
 });
 
 // Concatenate JS
