@@ -10260,7 +10260,7 @@ $tw.bind("transitionend", function(){
 function tickerSet(){
   $tw.css({'-webkit-transform':'translate3d('+wwidth+'px,0,0)','transform':'translate3d('+wwidth+'px,0,0)'});
   window.setInterval(function(){
-    $tw.css({'-webkit-transition':'all linear '+(((width+wwidth)/500)*5)+'s','transition':'all linear '+(((width+wwidth)/500)*5)+'s'});
+    $tw.css({'-webkit-transition':'all linear '+(((width+wwidth)/500)*9)+'s','transition':'all linear '+(((width+wwidth)/500)*9)+'s'});
     $tw.css({'-webkit-transform':'translate3d('+(width*-1)+'px,0,0)','transform':'translate3d('+(width*-1)+'px,0,0)'});
   },1)
 }
