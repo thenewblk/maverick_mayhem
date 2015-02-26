@@ -399,7 +399,7 @@ var Page = React.createClass({displayName: "Page",
 
           React.createElement("div", {className:  self.state.playVideo ? "page-video-wrapper show" : "page-video-wrapper"}, 
             React.createElement("div", {className: "video-center", onClick: self.stopVideo}, 
-              React.createElement("iframe", {className: "tunnel-walk", width: "853", height: "480", src:  self.state.playVideo ? youtube_video.src : '', frameborder: "0", allowFullScreen: true})
+              React.createElement("iframe", {className: "tunnel-walk", width: "853", height: "480", src:  self.state.playVideo ? youtube_video.src : '', frameBorder: "0", allowFullScreen: true})
             )
           ), 
 

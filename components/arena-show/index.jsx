@@ -145,7 +145,7 @@ var AssetList = React.createClass({
         <div>
             <div className={ self.state.playVideo ? "page-video-wrapper show" : "page-video-wrapper" }>
               <div className="video-center"  onClick={self.stopVideo}>
-                <iframe className="tunnel-walk" width="853" height="480" src={ self.state.playVideo ? youtube_video.src : ''} frameborder="0" allowFullScreen></iframe>
+                <iframe className="tunnel-walk" width="853" height="480" src={ self.state.playVideo ? youtube_video.src : ''} frameBorder="0" allowFullScreen></iframe>
               </div>
             </div>
             <div className="page_container" id="main" role="main">
