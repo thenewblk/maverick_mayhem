@@ -1,414 +1,36 @@
-var React = require('react'),
-    request = require('superagent'),
-    util = require('util'),
-    moment = require('moment'),
-    tools = require('../../lib/utils');
+<%- include ../layouts/_site_header.ejs %>
+<%- include ../layouts/_site_navigation.ejs %>
+    <script>window.slug = "<%= page.slug %>";</script>
+    <!-- Made into a div and new class for temporary fix -->
 
-function getPeriod(i) {
-  if (this.slug == "hockey"){ 
-    if (i < 4 ) {
-      return tools.ordinal(i);
-    } else {
-      return "OT";
-    }
-  } else {
-    return tools.ordinal(i);
-  }
-}
-
-function getUsTotal(game) {
-  var total = game.scores.reduce(function(a, b) {
-    return a + b.us;
-  }, 0);
-  return total;
-};
-
-function getThemTotal(game) {
-  var total = game.scores.reduce(function(a, b) {
-    return a + b.them;
-  }, 0);
-  return total;
-};
-
-function getSmallDate(i) {
-  return moment(i).format('MMM. D');
-};
-
-
-var Content = window.slug || {};
-
-var FlickerIcon = require('./flickerIcon.jsx');
-
-
-var Photo = React.createClass({
-  getInitialState: function() {
-    return { 
-      className: 'loading',
-    };
-  },
-
-  componentWillMount: function(){
-    var self = this;
-    var my_image = new Image();
-    my_image.onload = this.onLoad;
-    my_image.src = "https://s3.amazonaws.com/maverickmayhem-dev" + self.props.url;
-  },
-
-
-
-  onLoad: function() {
-    var self = this;
-    self.setState({className: "loaded"});
-
-  },
-
-  componentDidMount: function () {},
-
-  render: function(){
-    var self = this;
-    var divStyles = {
-      backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev' + self.props.url + '), url(../img/bkgrd_pattern_RED.svg)',
-    };
-    return (
-      <div className={"matchup_photo "+self.state.className} style={divStyles}>
-        <div className="description" style={divStyles}>
-          <img src="../img/expand_img.svg" />
-          <p>{self.props.description}</p>
+    <% if (page.slug == 'hockey') { %>
+      <div class="page-video-wrapper">
+        <div class="video-center">
+          <iframe class="tunnel-walk" width="853" height="480" src="https://www.youtube.com/embed/JNuQxxJSGZs?list=PL7tfLy4QIaez1AtYAPyv_BO5TFR1BbRT-" data-video="https://www.youtube.com/embed/JNuQxxJSGZs?list=PL7tfLy4QIaez1AtYAPyv_BO5TFR1BbRT-" frameborder="0" allowfullscreen></iframe>
         </div>
       </div>
-      )
-  }
-});
-
-var MatchupScores = React.createClass({
-  getInitialState: function() {
-    return { 
-      games: [],
-      current_game: '',
-      opponent: ''
-    }
-  },
-
-  componentWillMount: function(){
-    var self = this;
-    console.log('componentWillMount: ' + util.inspect(self.props));
-
-    self.setState(self.props);
-  },
-
-  changeGame: function(game) {
-    var self = this;
-    console.log('game_label clicked: ' + util.inspect(game));
-    self.setState({current_game: game._id});
-  },
-
-  render: function() {
-    console.log('MatchupScores: ' + util.inspect(this.state));
-      var self = this;
-          games = self.state.games;
-      var game_toggle = games.map(function(game, index) {
-        var active = false;
-        if(game._id == self.state.current_game){ 
-           active = true;
-         }
-        return (
-          <div onClick={self.changeGame.bind(null, game)} key={game._id} className={active ? "game_label active" : "game_label"}>Game { index +1 } | {getSmallDate(game.date)} </div>
-        )
-      });
-
-      var game_table = games.map(function(game, index) {
-        var active = false;
-        if(game._id == self.state.current_game){ 
-           active = true;
-        }
-        var periods = game.scores.map(function(object, index) {
-          return <th>{ getPeriod(index +1) }</th>
-        });
-
-        var us_scores = game.scores.map(function(score) {
-          return <td className="score">{ score.us }</td>
-        });
-
-        var them_scores = game.scores.map(function(score) {
-          return <td className="score">{ score.them }</td>
-        });
-
-        return (
-          <table className={active ? "last_matchup_table sport__scoreboard sport__scoreboard-hockey active" : "last_matchup_table sport__scoreboard sport__scoreboard-hockey"}>
-            <thead>
-              <tr className="scoreboard__header">
-                <th className="team-name">&nbsp;</th>
-                {periods}
-                <th className="score-total">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="team visitor">
-                <td className="team-name">Omaha</td>
-                {us_scores}
-                <td className="score">{getUsTotal(game)}</td>
-              </tr>
-              <tr className="team away">
-                <td className="team-name">{self.state.opponent}</td>
-                {them_scores}
-                <td className="score">{ getThemTotal(game) }</td>
-              </tr>
-            </tbody>
-          </table>
-          )
-      });
-
-      return (
-        <div className="last_matchup">
-          <p className="content_title">Last Matchup:</p>
-          <div className="game_toggle">
-            {game_toggle}
-          </div>
-          {game_table}
-
-        </div>
-      )
-  }
-});
-
-var PhotoGallery = React.createClass({
-  getInitialState: function() {
-    return { 
-      current_matchup: {},
-      last_matchup: {},
-      next_matchup: {},
-      matchups: [], 
-    };
-  },
-  componentWillMount: function(){
-    var self = this;
-    var photo_gallery = {};
-
-
-    photo_gallery.matchups = self.props.matchups;
-    photo_gallery.current_matchup = self.props.last_matchup;
-
-    self.setState(photo_gallery);
-
-  },
-
-  previousMatchup: function(){
-    var self = this;
-    var current_matchup = self.state.current_matchup._id;
-    var tmp_previous_matchup;
-
-    for (i=0; i < self.state.matchups.length; i++){
-      if (self.state.matchups[i]._id == current_matchup){
-        tmp_previous_matchup = i-1;
-      }
-    }
-    if (tmp_previous_matchup >= 0) {
-      self.setState({current_matchup: self.state.matchups[tmp_previous_matchup]});
-    }
-
-  },
-
-  nextMatchup: function(){
-    var self = this;
-    var current_matchup = self.state.current_matchup._id;
-    var tmp_next_matchup;
-
-    for (i=0; i < self.state.matchups.length; i++){
-      if (self.state.matchups[i]._id == current_matchup){
-        tmp_next_matchup = i+1;
-      }
-    }
-    if (tmp_next_matchup < self.state.matchups.length) {
-      self.setState({current_matchup: self.state.matchups[tmp_next_matchup]});
-    }
-    
-
-  },
-
-  render: function() {
-    var self = this; 
-
-    var last_matchup = self.state.last_matchup;
-    var current_matchup = self.state.current_matchup;
-
-    console.log('Page.render current_matchup: ' + util.inspect(current_matchup));
-
-    if (current_matchup.photos){
-      var photos = current_matchup.photos.map(function(object) {
-        return <Photo url={object.url} description={object.description} key={object._id} />
-      });
-    }
-    return (
-      <div className="photo-gallery">
-        <div className="sport-recap">
-          <span onClick={self.previousMatchup} className="previous_matchup"><img src="../img/arrow_left.svg" /><span className="label">Previous</span></span>
-          <div className="sport__headline matchup_headline">
-            <h2>{ current_matchup.name ? current_matchup.name : ''}</h2>
-          </div>
-          { current_matchup.games ? <MatchupScores key={current_matchup._id} games={current_matchup.games} current_game={current_matchup.games[0]._id} opponent={current_matchup.opponent}/> : ''}
-          <span onClick={self.nextMatchup} className="next_matchup"><img src="../img/arrow_right.svg" /><span className="label">Next</span></span>
-        </div>
-        
-        <div className="matchup_photos">
-          {photos}
+    <% } else if (page.slug == 'basketball') { %>
+      <div class="page-video-wrapper">
+        <div class="video-center">
+          <iframe class="tunnel-walk" width="853" height="480" src="https://www.youtube.com/embed/8RiSg3ZzSsw?list=PL7tfLy4QIaez1AtYAPyv_BO5TFR1BbRT-" data-video="https://www.youtube.com/embed/8RiSg3ZzSsw?list=PL7tfLy4QIaez1AtYAPyv_BO5TFR1BbRT-" frameborder="0" allowfullscreen></iframe>
         </div>
       </div>
-    )
-  }
-});
+    <% }%>
 
-var my_image;
-
-var Page = React.createClass({
-  getInitialState: function() {
-    return { 
-      name: '', 
-      headline: '', 
-      banner: '', 
-      description: '', 
-      video: {}, 
-      icon: {}, 
-      current_matchup: {},
-      last_matchup: {},
-      next_matchup: {},
-      matchups: [], 
-      photos: [], 
-      featured_photos: [],
-      tmp_photos: [], 
-      news: [],
-      loaded: false
-    };
-  },
-  componentWillMount: function(){
-    var self = this;
-
-    if (Content) {
-
-      request
-        .get('/api/pages/'+Content)
-        .end(function(res) {
-          if (res.text) {
-            var Page = JSON.parse(res.text);
-
-
-            var tmp_matchups = Page.matchups.sort(function(a,b){
-              return new Date(a.games[0].date) - new Date(b.games[0].date);
-            });
-
-            Page.matchups = tmp_matchups;
-            Page.current_matchup = Page.last_matchup;
-
-            my_image = new Image();
-            my_image.onload = self.onLoad;
-
-            if (Page.slug == 'hockey') {
-              console.log('hockey');
-              my_image.src = "http://www.maverick-mayhem.com/img/bg--video_hockey.jpg";
-
-            } else if (Page.slug == 'basketball') {
-              console.log('basketball');
-              my_image.src = "http://www.maverick-mayhem.com/img/bg--video_bball-mens.jpg";
-            } 
-
-            self.setState(Page);
-          }
-        }.bind(self));
-    }
-  },
-
-
-  componentDidMount: function(){
-    var self = this;
-  },
-
-
-  onLoad: function() {
-    console.log('onLoad');
-    var self = this;
-    self.setState({loaded: true});
-
-  },
-
-  playVideo: function (){
-    this.setState({playVideo: true});
-  },
-
-  stopVideo: function (){
-    this.setState({playVideo: false});
-  },
-
-
-
-
-  render: function() {
-    console.log('Page render: ' + util.inspect(this.state));
-
-    var self = this; 
-
-
-    if (self.state.loaded == true) {
-      var matchups = self.state.matchups,
-          last_matchup = self.state.last_matchup;
-      var bkd_video = {},
-          youtube_video = {};
-
-      var news = self.state.news.map(function(object) {
-
-        var news_style = {
-          background: 'url('+ object.image +') no-repeat center', 
-          backgroundSize: 'cover'
-        }
-
-        return (
-            <li className="news__list-item" style={news_style}>
-              <a target="_blank" href="{ object.link }">
-                <h4 className="news__title"><span>{ object.title }<em className="news__byline">by { object.credit }</em></span></h4>
-              </a>
-            </li>
-        )
-      });
-
-      if (self.state.slug == 'hockey') {
-        bkd_video.poster="/img/bg--video_hockey.jpg";
-        bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_hockey.mp4"
-
-        youtube_video.src = "https://www.youtube.com/embed/JNuQxxJSGZs?list=PL7tfLy4QIaez1AtYAPyv_BO5TFR1BbRT-&autoplay=1";
-
-        ;
-
-      } else if (self.state.slug == 'basketball') {
-        bkd_video.poster="/img/bg--video_bball-mens.jpg";
-        bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_bball_mens.mp4";
-
-        youtube_video.src = "https://www.youtube.com/embed/8RiSg3ZzSsw?list=PL7tfLy4QIaez1AtYAPyv_BO5TFR1BbRT-&autoplay=1";
-      } else {
-        
-      }
-
-      return (
-        <div>
-
-          <div className={ self.state.playVideo ? "page-video-wrapper show" : "page-video-wrapper" }>
-            <div className="video-center"  onClick={self.stopVideo}>
-              <iframe className="tunnel-walk" width="853" height="480" src={ self.state.playVideo ? youtube_video.src : ''} frameborder="0" allowFullScreen></iframe>
-            </div>
-          </div>
-
-
-
-          <div className="page_container" id="main" role="main">
-            <div className="hero">
-              <div className="page_content">
-                <div className="page_title">
-                  <h3><img className="icon--mav-mayhem" src="/img/icon--maverick-mayhem.svg" alt="#maverickmayhem" /><span id="sport_icon"><FlickerIcon sport={Content} /></span></h3>
-                </div>
-
-              <div className="content_box next">
-                  <p className="content_title">NEXT MATCHUP: { self.state.next_matchup.date }</p>
-                  <p className="game_title">vs { self.state.next_matchup.opponent } @ { self.state.next_matchup.location }</p>
-                  <div className="ticket_button">
-                    <a href="{ self.state.next_matchup.ticket }">Get Tickets</a>
-                    <svg id="button_bkgrd" x="0px" y="0px" preserveAspectRatio="none" viewBox="0 0 225.4 31.3" enable-background="new 0 0 225.4 31.3">
+    <div class="page_container" id="main" role="main">
+        <div class="hero">
+            <div class="page_content">
+              <div class="page_title">
+                <h3><img class="icon--mav-mayhem" src="/img/icon--maverick-mayhem.svg" alt="#maverickmayhem"><span id="sport_icon"></span></h3>
+              </div>
+              <% if (page.next_matchup) { %>
+              <div class="content_box next">
+                  <p class="content_title">NEXT MATCHUP: <%=  page.next_matchup.date %></p>
+                  <p class="game_title">vs <%=  page.next_matchup.opponent %> @ <%=  page.next_matchup.location %></p>
+                  <div class="ticket_button">
+                    <a href="<%=  page.next_matchup.ticket %>">Get Tickets</a>
+                    <svg id="button_bkgrd" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" preserveAspectRatio="none"
+                         viewBox="0 0 225.4 31.3" enable-background="new 0 0 225.4 31.3" xml:space="preserve">
                           <path d="M224.4,7.9c-0.2-0.1-0.3-0.3-0.5-0.4c-0.1-0.1-0.3-0.3-0.4-0.4c-0.4-0.4-0.8-0.3-1,0.3
                             c-0.2-0.1-0.6-0.1-0.6-0.6c0-0.3-0.3-0.4-0.6-0.2c-0.3,0.2-0.5,0.4-0.8,0.6c-0.3-0.2-0.6-0.4-0.9-0.6c0,0-0.2,0.1-0.3,0.1l0,0
                             c-0.2-0.1-0.5-0.2-0.7-0.4c0-0.8,0.5-1.5,0.3-2.3c-0.2,0.2-0.4,0.3-0.4,0.4c0,0.3-0.3,0.5-0.5,0.6c-0.2,0.1-0.3,0.3-0.5,0.4
@@ -708,78 +330,30 @@ var Page = React.createClass({
                     </svg>
                   </div>
               </div>
+              <% } %>
+              <div class="content_box press">
+                <p class="content_title">Press</p>
 
-              <div className="content_box press">
-                <p className="content_title">Press</p>
-                <div className="news">
-                  <ul className="news__list">
-                    {news}
+                <div class="news">
+                  <ul class="news__list">
+                    <% page.news.forEach(function(news){ %>
+                      <li class="news__list-item" style="background: <% if (news.image) {%>url(<%= news.image %>)<% } else { %>url(/img/news-item.jpg)<% } %> no-repeat center; background-size: cover;">
+                        <a target="_blank" href="<%= news.link %>">
+                          <h4 class="news__title"><span><%= news.title %><em class="news__byline">by <%= news.credit %></em></span></h4>
+                        </a>
+                      </li>
+                    <% }); %>
                   </ul>
                 </div>
               </div>
 
-              </div>
-              <div className="play_button" onClick={self.playVideo}>
-                <svg version="1.1" id="play_button" x="0px" y="0px" viewBox="0 0 35.8 37.3" enable-background="new 0 0 35.8 37.3">
-                  <path id="outer_circle" d="M6.9,4.7C7.2,4.2,7.6,3.8,8,3.3C8.2,3.1,8.6,3,8.8,2.8c0.8-0.7,1.6-1.4,2.4-2c0.3-0.2,0.6-0.5,1-0.6
-                    c0.6-0.3,0.9-0.1,0.9,0.6c0,0.1,0,0.1,0,0.3c0.6-0.2,1.2-0.4,1.7-0.6c1.6-0.6,3.2-0.4,4.7,0.1c0.8,0.2,1.7,0.5,2.5,0.7
-                    c0.1,0,0.2-0.1,0.4-0.2C22.7,1,23,0.9,23,0.9c0.7,0.8,1.8,0.7,2.7,1.1c0.9,0.5,1.7,1.1,2.6,1.7c0.2,0.2,0.4,0.4,0.6,0.6
-                    c0.5,0.5,0.5,0.6-0.2,0.9c0.2,0.1,0.3,0.3,0.5,0.3c0.6,0.1,1,0.6,1.3,1.1c0.6,0.8,1.2,1.5,1.8,2.3c0.1,0.1,0.1,0.1,0.2,0.2
-                    c0.2,0.8,0.7,1,1.4,1c0.6,0,0.8,0.5,1,1c0.3,1.3,0.6,2.7,0.8,4.1c0.1,0.8,0,1.6,0,2.4c0,1.2,0.1,2.4,0.2,3.6c0,0.3,0,0.6-0.4,0.6
-                    c-0.2,0-0.4,0.3-0.4,0.5c-0.1,0.6-0.2,1.2-0.3,1.8c-0.1,0.3-0.1,0.7-0.6,0.7c-0.2,0-0.4,0.3-0.5,0.4c-1,1.6-1.8,3.3-2.9,4.8
-                    c-1,1.4-2.1,2.6-3.6,3.4C26,34,25,34.7,23.9,35.3c-0.2,0.1-0.4,0.2-0.5,0.2c-0.8-0.3-1.4,0.3-2,0.5c-0.5,0.2-1,0.3-1.6,0.2
-                    c-0.7-0.2-1.4-0.2-2.1,0.1c-0.3,0.1-0.7,0.2-0.9,0.3c-0.1,0.3-0.1,0.6-0.2,0.7c-0.3,0.2-0.5,0-0.8-0.2c-0.6-0.5-1.3-0.9-2-1.3
-                    c-1.3-0.6-2.6-1.4-3.9-2.1c-1.3-0.8-2.6-1.5-3.9-2.3c-0.7-0.5-1.3-1.1-2-1.5c-0.9-0.6-1.3-1.5-1.6-2.4c-0.2-0.6-0.7-1.2-1-1.8
-                    c-0.1-0.3-0.3-0.5-0.4-0.8c-0.2-1.1-0.4-2.2-0.5-3.3c-0.1-1.1-0.2-2.2-0.3-3.4c-0.1-1.6-0.1-3.3,0.5-4.8c0.4-1,0.7-2.1,0.7-3.2
-                    c0-0.4,0.2-0.8,0.4-1.1c0.8-1.2,1.7-2.3,2.5-3.5C4.7,4.8,5.3,4.5,6,4.1C6.2,4.1,6.5,4,6.6,4.1C6.8,4.2,6.8,4.4,6.9,4.7z M11.3,4
-                    c-0.2,0-0.2,0.1-0.3,0.1c-0.7,0.4-1.5,0.7-2.2,1.1C8.3,5.5,7.8,5.8,7.5,6.2c-0.8,1-1.6,2.1-2.3,3.2c-0.7,1-1.2,2-1.6,3.1
-                    c-0.2,0.6-0.4,1.1-0.6,1.6c-0.2,0.5-0.4,1-0.4,1.5c0.1,0.9,0.3,1.8,0.4,2.8c0.1,0.4,0.1,0.8,0.1,1.2c0,0.3-0.1,0.5-0.1,0.7
-                    c0.2,1.2,0.5,2.4,0.8,3.7c0.2,0.7,0,1.4,0.5,2c0.1,0.1,0.1,0.3,0.2,0.5c0.2,0.4,0.4,0.7,0.5,1.1c0.1,0,0.1-0.1,0.2-0.1
-                    c-0.1-0.4-0.3-0.9-0.4-1.3c-0.1-0.4,0-0.7,0.4-0.7c0.4-0.1,0.4,0.2,0.5,0.5c0.3,1.1,0.6,2.2,0.9,3.3c0.1,0.4,0.4,0.8,0.7,1.1
-                    c0.3,0.3,0.8,0.5,1.2,0.8c0.9,0.6,1.8,1.2,2.7,1.8c0.3,0.2,0.8,0.5,1.2-0.2c0.8,0.6,1.5,1.1,2.2,1.7c0.6,0.5,1.1,0.6,1.7,0.1
-                    c0.9,0.4,1.8,0.6,2.8,0.3c0.5-0.2,1-0.3,1.5-0.6c1-0.5,1.9-0.9,2.8-1.5c1.4-0.9,2.7-2,4-3c0.6-0.5,1-1.3,1.7-1.7
-                    c0.6-0.4,0.9-1,1.4-1.6c0.1-0.1,0.3-0.3,0.4-0.3c0.4,0,0.4-0.3,0.5-0.6c0-0.1,0-0.3,0.1-0.4c0.9-2.3,1.7-4.7,2.6-7
-                    c0-0.1,0-0.3,0-0.5c-0.1-0.3-0.3-0.5-0.3-0.8c-0.2-1.7-0.5-3.4-1.2-5c-0.4-0.9-0.8-1.8-1.3-2.6c-0.6-0.9-1.5-1.6-2.2-2.4
-                    c-0.2-0.2-0.5-0.5-0.7-0.7C28.4,6,28.1,5.8,28,5.9c-0.3,0.1-0.5-0.1-0.6-0.3c-0.4-0.9-1.3-1.4-2.2-1.8c-1-0.5-2-0.8-3-1.3
-                    c-1.6-0.8-3.2-1.2-4.9-1.6c-0.2,0-0.5,0-0.8,0.1c0.4,0.2,0.7,0.3,1,0.4c0,0.1,0,0.1,0,0.2c-0.2,0.1-0.3,0.3-0.5,0.3
-                    c-1,0.3-2.1,0.5-3.1,0.8c-0.5,0.2-1.1,0.5-1.4,0.9C12,4.2,11.7,5,11.4,5.7C11.2,6,11,6.2,10.6,6c-0.4-0.2-0.2-0.5-0.1-0.7
-                    C10.8,4.9,11,4.5,11.3,4z M34.6,13.6c0-1.2-0.4-2.2-0.9-2.4C33.9,12,34,12.9,34.6,13.6z M1.9,13.2c0,0,0.1,0,0.1,0
-                    c0.3-0.7,0.6-1.4,0.9-2.1C2,11.6,2,12.4,1.9,13.2z"/>
-                  <path id="inner_triangle" d="M27.8,16.6c0.2,0.1,0.3,0.1,0.4,0.2c0.1,0,0.2,0,0.2,0.1c0.2,0.5,0.7,0.5,1,0.8c-0.2,0.4-0.3,0.4-0.8,0.2
-                    c-0.4-0.2-0.9-0.4-1.4-0.5c-0.1,0.1-0.1,0.2-0.2,0.3c0,0,0,0.1,0.1,0.1c0.1,0.1,0.3,0.2,0.3,0.3c0,0.1,0,0.3-0.1,0.4
-                    c0,0-0.3,0-0.3-0.1c-0.9-0.8-0.8-0.5-1.6,0c-0.7,0.4-1.4,1-2.1,1.4c-1,0.7-2.1,1.3-3.1,1.9c-0.8,0.5-1.6,1.1-2.4,1.6
-                    c-1.2,0.8-2.4,1.5-3.6,2.3c-0.4,0.3-0.8,0.5-0.7,1.1c0.1,0.4,0,0.8,0,1.2c0,0.1,0,0.2-0.1,0.3c-0.1,0.1-0.2,0.1-0.3,0.2
-                    c0-0.1-0.1-0.1-0.1-0.2c-0.1-0.3-0.1-0.5-0.2-0.8c-0.1,0-0.4,0.1-0.5,0c-0.1-0.1-0.1-0.3-0.2-0.5c0,0,0-0.1,0-0.1
-                    c-0.4-0.3-0.3-0.5,0-0.8c0.1-0.1,0-0.3,0.1-0.5c-0.3,0.1-0.6,0.1-0.4-0.4c0,0-0.2-0.2-0.3-0.1c-0.3,0.1-0.5,0.2-0.8,0.3
-                    c-0.1,0-0.3,0-0.5,0c0.2-0.4,0.3-0.7,0.7-0.7c0.4-0.1,0.7-0.2,1.1-0.4c0.3-0.1,0.5-0.3,0.5-0.7c0.2-1.4,0.2-2.9,0.1-4.4
-                    c-0.1-1.2-0.2-2.4-0.2-3.6c0-0.8-0.1-1.7-0.1-2.5c0-0.1,0-0.2,0-0.3c0-0.1-0.1-0.3-0.2-0.3c-0.5-0.2-1.1-0.4-1.6-0.6
-                    c0,0-0.1,0-0.1-0.1c-0.1-0.1-0.2-0.2-0.2-0.3c0.1-0.1,0.2-0.2,0.3-0.2c0.3,0,0.6,0,0.9,0c-0.2-0.1-0.4-0.1-0.6-0.2
-                    c-0.1-0.1-0.2-0.2-0.3-0.3c0.1-0.1,0.2-0.2,0.3-0.2c0.4,0.1,0.8,0.2,1.2,0.3c0.1,0,0.3,0.1,0.5,0.2c0.1-0.9-0.5-1.8,0-2.7
-                    C13,8.8,12.9,9.2,13,9.4c0.1-0.3,0.2-0.5,0.3-0.9c0.1,0.1,0.2,0.2,0.3,0.3c0.1,0.2,0.1,0.5,0.2,0.8c0,0.4,0,0.7,0,1.1
-                    c0,0.3,0.1,0.5,0.2,0.7c0,0.1,0.2,0.1,0.3,0.2c0,0,0.1,0,0.1,0.1c0.5,0.7,1.4,0.7,2.1,1c1.7,0.6,3.4,1.2,5.1,1.8
-                    c1.4,0.5,2.8,0.9,4.2,1.4c0.8,0.3,1.6,0.2,2.3-0.5c0.2-0.2,0.4-0.3,0.6-0.5c0.2-0.2,0.4-0.2,0.5,0c0.2,0.2,0.1,0.4-0.1,0.5
-                    c-0.4,0.3-0.8,0.7-1.2,1C27.9,16.5,27.9,16.5,27.8,16.6z M19.4,14.8C19.5,14.8,19.5,14.7,19.4,14.8c-1.7-0.7-3.4-1.4-5.1-2
-                    c0,0.1,0,0.1-0.1,0.2C15.9,13.8,17.7,14.4,19.4,14.8z M15.7,24.2C15.7,24.2,15.7,24.2,15.7,24.2c-0.6,0.2-1.2,0.4-1.8,0.7
-                    c-0.1,0-0.2,0.2-0.2,0.3c0,0,0.1,0,0.1,0.1C14.4,24.9,15,24.6,15.7,24.2z M13.9,20.8c0,0.9,0,1.7,0,2.6c0,0,0.1,0,0.1,0
-                    C14.1,22.5,14,21.6,13.9,20.8z"/>
-                </svg>
-                { self.state.name } Tunnel Walk Video
-              </div>
 
-              <div className="hero__overlay"></div>
 
-              <div className="hero__media">
-                <video id="video-background" className="video-wrap" poster={bkd_video.poster} autoPlay muted="muted" loop>
-                  <source src={bkd_video.src} type="video/mp4" />
-                </video>
               </div>
             </div>
-          </div>
-          <PhotoGallery matchups={matchups} last_matchup={last_matchup} />
-
-
-          <div className="play_button mobile">
-            <svg version="1.1" id="play_button" x="0px" y="0px" viewBox="0 0 35.8 37.3" enable-background="new 0 0 35.8 37.3">
+            <div class="play_button">
+              <svg version="1.1" id="play_button" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 35.8 37.3" enable-background="new 0 0 35.8 37.3" xml:space="preserve">
                 <path id="outer_circle" d="M6.9,4.7C7.2,4.2,7.6,3.8,8,3.3C8.2,3.1,8.6,3,8.8,2.8c0.8-0.7,1.6-1.4,2.4-2c0.3-0.2,0.6-0.5,1-0.6
                   c0.6-0.3,0.9-0.1,0.9,0.6c0,0.1,0,0.1,0,0.3c0.6-0.2,1.2-0.4,1.7-0.6c1.6-0.6,3.2-0.4,4.7,0.1c0.8,0.2,1.7,0.5,2.5,0.7
                   c0.1,0,0.2-0.1,0.4-0.2C22.7,1,23,0.9,23,0.9c0.7,0.8,1.8,0.7,2.7,1.1c0.9,0.5,1.7,1.1,2.6,1.7c0.2,0.2,0.4,0.4,0.6,0.6
@@ -821,25 +395,83 @@ var Page = React.createClass({
                   c0,0.1,0,0.1-0.1,0.2C15.9,13.8,17.7,14.4,19.4,14.8z M15.7,24.2C15.7,24.2,15.7,24.2,15.7,24.2c-0.6,0.2-1.2,0.4-1.8,0.7
                   c-0.1,0-0.2,0.2-0.2,0.3c0,0,0.1,0,0.1,0.1C14.4,24.9,15,24.6,15.7,24.2z M13.9,20.8c0,0.9,0,1.7,0,2.6c0,0,0.1,0,0.1,0
                   C14.1,22.5,14,21.6,13.9,20.8z"/>
-            </svg>
-            { self.state.name } Tunnel Walk Video
+              </svg>
+              <%= page.name %> Tunnel Walk Video
+            </div>
+
+            <div class="hero__overlay"></div>
+            <div class="hero__media">
+            <% if (page.slug == 'hockey') { %>
+                <video id="video-background" class="video-wrap" poster="/img/bg--video_hockey.jpg" autoplay muted="muted" loop>
+                  <source src="https://s3.amazonaws.com/maverickmayhem/loop_hockey.mp4" type="video/mp4">
+                </video>
+            <% } else if (page.slug == 'basketball') { %>
+                <video id="video-background" class="video-wrap" poster="/img/bg--video_bball-mens.jpg" autoplay muted="muted" loop>
+                  <source src="https://s3.amazonaws.com/maverickmayhem/loop_bball_mens.mp4" type="video/mp4">
+                </video>
+              <% } else { %>
+                Not hockey or basketball
+              <% } %>
+            </div>
         </div>
+    </div>
+    
+    <div class="photo-gallery" id="photo-gallery"></div>
 
+    <div class="play_button mobile">
+        <svg version="1.1" id="play_button" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+             viewBox="0 0 35.8 37.3" enable-background="new 0 0 35.8 37.3" xml:space="preserve">
+            <path id="outer_circle" d="M6.9,4.7C7.2,4.2,7.6,3.8,8,3.3C8.2,3.1,8.6,3,8.8,2.8c0.8-0.7,1.6-1.4,2.4-2c0.3-0.2,0.6-0.5,1-0.6
+              c0.6-0.3,0.9-0.1,0.9,0.6c0,0.1,0,0.1,0,0.3c0.6-0.2,1.2-0.4,1.7-0.6c1.6-0.6,3.2-0.4,4.7,0.1c0.8,0.2,1.7,0.5,2.5,0.7
+              c0.1,0,0.2-0.1,0.4-0.2C22.7,1,23,0.9,23,0.9c0.7,0.8,1.8,0.7,2.7,1.1c0.9,0.5,1.7,1.1,2.6,1.7c0.2,0.2,0.4,0.4,0.6,0.6
+              c0.5,0.5,0.5,0.6-0.2,0.9c0.2,0.1,0.3,0.3,0.5,0.3c0.6,0.1,1,0.6,1.3,1.1c0.6,0.8,1.2,1.5,1.8,2.3c0.1,0.1,0.1,0.1,0.2,0.2
+              c0.2,0.8,0.7,1,1.4,1c0.6,0,0.8,0.5,1,1c0.3,1.3,0.6,2.7,0.8,4.1c0.1,0.8,0,1.6,0,2.4c0,1.2,0.1,2.4,0.2,3.6c0,0.3,0,0.6-0.4,0.6
+              c-0.2,0-0.4,0.3-0.4,0.5c-0.1,0.6-0.2,1.2-0.3,1.8c-0.1,0.3-0.1,0.7-0.6,0.7c-0.2,0-0.4,0.3-0.5,0.4c-1,1.6-1.8,3.3-2.9,4.8
+              c-1,1.4-2.1,2.6-3.6,3.4C26,34,25,34.7,23.9,35.3c-0.2,0.1-0.4,0.2-0.5,0.2c-0.8-0.3-1.4,0.3-2,0.5c-0.5,0.2-1,0.3-1.6,0.2
+              c-0.7-0.2-1.4-0.2-2.1,0.1c-0.3,0.1-0.7,0.2-0.9,0.3c-0.1,0.3-0.1,0.6-0.2,0.7c-0.3,0.2-0.5,0-0.8-0.2c-0.6-0.5-1.3-0.9-2-1.3
+              c-1.3-0.6-2.6-1.4-3.9-2.1c-1.3-0.8-2.6-1.5-3.9-2.3c-0.7-0.5-1.3-1.1-2-1.5c-0.9-0.6-1.3-1.5-1.6-2.4c-0.2-0.6-0.7-1.2-1-1.8
+              c-0.1-0.3-0.3-0.5-0.4-0.8c-0.2-1.1-0.4-2.2-0.5-3.3c-0.1-1.1-0.2-2.2-0.3-3.4c-0.1-1.6-0.1-3.3,0.5-4.8c0.4-1,0.7-2.1,0.7-3.2
+              c0-0.4,0.2-0.8,0.4-1.1c0.8-1.2,1.7-2.3,2.5-3.5C4.7,4.8,5.3,4.5,6,4.1C6.2,4.1,6.5,4,6.6,4.1C6.8,4.2,6.8,4.4,6.9,4.7z M11.3,4
+              c-0.2,0-0.2,0.1-0.3,0.1c-0.7,0.4-1.5,0.7-2.2,1.1C8.3,5.5,7.8,5.8,7.5,6.2c-0.8,1-1.6,2.1-2.3,3.2c-0.7,1-1.2,2-1.6,3.1
+              c-0.2,0.6-0.4,1.1-0.6,1.6c-0.2,0.5-0.4,1-0.4,1.5c0.1,0.9,0.3,1.8,0.4,2.8c0.1,0.4,0.1,0.8,0.1,1.2c0,0.3-0.1,0.5-0.1,0.7
+              c0.2,1.2,0.5,2.4,0.8,3.7c0.2,0.7,0,1.4,0.5,2c0.1,0.1,0.1,0.3,0.2,0.5c0.2,0.4,0.4,0.7,0.5,1.1c0.1,0,0.1-0.1,0.2-0.1
+              c-0.1-0.4-0.3-0.9-0.4-1.3c-0.1-0.4,0-0.7,0.4-0.7c0.4-0.1,0.4,0.2,0.5,0.5c0.3,1.1,0.6,2.2,0.9,3.3c0.1,0.4,0.4,0.8,0.7,1.1
+              c0.3,0.3,0.8,0.5,1.2,0.8c0.9,0.6,1.8,1.2,2.7,1.8c0.3,0.2,0.8,0.5,1.2-0.2c0.8,0.6,1.5,1.1,2.2,1.7c0.6,0.5,1.1,0.6,1.7,0.1
+              c0.9,0.4,1.8,0.6,2.8,0.3c0.5-0.2,1-0.3,1.5-0.6c1-0.5,1.9-0.9,2.8-1.5c1.4-0.9,2.7-2,4-3c0.6-0.5,1-1.3,1.7-1.7
+              c0.6-0.4,0.9-1,1.4-1.6c0.1-0.1,0.3-0.3,0.4-0.3c0.4,0,0.4-0.3,0.5-0.6c0-0.1,0-0.3,0.1-0.4c0.9-2.3,1.7-4.7,2.6-7
+              c0-0.1,0-0.3,0-0.5c-0.1-0.3-0.3-0.5-0.3-0.8c-0.2-1.7-0.5-3.4-1.2-5c-0.4-0.9-0.8-1.8-1.3-2.6c-0.6-0.9-1.5-1.6-2.2-2.4
+              c-0.2-0.2-0.5-0.5-0.7-0.7C28.4,6,28.1,5.8,28,5.9c-0.3,0.1-0.5-0.1-0.6-0.3c-0.4-0.9-1.3-1.4-2.2-1.8c-1-0.5-2-0.8-3-1.3
+              c-1.6-0.8-3.2-1.2-4.9-1.6c-0.2,0-0.5,0-0.8,0.1c0.4,0.2,0.7,0.3,1,0.4c0,0.1,0,0.1,0,0.2c-0.2,0.1-0.3,0.3-0.5,0.3
+              c-1,0.3-2.1,0.5-3.1,0.8c-0.5,0.2-1.1,0.5-1.4,0.9C12,4.2,11.7,5,11.4,5.7C11.2,6,11,6.2,10.6,6c-0.4-0.2-0.2-0.5-0.1-0.7
+              C10.8,4.9,11,4.5,11.3,4z M34.6,13.6c0-1.2-0.4-2.2-0.9-2.4C33.9,12,34,12.9,34.6,13.6z M1.9,13.2c0,0,0.1,0,0.1,0
+              c0.3-0.7,0.6-1.4,0.9-2.1C2,11.6,2,12.4,1.9,13.2z"/>
+            <path id="inner_triangle" d="M27.8,16.6c0.2,0.1,0.3,0.1,0.4,0.2c0.1,0,0.2,0,0.2,0.1c0.2,0.5,0.7,0.5,1,0.8c-0.2,0.4-0.3,0.4-0.8,0.2
+              c-0.4-0.2-0.9-0.4-1.4-0.5c-0.1,0.1-0.1,0.2-0.2,0.3c0,0,0,0.1,0.1,0.1c0.1,0.1,0.3,0.2,0.3,0.3c0,0.1,0,0.3-0.1,0.4
+              c0,0-0.3,0-0.3-0.1c-0.9-0.8-0.8-0.5-1.6,0c-0.7,0.4-1.4,1-2.1,1.4c-1,0.7-2.1,1.3-3.1,1.9c-0.8,0.5-1.6,1.1-2.4,1.6
+              c-1.2,0.8-2.4,1.5-3.6,2.3c-0.4,0.3-0.8,0.5-0.7,1.1c0.1,0.4,0,0.8,0,1.2c0,0.1,0,0.2-0.1,0.3c-0.1,0.1-0.2,0.1-0.3,0.2
+              c0-0.1-0.1-0.1-0.1-0.2c-0.1-0.3-0.1-0.5-0.2-0.8c-0.1,0-0.4,0.1-0.5,0c-0.1-0.1-0.1-0.3-0.2-0.5c0,0,0-0.1,0-0.1
+              c-0.4-0.3-0.3-0.5,0-0.8c0.1-0.1,0-0.3,0.1-0.5c-0.3,0.1-0.6,0.1-0.4-0.4c0,0-0.2-0.2-0.3-0.1c-0.3,0.1-0.5,0.2-0.8,0.3
+              c-0.1,0-0.3,0-0.5,0c0.2-0.4,0.3-0.7,0.7-0.7c0.4-0.1,0.7-0.2,1.1-0.4c0.3-0.1,0.5-0.3,0.5-0.7c0.2-1.4,0.2-2.9,0.1-4.4
+              c-0.1-1.2-0.2-2.4-0.2-3.6c0-0.8-0.1-1.7-0.1-2.5c0-0.1,0-0.2,0-0.3c0-0.1-0.1-0.3-0.2-0.3c-0.5-0.2-1.1-0.4-1.6-0.6
+              c0,0-0.1,0-0.1-0.1c-0.1-0.1-0.2-0.2-0.2-0.3c0.1-0.1,0.2-0.2,0.3-0.2c0.3,0,0.6,0,0.9,0c-0.2-0.1-0.4-0.1-0.6-0.2
+              c-0.1-0.1-0.2-0.2-0.3-0.3c0.1-0.1,0.2-0.2,0.3-0.2c0.4,0.1,0.8,0.2,1.2,0.3c0.1,0,0.3,0.1,0.5,0.2c0.1-0.9-0.5-1.8,0-2.7
+              C13,8.8,12.9,9.2,13,9.4c0.1-0.3,0.2-0.5,0.3-0.9c0.1,0.1,0.2,0.2,0.3,0.3c0.1,0.2,0.1,0.5,0.2,0.8c0,0.4,0,0.7,0,1.1
+              c0,0.3,0.1,0.5,0.2,0.7c0,0.1,0.2,0.1,0.3,0.2c0,0,0.1,0,0.1,0.1c0.5,0.7,1.4,0.7,2.1,1c1.7,0.6,3.4,1.2,5.1,1.8
+              c1.4,0.5,2.8,0.9,4.2,1.4c0.8,0.3,1.6,0.2,2.3-0.5c0.2-0.2,0.4-0.3,0.6-0.5c0.2-0.2,0.4-0.2,0.5,0c0.2,0.2,0.1,0.4-0.1,0.5
+              c-0.4,0.3-0.8,0.7-1.2,1C27.9,16.5,27.9,16.5,27.8,16.6z M19.4,14.8C19.5,14.8,19.5,14.7,19.4,14.8c-1.7-0.7-3.4-1.4-5.1-2
+              c0,0.1,0,0.1-0.1,0.2C15.9,13.8,17.7,14.4,19.4,14.8z M15.7,24.2C15.7,24.2,15.7,24.2,15.7,24.2c-0.6,0.2-1.2,0.4-1.8,0.7
+              c-0.1,0-0.2,0.2-0.2,0.3c0,0,0.1,0,0.1,0.1C14.4,24.9,15,24.6,15.7,24.2z M13.9,20.8c0,0.9,0,1.7,0,2.6c0,0,0.1,0,0.1,0
+              C14.1,22.5,14,21.6,13.9,20.8z"/>
+        </svg>
+        <%= page.name %> Tunnel Walk Video
+    </div>
+    <!-- 
 
-        </div>
-        )
+    END #main -->
+    <% if (process.env.NODE_ENV == 'production') { %>
+      <script src="/js/page.min.js" async></script>
+    <% } else { %>
+      <script src="/js/page.js" async></script>
+    <% } %>
+<%- include ../layouts/_site_footer.ejs %>
 
-    } else{
-      return (
-        <div className="preloader">
-          <FlickerIcon sport={Content} />
-        </div>
-      )
-    }
-  }
-});
-
-React.renderComponent(
-  Page(),
-  document.getElementById('content')
-);

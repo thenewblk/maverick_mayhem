@@ -47,7 +47,9 @@ Velocity.RegisterEffect("bull_flicker", {
 });
 
 var FlickerIcon = React.createClass({
-
+  getInitialState: function() {
+    return { hover: '' } 
+  },
   componentDidMount: function () {
     var self = this;
     var svg = self.getDOMNode();

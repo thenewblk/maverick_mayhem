@@ -30,20 +30,20 @@ $(function () {
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
   });
 
-  $('.play_button').on('click', function () {
-    $('.page-video-wrapper').addClass('show');
+ //  $('.play_button').on('click', function () {
+ //    $('.page-video-wrapper').addClass('show');
 
-    // Reload Youtube
-    $('.tunnel-walk').attr('src', $('.tunnel-walk').data('video') + '&autoplay=1');
-  });
+ //    // Reload Youtube
+ //    $('.tunnel-walk').attr('src', $('.tunnel-walk').data('video') + '&autoplay=1');
+ //  });
 
 
- $('.video-center').on('click', function () {
-    $('.page-video-wrapper').removeClass('show');
+ // $('.video-center').on('click', function () {
+ //    $('.page-video-wrapper').removeClass('show');
 
-    // Reload Youtube
-    $('.tunnel-walk').attr('src', '');
-  });
+ //    // Reload Youtube
+ //    $('.tunnel-walk').attr('src', '');
+ //  });
 
 
   $('.arena-btn--play').on('click', function () {
