@@ -10243,6 +10243,11 @@ var headroom = new Headroom(navigation, {
 
 headroom.init();
 
+if( !Modernizr.backgroundblendmode ){
+  var html = document.getElementsByTagName("html")[0];
+  html.className = html.className + " no-background-blend-mode";
+}
+
 $(function () {
 
   $('.marquee__list').liScroll();

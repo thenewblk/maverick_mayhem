@@ -364,6 +364,7 @@
 	margin: auto;
 	width: 100%;
 	padding: 0 15px;
+
 	.matchup_photo {
 		height: 300px;
 		width: 100%;
@@ -376,6 +377,7 @@
 		opacity: 0;
 		float: left;
 		transition: 0.15s ease-out;
+
 		.description {
 			opacity: 0;
 			display: table-cell;
@@ -392,6 +394,12 @@
 			position: relative;
 			z-index: 1;
       -ms-overflow-style: none;
+
+      .no-background-blend-mode & {
+        background-image: url(../img/bkgrd_pattern_RED_IE.svg) !important;
+        background-size: 9px;
+      }
+
 			img {
 				width: 40px;
 				display: table;
@@ -413,9 +421,16 @@
 		height: 260px;
 		width: 100%;
 		margin: 20px 0;
+
 		.description {
 			padding: 0;
+
+      .no-background-blend-mode & {
+        background-image: url(../img/bkgrd_pattern_BLK.svg) !important;
+        background-size: 9px;
+      }
 		}
+
 		.instagram_wrapper {
 			overflow: scroll;
 			max-height: 100%;
@@ -423,6 +438,7 @@
 			width: 100%;
 
 		}
+
 		.instagram-icon {
 			width: 30px;
 			position: absolute;
@@ -434,10 +450,12 @@
 	@include respond-to(smallimage){
 		width: 500px;
 		padding: 0;
+
 		.matchup_photo.loaded, .matchup_photo {
 			height: 250px;
 			width: 250px;
 		}
+
 		.matchup_photo.instagram {
 			height: 210px;
 			width: 210px;
