@@ -70,14 +70,18 @@ var News = React.createClass({displayName: "News",
   }
 });
 
-var my_image;
+var my_image, bkd_image;
 
 var AssetList = React.createClass({displayName: "AssetList",
   getInitialState: function() {
-    return { photos: [], news: [] };
+    return { photos: [], news: [], pre_count: 0 };
   },
   componentWillMount: function(){
     var self = this;
+
+    bkd_image = new Image();
+    bkd_image.onload = self.onLoad;
+    bkd_image.src = "/img/bkgrd_pattern_BLK.svg";
 
     request
       .get('/api/pages/our-house')
@@ -95,9 +99,16 @@ var AssetList = React.createClass({displayName: "AssetList",
   },
 
   onLoad: function() {
+
     console.log('onLoad');
     var self = this;
-    self.setState({loaded: true}); 
+    var tmp_pre_count = self.state.pre_count;
+    tmp_pre_count++;
+    if (tmp_pre_count == 2) {
+      self.setState({loaded: true, pre_count: tmp_pre_count}); 
+    } else {
+      self.setState({pre_count: tmp_pre_count}); 
+    }
   },
 
   playVideo: function (){

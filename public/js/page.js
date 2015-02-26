@@ -260,7 +260,7 @@ var PhotoGallery = React.createClass({displayName: "PhotoGallery",
   }
 });
 
-var my_image;
+var my_image, bkd_image;
 
 var Page = React.createClass({displayName: "Page",
   getInitialState: function() {
@@ -279,12 +279,16 @@ var Page = React.createClass({displayName: "Page",
       featured_photos: [],
       tmp_photos: [], 
       news: [],
-      loaded: false
+      loaded: false,
+      pre_count: 0
     };
   },
   componentWillMount: function(){
     var self = this;
-
+    bkd_image = new Image();
+    bkd_image.onload = self.onLoad;
+    bkd_image.src = "/img/bkgrd_pattern_BLK.svg";
+    
     if (Content) {
 
       request
@@ -326,9 +330,14 @@ var Page = React.createClass({displayName: "Page",
 
 
   onLoad: function() {
-    console.log('onLoad');
     var self = this;
-    self.setState({loaded: true});
+    var tmp_pre_count = self.state.pre_count;
+    tmp_pre_count++;
+    if (tmp_pre_count == 2) {
+      self.setState({loaded: true, pre_count: tmp_pre_count}); 
+    } else {
+      self.setState({pre_count: tmp_pre_count}); 
+    }
   },
 
   playVideo: function (){
