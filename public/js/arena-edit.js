@@ -6,7 +6,7 @@ var React = require('react'),
 
 var Content = window.slug || {};
 
-var Isvg = require('react-inlinesvg');
+var InlineSVG = require('react-inlinesvg');
 
 var News = require('./news.jsx'),
     Photo = require('./photo.jsx'),
@@ -246,7 +246,7 @@ var Page = React.createClass({displayName: "Page",
 
           React.createElement("div", {className: "games"}, 
             React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
-            React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement(Isvg, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
+            React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement(InlineSVG, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
             news
           ), 
 
@@ -272,7 +272,7 @@ var Page = React.createClass({displayName: "Page",
 
           React.createElement("div", {className: "games"}, 
             React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
-            React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement(Isvg, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
+            React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement(InlineSVG, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
             news
           ), 
 

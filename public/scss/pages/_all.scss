@@ -395,6 +395,22 @@
 	position: relative;
 }
 
+.preloader {
+	padding: 20%;
+	#sport-flicker {
+		margin: auto;
+		display: table;
+		width: 150px;
+		height: 150px;
+	}
+}
+
+#sport-flicker {
+	#cattlebrand {
+		opacity: 0;
+	}
+}
+
 @import "page";
 @import "dropzone";
 @import "index";

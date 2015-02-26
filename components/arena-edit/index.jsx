@@ -5,7 +5,7 @@ var React = require('react'),
 
 var Content = window.slug || {};
 
-var Isvg = require('react-inlinesvg');
+var InlineSVG = require('react-inlinesvg');
 
 var News = require('./news.jsx'),
     Photo = require('./photo.jsx'),
@@ -245,7 +245,7 @@ var Page = React.createClass({
 
           <div className="games">
             <p className="page_edit_title_box">Press</p>
-            <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
+            <h6 className="new_game" onClick={this.newNews}><InlineSVG className="plus-icon" src="/img/icon--plus.svg"></InlineSVG></h6>
             {news}
           </div> 
 
@@ -271,7 +271,7 @@ var Page = React.createClass({
 
           <div className="games">
             <p className="page_edit_title_box">Press</p>
-            <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
+            <h6 className="new_game" onClick={this.newNews}><InlineSVG className="plus-icon" src="/img/icon--plus.svg"></InlineSVG></h6>
             {news}
           </div> 
 
