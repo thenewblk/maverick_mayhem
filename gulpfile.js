@@ -19,7 +19,8 @@ var jshint = require('gulp-jshint'),
     autoprefixer = require('gulp-autoprefixer'),
     folders = require('gulp-folders'),
     srcFolder = './components',
-    destFolder = './public/js/';
+    destFolder = './public/js/',
+    minifyCSS = require('gulp-minify-css');
 
 gulp.task('build-reacts', folders(srcFolder, function(folder){
 
@@ -51,8 +52,22 @@ gulp.task('lint', function() {
         .pipe(jshint.reporter('default'));
 });
 
-// Compile Our Sass
+// Compile Our Production Sass
 gulp.task('build-styles', function() {
+  return gulp.src('./public/scss/*.scss')
+          .pipe(sass({
+            style: 'compact'
+          }))
+          .pipe(autoprefixer())
+          .pipe(rename('main.min.css'))
+          .pipe(minifyCSS({keepBreaks:false}))
+          .pipe(gulp.dest('./public/css'))
+
+});
+
+// Compile Our for Development
+gulp.task('build-dev-styles', function() {
+
   return gulp.src('./public/scss/*.scss')
           .pipe(sourcemaps.init())
             .pipe(sass({
@@ -79,7 +94,7 @@ gulp.task('build-scripts', function() {
 gulp.task('watch', function() {
     livereload.listen();
     gulp.watch('components/**/*.jsx', ['build-reacts']);
-    gulp.watch('public/scss/**/*.scss', ['build-styles']);
+    gulp.watch('public/scss/**/*.scss', ['build-styles', 'build-dev-styles']);
     gulp.watch('public/js/site.js', ['build-scripts']);
 });
 
@@ -92,5 +107,5 @@ gulp.task('develop', function () {
 })
 
 // Default Task
-gulp.task('default', ['build-styles', 'develop', 'build-scripts', 'build-reacts', 'watch' ]);
+gulp.task('default', ['build-styles', 'build-dev-styles', 'develop', 'build-scripts', 'build-reacts', 'watch' ]);
 
