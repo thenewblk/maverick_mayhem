@@ -2,6 +2,7 @@ var React = require('react'),
     request = require('superagent'),
     util = require('util'),
     ResponsiveMixin = require('react-responsive-mixin');
+    
 
 var Instagram = React.createClass({
   getInitialState: function() {
@@ -242,13 +243,10 @@ var CombinedList = React.createClass({
             }.bind(self));
         }
       }.bind(self));
-
-
   },
 
   componentDidMount: function () {
         // $('.instagram .imageloader.loaded img').velocity('transition.slideUpBigIn');
-
     this.media({maxWidth: 500}, function () {
       this.setState({render: 'combined'});
     }.bind(this));
