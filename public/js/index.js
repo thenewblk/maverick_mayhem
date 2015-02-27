@@ -1,19 +1,12 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
-<<<<<<< HEAD
-    util = require('util'),
-    ResponsiveMixin = require('react-responsive-mixin');
-    
-=======
     util = require('util');
 
 require('../../public/js/vendors/matchmedia.js');
 require('../../public/js/vendors/matchMedia.addListener.js');
 
 var ResponsiveMixin = require('react-responsive-mixin');
-
->>>>>>> 572c0431e92934a74f55bd6d4aac72a98f3013ba
 
 var Instagram = React.createClass({displayName: "Instagram",
   getInitialState: function() {
