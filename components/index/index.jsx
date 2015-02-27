@@ -1,12 +1,15 @@
 var React = require('react'),
     request = require('superagent'),
-    util = require('util'),
-    ResponsiveMixin = require('react-responsive-mixin');
-    
+    util = require('util');
+
+require('../../public/js/vendors/matchmedia.js');
+require('../../public/js/vendors/matchMedia.addListener.js');
+
+var ResponsiveMixin = require('react-responsive-mixin');
 
 var Instagram = React.createClass({
   getInitialState: function() {
-    return { 
+    return {
       className: 'loading',
     };
   },
@@ -104,7 +107,7 @@ var InstagramList = React.createClass({
 
 var Photo = React.createClass({
   getInitialState: function() {
-    return { 
+    return {
       className: 'loading',
     };
   },
@@ -212,27 +215,27 @@ var CombinedList = React.createClass({
                   return <Instagram images={object.images} user={object.user} link={object.link} caption={object.caption.text} />
                 });
 
-                var combined = rend_photos.map(function(v,i) { 
+                var combined = rend_photos.map(function(v,i) {
                     return [v, rend_instagrams[i]];
                   }).reduce(function(a,b) { return a.concat(b); });
 
 
-                var two_column = rend_photos.map(function(v,i) { 
+                var two_column = rend_photos.map(function(v,i) {
                       if ( (i % 2) == 0 ) {
                         return [v, rend_instagrams[i]];
                       } else {
                         return [rend_instagrams[i], v];
                       }
-                      
+
                   }).reduce(function(a,b) { return a.concat(b); });
 
-                  var four_column = rend_photos.map(function(v,i) { 
+                  var four_column = rend_photos.map(function(v,i) {
                       if (  ((i % 4) === 0 ) || (((i-1) % 4) === 0 )   ) {
                         return [v, rend_instagrams[i]];
                       } else {
                         return [rend_instagrams[i], v];
                       }
-                      
+
                   }).reduce(function(a,b) { return a.concat(b); });
 
 
@@ -264,7 +267,7 @@ var CombinedList = React.createClass({
 
   render: function() {
     var self = this;
-    
+
     var render_grid;
 
     if (self.state.render == 'two') {
@@ -275,7 +278,7 @@ var CombinedList = React.createClass({
       render_grid = self.state.combined;
     }
 
-    
+
 
     return (
       <div className="matchup_photos">

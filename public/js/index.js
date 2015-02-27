@@ -1,13 +1,23 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
+<<<<<<< HEAD
     util = require('util'),
     ResponsiveMixin = require('react-responsive-mixin');
     
+=======
+    util = require('util');
+
+require('../../public/js/vendors/matchmedia.js');
+require('../../public/js/vendors/matchMedia.addListener.js');
+
+var ResponsiveMixin = require('react-responsive-mixin');
+
+>>>>>>> 572c0431e92934a74f55bd6d4aac72a98f3013ba
 
 var Instagram = React.createClass({displayName: "Instagram",
   getInitialState: function() {
-    return { 
+    return {
       className: 'loading',
     };
   },
@@ -105,7 +115,7 @@ var InstagramList = React.createClass({displayName: "InstagramList",
 
 var Photo = React.createClass({displayName: "Photo",
   getInitialState: function() {
-    return { 
+    return {
       className: 'loading',
     };
   },
@@ -213,27 +223,27 @@ var CombinedList = React.createClass({displayName: "CombinedList",
                   return React.createElement(Instagram, {images: object.images, user: object.user, link: object.link, caption: object.caption.text})
                 });
 
-                var combined = rend_photos.map(function(v,i) { 
+                var combined = rend_photos.map(function(v,i) {
                     return [v, rend_instagrams[i]];
                   }).reduce(function(a,b) { return a.concat(b); });
 
 
-                var two_column = rend_photos.map(function(v,i) { 
+                var two_column = rend_photos.map(function(v,i) {
                       if ( (i % 2) == 0 ) {
                         return [v, rend_instagrams[i]];
                       } else {
                         return [rend_instagrams[i], v];
                       }
-                      
+
                   }).reduce(function(a,b) { return a.concat(b); });
 
-                  var four_column = rend_photos.map(function(v,i) { 
+                  var four_column = rend_photos.map(function(v,i) {
                       if (  ((i % 4) === 0 ) || (((i-1) % 4) === 0 )   ) {
                         return [v, rend_instagrams[i]];
                       } else {
                         return [rend_instagrams[i], v];
                       }
-                      
+
                   }).reduce(function(a,b) { return a.concat(b); });
 
 
@@ -265,7 +275,7 @@ var CombinedList = React.createClass({displayName: "CombinedList",
 
   render: function() {
     var self = this;
-    
+
     var render_grid;
 
     if (self.state.render == 'two') {
@@ -276,7 +286,7 @@ var CombinedList = React.createClass({displayName: "CombinedList",
       render_grid = self.state.combined;
     }
 
-    
+
 
     return (
       React.createElement("div", {className: "matchup_photos"}, 
@@ -293,7 +303,7 @@ React.renderComponent(
   document.getElementById('instagrams')
 )
 
-},{"react":156,"react-responsive-mixin":6,"superagent":157,"util":5}],2:[function(require,module,exports){
+},{"../../public/js/vendors/matchMedia.addListener.js":160,"../../public/js/vendors/matchmedia.js":161,"react":156,"react-responsive-mixin":6,"superagent":157,"util":5}],2:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -20869,4 +20879,129 @@ module.exports = function(arr, fn, initial){
   
   return curr;
 };
+},{}],160:[function(require,module,exports){
+/*! matchMedia() polyfill addListener/removeListener extension. Author & copyright (c) 2012: Scott Jehl. Dual MIT/BSD license */
+(function(){
+    // Bail out for browsers that have addListener support
+    if (window.matchMedia && window.matchMedia('all').addListener) {
+        return false;
+    }
+
+    var localMatchMedia = window.matchMedia,
+        hasMediaQueries = localMatchMedia('only all').matches,
+        isListening     = false,
+        timeoutID       = 0,    // setTimeout for debouncing 'handleChange'
+        queries         = [],   // Contains each 'mql' and associated 'listeners' if 'addListener' is used
+        handleChange    = function(evt) {
+            // Debounce
+            clearTimeout(timeoutID);
+
+            timeoutID = setTimeout(function() {
+                for (var i = 0, il = queries.length; i < il; i++) {
+                    var mql         = queries[i].mql,
+                        listeners   = queries[i].listeners || [],
+                        matches     = localMatchMedia(mql.media).matches;
+
+                    // Update mql.matches value and call listeners
+                    // Fire listeners only if transitioning to or from matched state
+                    if (matches !== mql.matches) {
+                        mql.matches = matches;
+
+                        for (var j = 0, jl = listeners.length; j < jl; j++) {
+                            listeners[j].call(window, mql);
+                        }
+                    }
+                }
+            }, 30);
+        };
+
+    window.matchMedia = function(media) {
+        var mql         = localMatchMedia(media),
+            listeners   = [],
+            index       = 0;
+
+        mql.addListener = function(listener) {
+            // Changes would not occur to css media type so return now (Affects IE <= 8)
+            if (!hasMediaQueries) {
+                return;
+            }
+
+            // Set up 'resize' listener for browsers that support CSS3 media queries (Not for IE <= 8)
+            // There should only ever be 1 resize listener running for performance
+            if (!isListening) {
+                isListening = true;
+                window.addEventListener('resize', handleChange, true);
+            }
+
+            // Push object only if it has not been pushed already
+            if (index === 0) {
+                index = queries.push({
+                    mql         : mql,
+                    listeners   : listeners
+                });
+            }
+
+            listeners.push(listener);
+        };
+
+        mql.removeListener = function(listener) {
+            for (var i = 0, il = listeners.length; i < il; i++){
+                if (listeners[i] === listener){
+                    listeners.splice(i, 1);
+                }
+            }
+        };
+
+        return mql;
+    };
+}());
+
+},{}],161:[function(require,module,exports){
+/*! matchMedia() polyfill - Test a CSS media type/query in JS. Authors & copyright (c) 2012: Scott Jehl, Paul Irish, Nicholas Zakas, David Knight. Dual MIT/BSD license */
+
+window.matchMedia || (window.matchMedia = function() {
+    "use strict";
+
+    // For browsers that support matchMedium api such as IE 9 and webkit
+    var styleMedia = (window.styleMedia || window.media);
+
+    // For those that don't support matchMedium
+    if (!styleMedia) {
+        var style       = document.createElement('style'),
+            script      = document.getElementsByTagName('script')[0],
+            info        = null;
+
+        style.type  = 'text/css';
+        style.id    = 'matchmediajs-test';
+
+        script.parentNode.insertBefore(style, script);
+
+        // 'style.currentStyle' is used by IE <= 8 and 'window.getComputedStyle' for all other browsers
+        info = ('getComputedStyle' in window) && window.getComputedStyle(style, null) || style.currentStyle;
+
+        styleMedia = {
+            matchMedium: function(media) {
+                var text = '@media ' + media + '{ #matchmediajs-test { width: 1px; } }';
+
+                // 'style.styleSheet' is used by IE <= 8 and 'style.textContent' for all other browsers
+                if (style.styleSheet) {
+                    style.styleSheet.cssText = text;
+                } else {
+                    style.textContent = text;
+                }
+
+                // Test if media query is true or false
+                return info.width === '1px';
+            }
+        };
+    }
+
+    return function(media) {
+        return {
+            matches: styleMedia.matchMedium(media || 'all'),
+            media: media || 'all'
+        };
+    };
+}());
+
 },{}]},{},[1]);
