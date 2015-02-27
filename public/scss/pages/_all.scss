@@ -415,6 +415,7 @@ html, body {
 	height: 100%;
 }
 .social_overlay {
+	position: fixed;
 	opacity: 0;
 	z-index: -11111;
 	transition: 0.15s ease-out;
