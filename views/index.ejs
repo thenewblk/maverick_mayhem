@@ -1,37 +1,6 @@
 <%- include ./layouts/_site_header.ejs %>
 <%- include ./layouts/_site_navigation.ejs %>
-    <div id="main" role="main" class="home">
-      <div class="hero hero-home">
-        <div class="hero__inner">
-          <div class="hero__content-wrap hero__content-home">
-            <div class="hero__content">
-              <img src="img/hashtag_MM_HOME.svg" alt="" />
-              <p>This site belongs to all Mavericks – fans, players, campus, and community. Tag your photos and posts and join the conversation.</p>
-              <a class="btn--show-pride" href="#instagrams">Make Some Noise</a>
-            </div>
-          </div>
-        </div>
-        <div class="hero__overlay"></div>
-        <div class="hero__media">
-          <video id="video-background" class="video-wrap" poster="/img/SportsCombineStill.jpg" autoplay muted="muted" loop>
-            <source src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-
-      <div class="marquee">
-        <ul class="marquee__list">
-          <li class="marquee__list-item marquee__list-graphic">&nbsp;</li>
-          <li class="marquee__list-item">2/26 Women's B-ball v. Ft. Wayne</li>
-          <li class="marquee__list-item">2/28 Women's B-ball v. Denver</li>
-          <li class="marquee__list-item marquee__list-graphic">&nbsp;</li>
-          <li class="marquee__list-item">3/6 Hockey v. Colorado College</li>
-          <li class="marquee__list-item">3/7 Hockey v. Colorado College</li>
-        </ul>
-      </div>
-
-      <div id="instagrams"></div>
-    </div>
+  <div id="content"></div>
 
     <% if (process.env.NODE_ENV == 'production') { %>
       <script src="/js/index.min.js" async></script>

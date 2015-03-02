@@ -1,12 +1,15 @@
 var React = require('react'),
     request = require('superagent'),
     util = require('util');
+var Velocity = require('velocity-animate/velocity');
+
+require('velocity-animate/velocity.ui');
 
 require('../../public/js/vendors/matchmedia.js');
 require('../../public/js/vendors/matchMedia.addListener.js');
 
 var ResponsiveMixin = require('react-responsive-mixin');
-
+var FlickerIcon = require('../page/flickerIcon.jsx');
 var Instagram = React.createClass({
   getInitialState: function() {
     return {
@@ -186,7 +189,7 @@ var PhotoList = React.createClass({
 var CombinedList = React.createClass({
   mixins: [ResponsiveMixin],
   getInitialState: function() {
-    return { photos: [], instagrams: [], combined: [], two_column: [], four_column: [], render: 'a' };
+    return { photos: [], instagrams: [], combined: [], two_column: [], four_column: [], render: '' };
   },
   componentWillMount: function(){
     var self = this;
@@ -239,7 +242,7 @@ var CombinedList = React.createClass({
                   }).reduce(function(a,b) { return a.concat(b); });
 
 
-                self.setState({combined: combined, two_column: two_column, four_column: four_column, photos: photos, instagrams: instagrams});
+                self.setState({combined: combined, two_column: two_column, four_column: four_column, photos: photos, instagrams: instagrams, loaded: true});
 
 
               }
@@ -249,7 +252,6 @@ var CombinedList = React.createClass({
   },
 
   componentDidMount: function () {
-        // $('.instagram .imageloader.loaded img').velocity('transition.slideUpBigIn');
     this.media({maxWidth: 500}, function () {
       this.setState({render: 'combined'});
     }.bind(this));
@@ -262,7 +264,6 @@ var CombinedList = React.createClass({
     this.media({minWidth: 1520}, function () {
       this.setState({render: 'four'});
     }.bind(this));
-
   },
 
   render: function() {
@@ -279,18 +280,129 @@ var CombinedList = React.createClass({
     }
 
 
-
-    return (
-      <div className="matchup_photos">
-        {render_grid}
-      </div>
-    )
+    if (self.state.loaded == true) {
+      return (
+        <div className="matchup_photos" id="instagrams">
+          {render_grid}
+        </div>
+      )
+    } else {
+      return (
+        <div className="preloader">
+          <FlickerIcon loop={true}/>
+        </div>
+      )
+    }
   }
 });
 
+var my_image, bkd_image;
+var Main = React.createClass({
+  getInitialState: function() {
+    return { photos: [], news: [], pre_count: 0 };
+  },
+  componentWillMount: function(){
+    var self = this;
 
+    bkd_image = new Image();
+    bkd_image.onload = self.onLoad;
+    bkd_image.src = "/img/bkgrd_pattern_BLK.svg";
+
+    my_image = new Image();
+    my_image.onload = self.onLoad;
+    my_image.src = "/img/SportsCombineStill.jpg";
+
+  },
+
+  onLoad: function() {
+
+    console.log('onLoad');
+    var self = this;
+    var tmp_pre_count = self.state.pre_count;
+    tmp_pre_count++;
+    if (tmp_pre_count == 2) {
+      self.setState({loaded: true, pre_count: tmp_pre_count}); 
+    } else {
+      self.setState({pre_count: tmp_pre_count}); 
+    }
+  },
+
+  playVideo: function (){
+    this.setState({playVideo: true});
+  },
+
+  stopVideo: function (){
+    this.setState({playVideo: false});
+  },
+
+
+  scrollToPhotos: function() {
+    Velocity(document.getElementById('instagrams'), 
+        "scroll", {
+          duration: 1000,
+          easing: "ease-in-out"
+        });
+  },
+
+  componentDidMount: function () {
+        // $('.instagram .imageloader.loaded img').velocity('transition.slideUpBigIn');
+  },
+
+  render: function() {
+    var self = this;
+
+    var bkd_video = {};
+      bkd_video.poster="/img/SportsCombineStill.jpg";
+      bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4"
+
+    if (self.state.loaded == true) {
+      return (
+        <div>
+            <div className="page_container" id="main" role="main">
+              <div className="hero hero-home">
+                <div className="hero__inner">
+                  <div className="hero__content-wrap hero__content-home">
+                    <div className="hero__content">
+                      <img src="img/hashtag_MM_HOME.svg" alt="" />
+                      <p>This site belongs to all Mavericks – fans, players, campus, and community. Tag your photos and posts and join the conversation.</p>
+                      <a className="btn--show-pride" onClick={self.scrollToPhotos} >Make Some Noise</a> </div>
+                  </div>
+                </div>
+
+                <div className="hero__overlay"></div>
+
+                <div className="hero__media">
+                  <video id="video-background" className="video-wrap" poster={bkd_video.poster} autoPlay muted="muted" loop>
+                    <source src={bkd_video.src} type="video/mp4" />
+                  </video>
+                </div>
+              </div>
+            </div>
+            <div className="marquee">
+              <ul className="marquee__list">
+                <li className="marquee__list-item marquee__list-graphic">&nbsp;</li>
+                <li className="marquee__list-item">2/26 Women`s B-ball v. Ft. Wayne</li>
+                <li className="marquee__list-item">2/28 Women`s B-ball v. Denver</li>
+                <li className="marquee__list-item marquee__list-graphic">&nbsp;</li>
+                <li className="marquee__list-item">3/6 Hockey v. Colorado College</li>
+                <li className="marquee__list-item">3/7 Hockey v. Colorado College</li>
+              </ul>
+            </div>
+
+            <CombinedList />
+        </div>
+      )
+    } else {
+      return (
+        <div className="preloader">
+          <FlickerIcon loop={true}/>
+        </div>
+      )
+    }
+  }
+});
 
 React.renderComponent(
-  CombinedList(),
-  document.getElementById('instagrams')
+  Main(),
+  document.getElementById('content')
 )
