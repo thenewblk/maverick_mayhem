@@ -173,7 +173,7 @@ var Page = React.createClass({displayName: "Page",
   newMatchup: function() {
     console.log('newMatchup');
     var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: "", scores: [] }]});
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: "", scores: []}]});
     this.setState({matchups: new_matchups});
   },
 
@@ -606,7 +606,7 @@ var Game = React.createClass({displayName: "Game",
     var self = this;
     var date = self.state.date,
         time = self.state.time,
-        matchup_status = self.state.matchup_status,
+        matchup_status = 'edit',
         status = self.state.status,
         scores = self.state.scores,
         identifier = self.state.identifier;
@@ -624,6 +624,8 @@ var Game = React.createClass({displayName: "Game",
         submit: self.handleScoreChange})
     });
 
+    console.log('game status: ' + status);
+    console.log('game matchup_status: ' + matchup_status);
 
         var periods = scores.map(function(object, index) {
           return React.createElement("th", null,  getPeriod(index +1) )
@@ -639,23 +641,24 @@ var Game = React.createClass({displayName: "Game",
 
 
         
-    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' )) {
-      return (
-        React.createElement("div", {className: "game"}, 
-          React.createElement("h5", null, "Date: "), 
-          React.createElement(DatePicker, {
-                  hideFooter: true, 
-                  date: date, 
-                  onChange: self.dateChange}), 
+    // if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' )) {
+    //   return (
+    //     <div className="game">
+    //       <h5>Date: </h5>
+    //       <DatePicker
+    //               hideFooter={true}
+    //               date={date} 
+    //               onChange={self.dateChange}  />
           
-          React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
+    //       <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
 
-          React.createElement("div", {className: "edit_buttons"}, 
-            React.createElement("a", {className: "edit_button border", onClick: this.submitContent}, "save")
-          )
-        )
-      )
-    } else if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'edit' )) {
+    //       <div className="edit_buttons">
+    //         <a className='edit_button border' onClick={this.submitContent}>save</a>
+    //       </div>
+    //     </div>
+    //   )
+    // } else 
+    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & (( status == 'edit' ) || ( status == 'new' ))) {
       return (
         React.createElement("div", {className: "game"}, 
           React.createElement("h5", null, "Date: "), 

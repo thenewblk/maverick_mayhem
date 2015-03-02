@@ -172,7 +172,7 @@ var Page = React.createClass({
   newMatchup: function() {
     console.log('newMatchup');
     var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: "", scores: [] }]});
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: "", scores: []}]});
     this.setState({matchups: new_matchups});
   },
 

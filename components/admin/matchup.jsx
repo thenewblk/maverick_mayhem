@@ -202,7 +202,7 @@ var Game = React.createClass({
     var self = this;
     var date = self.state.date,
         time = self.state.time,
-        matchup_status = self.state.matchup_status,
+        matchup_status = 'edit',
         status = self.state.status,
         scores = self.state.scores,
         identifier = self.state.identifier;
@@ -220,6 +220,8 @@ var Game = React.createClass({
         submit={self.handleScoreChange} />
     });
 
+    console.log('game status: ' + status);
+    console.log('game matchup_status: ' + matchup_status);
 
         var periods = scores.map(function(object, index) {
           return <th>{ getPeriod(index +1) }</th>
@@ -235,23 +237,24 @@ var Game = React.createClass({
 
 
         
-    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' )) {
-      return (
-        <div className="game">
-          <h5>Date: </h5>
-          <DatePicker
-                  hideFooter={true}
-                  date={date} 
-                  onChange={self.dateChange}  />
+    // if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' )) {
+    //   return (
+    //     <div className="game">
+    //       <h5>Date: </h5>
+    //       <DatePicker
+    //               hideFooter={true}
+    //               date={date} 
+    //               onChange={self.dateChange}  />
           
-          <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
+    //       <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
 
-          <div className="edit_buttons">
-            <a className='edit_button border' onClick={this.submitContent}>save</a>
-          </div>
-        </div>
-      )
-    } else if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'edit' )) {
+    //       <div className="edit_buttons">
+    //         <a className='edit_button border' onClick={this.submitContent}>save</a>
+    //       </div>
+    //     </div>
+    //   )
+    // } else 
+    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & (( status == 'edit' ) || ( status == 'new' ))) {
       return (
         <div className="game">
           <h5>Date: </h5>
