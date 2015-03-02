@@ -4,6 +4,8 @@ var React = require('react'),
     moment = require('moment'),
     tools = require('../../lib/utils');
 
+var Router = require('react-router');
+
 var InlineSVG = require('react-inlinesvg');
 
 function getPeriod(i) {
@@ -262,6 +264,7 @@ var PhotoGallery = React.createClass({
 var my_image, bkd_image;
 
 var Page = React.createClass({
+  mixins: [ Router.State ],
   getInitialState: function() {
     return { 
       name: '', 
@@ -282,16 +285,52 @@ var Page = React.createClass({
       pre_count: 0
     };
   },
+
   componentWillMount: function(){
     var self = this;
     bkd_image = new Image();
     bkd_image.onload = self.onLoad;
     bkd_image.src = "/img/bkgrd_pattern_BLK.svg";
-    
-    if (Content) {
+    var slug = self.getParams().slug;
+
+    // self.setState(self.getStateFromStore());
+    // if (Content) {
+
+    //   request
+    //     .get('/api/pages/'+Content)
+    //     .end(function(res) {
+    //       if (res.text) {
+    //         var Page = JSON.parse(res.text);
+
+
+    //         var tmp_matchups = Page.matchups.sort(function(a,b){
+    //           return new Date(a.games[0].date) - new Date(b.games[0].date);
+    //         });
+
+    //         Page.matchups = tmp_matchups;
+    //         Page.current_matchup = Page.last_matchup;
+
+    //         my_image = new Image();
+    //         my_image.onload = self.onLoad;
+
+    //         if (Page.slug == 'hockey') {
+    //           console.log('hockey');
+    //           my_image.src = "http://www.maverick-mayhem.com/img/bg--video_hockey.jpg";
+
+    //         } else if (Page.slug == 'basketball') {
+    //           console.log('basketball');
+    //           my_image.src = "http://www.maverick-mayhem.com/img/bg--video_bball-mens.jpg";
+    //         } 
+
+    //         self.setState(Page);
+    //       }
+    //     }.bind(self));
+    // }
+
+    if (slug) {
 
       request
-        .get('/api/pages/'+Content)
+        .get('/api/pages/'+slug)
         .end(function(res) {
           if (res.text) {
             var Page = JSON.parse(res.text);
@@ -309,11 +348,55 @@ var Page = React.createClass({
 
             if (Page.slug == 'hockey') {
               console.log('hockey');
-              my_image.src = "http://www.maverick-mayhem.com/img/bg--video_hockey.jpg";
+              my_image.src = "/img/bg--video_hockey.jpg";
 
             } else if (Page.slug == 'basketball') {
               console.log('basketball');
-              my_image.src = "http://www.maverick-mayhem.com/img/bg--video_bball-mens.jpg";
+              my_image.src = "/img/bg--video_bball-mens.jpg";
+            } 
+
+            self.setState(Page);
+          }
+        }.bind(self));
+    }
+  },
+
+  componentWillReceiveProps: function () {
+    var self = this;
+
+    var slug = self.getParams().slug;
+    if (slug != self.state.slug) { 
+
+      console.log('componentWillReceiveProps[slug]: ' + slug);
+      bkd_image = new Image();
+      bkd_image.onload = self.onLoad;
+      bkd_image.src = "/img/bkgrd_pattern_BLK.svg";
+      self.setState({loaded: false, pre_count: 0});
+
+      request
+        .get('/api/pages/'+slug)
+        .end(function(res) {
+          if (res.text) {
+            var Page = JSON.parse(res.text);
+
+
+            var tmp_matchups = Page.matchups.sort(function(a,b){
+              return new Date(a.games[0].date) - new Date(b.games[0].date);
+            });
+
+            Page.matchups = tmp_matchups;
+            Page.current_matchup = Page.last_matchup;
+
+            my_image = new Image();
+            my_image.onload = self.onLoad;
+
+            if (Page.slug == 'hockey') {
+              console.log('hockey');
+              my_image.src = "/img/bg--video_hockey.jpg";
+
+            } else if (Page.slug == 'basketball') {
+              console.log('basketball');
+              my_image.src = "/img/bg--video_bball-mens.jpg";
             } 
 
             self.setState(Page);
@@ -352,7 +435,7 @@ var Page = React.createClass({
 
   render: function() {
     var self = this; 
-
+    var slug = self.getParams().slug;
 
     if (self.state.loaded == true) {
       var matchups = self.state.matchups,
@@ -408,7 +491,7 @@ var Page = React.createClass({
             <div className="hero">
               <div className="page_content">
                 <div className="page_title">
-                  <h3><img className="icon--mav-mayhem" src="/img/icon--maverick-mayhem.svg" alt="#maverickmayhem" /><span id="sport_icon"><FlickerIcon icon_url={"/img/icon--flicker-"+Content+".svg"} /></span></h3>
+                  <h3><img className="icon--mav-mayhem" src="/img/icon--maverick-mayhem.svg" alt="#maverickmayhem" /><span id="sport_icon"><FlickerIcon icon_url={"/img/icon--flicker-"+self.state.slug+".svg"} /></span></h3>
                 </div>
               { self.state.next_matchup._id ?  
               <div className="content_box next">
@@ -464,7 +547,7 @@ var Page = React.createClass({
     } else{
       return (
         <div className="preloader">
-          <FlickerIcon icon_url={"/img/icon--flicker-"+Content+".svg"} loop={true}/>
+          <FlickerIcon loop={true}/>
         </div>
       )
     }
@@ -474,7 +557,9 @@ var Page = React.createClass({
 
 
 
-React.renderComponent(
-  Page(),
-  document.getElementById('content')
-);
+// React.renderComponent(
+//   Page(),
+//   document.getElementById('content')
+// );
+
+module.exports = Page;

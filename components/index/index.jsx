@@ -402,7 +402,9 @@ var Main = React.createClass({
   }
 });
 
-React.renderComponent(
-  Main(),
-  document.getElementById('content')
-)
+// React.renderComponent(
+//   Main(),
+//   document.getElementById('content')
+// )
+
+module.exports = Main;

@@ -1,0 +1,8 @@
+<%- include ./layouts/_site_header.ejs %>
+
+    <% if (process.env.NODE_ENV == 'production') { %>
+      <script src="/js/router-show.min.js" async></script>
+    <% } else { %>
+      <script src="/js/router-show.js" async></script>
+    <% } %>
+<%- include ./layouts/_site_footer.ejs %>

@@ -49,9 +49,13 @@ pageSchema.virtual('next_matchup').get(function () {
 
     if (moment(this.matchups[i].games[0].date).isAfter(today)) {
         tmp_last_matchup = this.matchups[i];
-    }
+    } 
   }
-  return tmp_last_matchup
+  if (tmp_last_matchup) {
+    return tmp_last_matchup
+  } else {
+    return ""
+  }
 });
 
 pageSchema.methods.getPeriod = function (i) {
