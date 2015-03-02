@@ -369,7 +369,7 @@ var Page = React.createClass({
 
         return (
             <li className="news__list-item" style={news_style}>
-              <a target="_blank" href="{ object.link }">
+              <a target="_blank" href={ object.link }>
                 <h4 className="news__title"><span>{ object.title }<em className="news__byline">by { object.credit }</em></span></h4>
               </a>
             </li>

@@ -10266,6 +10266,14 @@ $(function () {
     $('#sport-video').attr('src', $('#sport-video').attr('src') + '&autoplay=1').addClass('video-loaded');
   });
 
+  $('.btn--show-pride').on('click', function () {
+    $('.social_overlay').toggleClass('up');
+  });
+
+  $('.social_overlay #close-icon').on('click', function () {
+    $('.social_overlay').removeClass('up');
+  });
+
  //  $('.play_button').on('click', function () {
  //    $('.page-video-wrapper').addClass('show');
 

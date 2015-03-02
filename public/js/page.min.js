@@ -370,7 +370,7 @@ var Page = React.createClass({displayName: "Page",
 
         return (
             React.createElement("li", {className: "news__list-item", style: news_style}, 
-              React.createElement("a", {target: "_blank", href: "{ object.link }"}, 
+              React.createElement("a", {target: "_blank", href:  object.link}, 
                 React.createElement("h4", {className: "news__title"}, React.createElement("span", null,  object.title, React.createElement("em", {className: "news__byline"}, "by ",  object.credit)))
               )
             )
