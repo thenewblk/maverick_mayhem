@@ -23367,7 +23367,7 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 },{}],191:[function(require,module,exports){
-/*! VelocityJS.org (1.2.2). (C) 2014 Julian Shapiro. MIT @license: en.wikipedia.org/wiki/MIT_License */
+/*! VelocityJS.org (1.2.1). (C) 2014 Julian Shapiro. MIT @license: en.wikipedia.org/wiki/MIT_License */
 
 /*************************
    Velocity jQuery Shim
@@ -24020,7 +24020,7 @@ return function (global, window, document, undefined) {
         hook: null, /* Defined below. */
         /* Velocity-wide animation time remapping for testing purposes. */
         mock: false,
-        version: { major: 1, minor: 2, patch: 2 },
+        version: { major: 1, minor: 2, patch: 1 },
         /* Set to 1 or 2 (most verbose) to output debug info to console. */
         debug: false
     };
@@ -27064,7 +27064,7 @@ return function (global, window, document, undefined) {
                Option: Loop (Infinite)
             ****************************/
 
-            if (Data(element) && opts.loop === true && !isStopped) {
+            if (opts.loop === true && !isStopped) {
                 /* If a rotateX/Y/Z property is being animated to 360 deg with loop:true, swap tween start/end values to enable
                    continuous iterative rotation looping. (Otherise, the element would just rotate back and forth.) */
                 $.each(Data(element).tweensContainer, function(propertyName, tweenContainer) {
@@ -27240,7 +27240,7 @@ will produce an inaccurate conversion value. The same issue exists with the cx/c
    Velocity UI Pack
 **********************/
 
-/* VelocityJS.org UI Pack (5.0.4). (C) 2014 Julian Shapiro. MIT @license: en.wikipedia.org/wiki/MIT_License. Portions copyright Daniel Eden, Christian Pucci. */
+/* VelocityJS.org UI Pack (5.0.2). (C) 2014 Julian Shapiro. MIT @license: en.wikipedia.org/wiki/MIT_License. Portions copyright Daniel Eden, Christian Pucci. */
 
 ;(function (factory) {
     /* CommonJS module. */
@@ -27879,8 +27879,7 @@ return function (global, window, document, undefined) {
                 defaultDuration: 800,
                 calls: [
                     [ { opacity: [ 1, 0 ], transformPerspective: [ 800, 800 ], transformOriginX: [ 0, 0 ], transformOriginY: [ "100%", "100%" ], rotateX: [ 0, -180 ] } ]
-                ],
-                reset: { transformPerspective: 0, transformOriginX: "50%", transformOriginY: "50%" }
+                ]
             },
             /* Magic.css */
             /* Support: Loses rotation in IE9/Android 2.3 (fades only). */
@@ -27968,26 +27967,19 @@ return function (global, window, document, undefined) {
                     /* Parallel sequence calls (indicated via sequenceQueue:false) are triggered
                        in the previous call's begin callback. Otherwise, chained calls are normally triggered
                        in the previous call's complete callback. */
-                    var currentCallOptions = currentCall.o || currentCall.options,
-                        nextCallOptions = nextCall.o || nextCall.options;
-
-                    var timing = (currentCallOptions && currentCallOptions.sequenceQueue === false) ? "begin" : "complete",
-                        callbackOriginal = nextCallOptions && nextCallOptions[timing],
+                    var timing = (currentCall.options && currentCall.options.sequenceQueue === false) ? "begin" : "complete",
+                        callbackOriginal = nextCall.options && nextCall.options[timing],
                         options = {};
 
                     options[timing] = function() {
-                        var nextCallElements = nextCall.e || nextCall.elements;
+                        var nextCallElements = nextCall.elements || nextCall.e;
                         var elements = nextCallElements.nodeType ? [ nextCallElements ] : nextCallElements;
 
                         callbackOriginal && callbackOriginal.call(elements, elements);
                         Velocity(currentCall);
                     }
 
-                    if (nextCall.o) {
-                        nextCall.o = $.extend({}, nextCallOptions, options);
-                    } else {
-                        nextCall.options = $.extend({}, nextCallOptions, options);
-                    }
+                    nextCall.options = $.extend({}, nextCall.options, options);
                 }
             });
 
