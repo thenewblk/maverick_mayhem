@@ -410,16 +410,19 @@ var Page = React.createClass({
                 <div className="page_title">
                   <h3><img className="icon--mav-mayhem" src="/img/icon--maverick-mayhem.svg" alt="#maverickmayhem" /><span id="sport_icon"><FlickerIcon icon_url={"/img/icon--flicker-"+Content+".svg"} /></span></h3>
                 </div>
-
+              { self.state.next_matchup._id ?  
               <div className="content_box next">
                   <p className="content_title">NEXT MATCHUP: { self.state.next_matchup.date }</p>
                   <p className="game_title">vs { self.state.next_matchup.opponent } @ { self.state.next_matchup.location }</p>
+                  { self.state.next_matchup.ticket ?  
                   <div className="ticket_button">
                     <a href="{ self.state.next_matchup.ticket }">Get Tickets</a>
 
                     <InlineSVG src="/img/icon--button_bkgd.svg" uniquifyIDs={false}></InlineSVG>
                   </div>
+                  : '' }
               </div>
+              : '' }
 
               <div className="content_box press">
                 <p className="content_title">Press</p>

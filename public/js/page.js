@@ -411,16 +411,19 @@ var Page = React.createClass({displayName: "Page",
                 React.createElement("div", {className: "page_title"}, 
                   React.createElement("h3", null, React.createElement("img", {className: "icon--mav-mayhem", src: "/img/icon--maverick-mayhem.svg", alt: "#maverickmayhem"}), React.createElement("span", {id: "sport_icon"}, React.createElement(FlickerIcon, {icon_url: "/img/icon--flicker-"+Content+".svg"})))
                 ), 
-
+               self.state.next_matchup._id ?  
               React.createElement("div", {className: "content_box next"}, 
                   React.createElement("p", {className: "content_title"}, "NEXT MATCHUP: ",  self.state.next_matchup.date), 
                   React.createElement("p", {className: "game_title"}, "vs ",  self.state.next_matchup.opponent, " @ ",  self.state.next_matchup.location), 
+                   self.state.next_matchup.ticket ?  
                   React.createElement("div", {className: "ticket_button"}, 
                     React.createElement("a", {href: "{ self.state.next_matchup.ticket }"}, "Get Tickets"), 
 
                     React.createElement(InlineSVG, {src: "/img/icon--button_bkgd.svg", uniquifyIDs: false})
                   )
-              ), 
+                  : ''
+              )
+              : '', 
 
               React.createElement("div", {className: "content_box press"}, 
                 React.createElement("p", {className: "content_title"}, "Press"), 
