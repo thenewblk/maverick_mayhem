@@ -406,3 +406,5 @@ React.renderComponent(
   Main(),
   document.getElementById('content')
 )
+
+module.exports = Main;

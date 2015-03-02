@@ -296,7 +296,7 @@ var Page = React.createClass({
   }
 });
 
-
+module.exports = Page;
 // module.exports = Page; 
 
 React.renderComponent(

@@ -297,7 +297,7 @@ var Page = React.createClass({displayName: "Page",
   }
 });
 
-
+module.exports = Page;
 // module.exports = Page; 
 
 React.renderComponent(

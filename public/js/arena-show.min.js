@@ -197,14 +197,12 @@ var AssetList = React.createClass({displayName: "AssetList",
   }
 });
 
-
-
-
 React.renderComponent(
   AssetList(),
   document.getElementById('content')
 )
 
+module.exports = AssetList;
 },{"../page/flickerIcon.jsx":2,"react":187,"react-inlinesvg":7,"react-responsive-mixin":21,"superagent":188,"util":6}],2:[function(require,module,exports){
 /** @jsx React.DOM */
 

@@ -471,10 +471,9 @@ var Page = React.createClass({
   }
 });
 
-
-
-
 React.renderComponent(
   Page(),
   document.getElementById('content')
 );
+
+module.exports = Page;

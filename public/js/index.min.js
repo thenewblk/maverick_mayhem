@@ -408,6 +408,7 @@ React.renderComponent(
   document.getElementById('content')
 )
 
+module.exports = Main;
 },{"../../public/js/vendors/matchMedia.addListener.js":193,"../../public/js/vendors/matchmedia.js":194,"../page/flickerIcon.jsx":2,"react":187,"react-responsive-mixin":21,"superagent":188,"util":6,"velocity-animate/velocity":191,"velocity-animate/velocity.ui":192}],2:[function(require,module,exports){
 /** @jsx React.DOM */
 

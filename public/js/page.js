@@ -479,6 +479,8 @@ React.renderComponent(
   Page(),
   document.getElementById('content')
 );
+
+module.exports = Page;
 },{"../../lib/utils":3,"./flickerIcon.jsx":2,"moment":8,"react":184,"react-inlinesvg":9,"superagent":185,"util":7}],2:[function(require,module,exports){
 /** @jsx React.DOM */
 

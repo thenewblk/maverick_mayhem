@@ -401,6 +401,8 @@ React.renderComponent(
  Page(Content),
   document.getElementById('new_page')
 )
+
+module.exports = Page;
 },{"../dropzone.js":6,"./matchup.jsx":2,"./news.jsx":3,"./photo.jsx":4,"./photos_uploader.jsx":5,"react":189,"react-inlinesvg":30,"superagent":190,"util":11}],2:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),

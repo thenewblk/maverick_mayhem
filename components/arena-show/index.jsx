@@ -196,10 +196,9 @@ var AssetList = React.createClass({
   }
 });
 
-
-
-
 React.renderComponent(
   AssetList(),
   document.getElementById('content')
 )
+
+module.exports = AssetList;

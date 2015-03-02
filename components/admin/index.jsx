@@ -400,3 +400,5 @@ React.renderComponent(
  Page(Content),
   document.getElementById('new_page')
 )
+
+module.exports = Page;
