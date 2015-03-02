@@ -385,7 +385,7 @@ var Page = React.createClass({
           <div className='edit_buttons'>
             <a className='edit_button red' onClick={this.submitContent}>post</a>
             <a className='edit_button' href={"/"+self.state.slug}>Cancel</a>
-            <a className='edit_button border' onClick={this.testContent}>Test</a>
+            <a className='edit_button test' onClick={this.testContent}>Test</a>
           </div>
         </div>
       );

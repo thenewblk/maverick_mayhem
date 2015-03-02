@@ -386,7 +386,7 @@ var Page = React.createClass({displayName: "Page",
           React.createElement("div", {className: "edit_buttons"}, 
             React.createElement("a", {className: "edit_button red", onClick: this.submitContent}, "post"), 
             React.createElement("a", {className: "edit_button", href: "/"+self.state.slug}, "Cancel"), 
-            React.createElement("a", {className: "edit_button border", onClick: this.testContent}, "Test")
+            React.createElement("a", {className: "edit_button test", onClick: this.testContent}, "Test")
           )
         )
       );
