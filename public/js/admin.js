@@ -103,37 +103,51 @@ var Page = React.createClass({displayName: "Page",
 
 
   handleRemoveMatchup: function(matchup) {
+    console.log('matchup removed _id: ' + matchup._id);
     var self = this,
         current_matchups = self.state.matchups, 
         found_matchup;
 
     if (matchup._id) {
       for ( i in  current_matchups) {
-        if ( current_matchups[i] == matchup._id ){
+        if ( current_matchups[i]._id == matchup._id ){
           found_matchup = i;
         }
       }
-      current_matchups.splice(found_matchup, 1);
-
-      self.setState({matchups: current_matchups });      
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      }      
+    } else if (matchup.identifier) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i].identifier == matchup.identifier ){
+          found_matchup = i;
+        }
+      }
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      } 
     }
 
   },
 
   handleNewRemoveMatchup: function(matchup) {
+    console.log('matchup new removed _id: ' + util.inspect(matchup));
     var self = this,
         current_matchups = self.state.matchups, 
         found_matchup;
 
-    if (matchup._id) {
+    if (matchup.identifier) {
       for ( i in  current_matchups) {
-        if ( current_matchups[i].identifier == matchup._id ){
+        if ( current_matchups[i].identifier == matchup.identifier ){
           found_matchup = i;
         }
       }
-      current_matchups.splice(found_matchup, 1);
-
-      self.setState({matchups: current_matchups });      
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      } 
     }
 
   },
@@ -159,7 +173,7 @@ var Page = React.createClass({displayName: "Page",
   newMatchup: function() {
     console.log('newMatchup');
     var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: []});
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: "", scores: [] }]});
     this.setState({matchups: new_matchups});
   },
 
@@ -267,8 +281,7 @@ var Page = React.createClass({displayName: "Page",
         description = self.state.description,
         status = self.state.status;
 
-
-    var matchups = self.state.matchups.reverse().map(function(object) {
+    var matchups = self.state.matchups.map(function(object) {
       return React.createElement(Matchup, {
         name: object.name, 
         _id: object._id, 
@@ -306,7 +319,7 @@ var Page = React.createClass({displayName: "Page",
         identifier: Math.random()})
     });
 
-    var news = self.state.news.reverse().map(function(object) {
+    var news = self.state.news.map(function(object) {
       console.log('news: '+util.inspect(object));
       return React.createElement(News, {
         title: object.title, 
@@ -373,7 +386,7 @@ var Page = React.createClass({displayName: "Page",
           React.createElement("div", {className: "edit_buttons"}, 
             React.createElement("a", {className: "edit_button red", onClick: this.submitContent}, "post"), 
             React.createElement("a", {className: "edit_button", href: "/"+self.state.slug}, "Cancel"), 
-            React.createElement("a", {className: "edit_button test", onClick: this.testContent}, "Test")
+            React.createElement("a", {className: "edit_button border", onClick: this.testContent}, "Test")
           )
         )
       );
@@ -861,11 +874,16 @@ var Matchup = React.createClass({displayName: "Matchup",
   },
 
   handleRemove: function(){
-    this.props.remove_matchup({_id: this.state._id});
+    console.log('matchup handleRemove: ' + util.inspect(this.state));
+    if (this.state.identifier){
+      this.props.remove_matchup({identifier: this.state.identifier});
+    } else {
+      this.props.remove_matchup({_id: this.state._id});
+    }
   },
 
   handleRemoveNew: function(){
-    this.props.remove_new_matchup({_id: 4});
+    this.props.remove_new_matchup({identifier: this.state.identifier});
   },
 
 

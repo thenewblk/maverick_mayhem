@@ -470,11 +470,16 @@ var Matchup = React.createClass({
   },
 
   handleRemove: function(){
-    this.props.remove_matchup({_id: this.state._id});
+    console.log('matchup handleRemove: ' + util.inspect(this.state));
+    if (this.state.identifier){
+      this.props.remove_matchup({identifier: this.state.identifier});
+    } else {
+      this.props.remove_matchup({_id: this.state._id});
+    }
   },
 
   handleRemoveNew: function(){
-    this.props.remove_new_matchup({_id: 4});
+    this.props.remove_new_matchup({identifier: this.state.identifier});
   },
 
 

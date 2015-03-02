@@ -102,37 +102,51 @@ var Page = React.createClass({
 
 
   handleRemoveMatchup: function(matchup) {
+    console.log('matchup removed _id: ' + matchup._id);
     var self = this,
         current_matchups = self.state.matchups, 
         found_matchup;
 
     if (matchup._id) {
       for ( i in  current_matchups) {
-        if ( current_matchups[i] == matchup._id ){
+        if ( current_matchups[i]._id == matchup._id ){
           found_matchup = i;
         }
       }
-      current_matchups.splice(found_matchup, 1);
-
-      self.setState({matchups: current_matchups });      
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      }      
+    } else if (matchup.identifier) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i].identifier == matchup.identifier ){
+          found_matchup = i;
+        }
+      }
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      } 
     }
 
   },
 
   handleNewRemoveMatchup: function(matchup) {
+    console.log('matchup new removed _id: ' + util.inspect(matchup));
     var self = this,
         current_matchups = self.state.matchups, 
         found_matchup;
 
-    if (matchup._id) {
+    if (matchup.identifier) {
       for ( i in  current_matchups) {
-        if ( current_matchups[i].identifier == matchup._id ){
+        if ( current_matchups[i].identifier == matchup.identifier ){
           found_matchup = i;
         }
       }
-      current_matchups.splice(found_matchup, 1);
-
-      self.setState({matchups: current_matchups });      
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      } 
     }
 
   },
@@ -158,7 +172,7 @@ var Page = React.createClass({
   newMatchup: function() {
     console.log('newMatchup');
     var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: []});
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: "", scores: [] }]});
     this.setState({matchups: new_matchups});
   },
 
@@ -266,8 +280,7 @@ var Page = React.createClass({
         description = self.state.description,
         status = self.state.status;
 
-
-    var matchups = self.state.matchups.reverse().map(function(object) {
+    var matchups = self.state.matchups.map(function(object) {
       return <Matchup 
         name={object.name}
         _id={object._id}
@@ -305,7 +318,7 @@ var Page = React.createClass({
         identifier={Math.random()} />
     });
 
-    var news = self.state.news.reverse().map(function(object) {
+    var news = self.state.news.map(function(object) {
       console.log('news: '+util.inspect(object));
       return <News 
         title={object.title} 
@@ -372,7 +385,7 @@ var Page = React.createClass({
           <div className='edit_buttons'>
             <a className='edit_button red' onClick={this.submitContent}>post</a>
             <a className='edit_button' href={"/"+self.state.slug}>Cancel</a>
-            <a className='edit_button test' onClick={this.testContent}>Test</a>
+            <a className='edit_button border' onClick={this.testContent}>Test</a>
           </div>
         </div>
       );
