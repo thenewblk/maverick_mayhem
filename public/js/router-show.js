@@ -324,7 +324,7 @@ var AssetList = React.createClass({displayName: "AssetList",
                 React.createElement("div", {className: "play_button", onClick: self.playVideo}, 
                   React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
 
-                   self.state.name, " Tunnel Walk Video"
+                  "Our New Arena" 
                 ), 
 
                 React.createElement("div", {className: "hero__overlay"}), 
@@ -345,6 +345,10 @@ var AssetList = React.createClass({displayName: "AssetList",
           ), 
           React.createElement("div", {className: "matchup_photos"}, 
             photos
+          ), 
+          React.createElement("div", {className: "play_button mobile", onClick: self.playVideo}, 
+            React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
+            "Our New Arena"
           )
         )
       )
@@ -1579,7 +1583,7 @@ var Page = React.createClass({displayName: "Page",
           React.createElement(PhotoGallery, {matchups: matchups, last_matchup: last_matchup}), 
 
 
-          React.createElement("div", {className: "play_button mobile"}, 
+          React.createElement("div", {className: "play_button mobile", onClick: self.playVideo}, 
             React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
              self.state.name, " Tunnel Walk Video"
           )

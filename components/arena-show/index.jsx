@@ -183,7 +183,7 @@ var AssetList = React.createClass({
                 <div className="play_button" onClick={self.playVideo}>
                   <InlineSVG src="/img/icon--play_button.svg" uniquifyIDs={false} ></InlineSVG>
 
-                  { self.state.name } Tunnel Walk Video
+                  Our New Arena 
                 </div>
 
                 <div className="hero__overlay"></div>
@@ -204,6 +204,10 @@ var AssetList = React.createClass({
           </div>
           <div className="matchup_photos">
             {photos}
+          </div>
+          <div className="play_button mobile" onClick={self.playVideo}>
+            <InlineSVG src="/img/icon--play_button.svg" uniquifyIDs={false}></InlineSVG>
+            Our New Arena
           </div>
         </div>
       )

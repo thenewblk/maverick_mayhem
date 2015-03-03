@@ -535,7 +535,7 @@ var Page = React.createClass({
           <PhotoGallery matchups={matchups} last_matchup={last_matchup} />
 
 
-          <div className="play_button mobile">
+          <div className="play_button mobile" onClick={self.playVideo}>
             <InlineSVG src="/img/icon--play_button.svg" uniquifyIDs={false}></InlineSVG>
             { self.state.name } Tunnel Walk Video
           </div>

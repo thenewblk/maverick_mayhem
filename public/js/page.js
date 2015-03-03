@@ -536,7 +536,7 @@ var Page = React.createClass({displayName: "Page",
           React.createElement(PhotoGallery, {matchups: matchups, last_matchup: last_matchup}), 
 
 
-          React.createElement("div", {className: "play_button mobile"}, 
+          React.createElement("div", {className: "play_button mobile", onClick: self.playVideo}, 
             React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
              self.state.name, " Tunnel Walk Video"
           )
