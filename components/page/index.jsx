@@ -499,7 +499,7 @@ var Page = React.createClass({
                   <p className="game_title">vs { self.state.next_matchup.opponent } @ { self.state.next_matchup.location }</p>
                   { self.state.next_matchup.ticket ?  
                   <div className="ticket_button">
-                    <a href="{ self.state.next_matchup.ticket }">Get Tickets</a>
+                    <a href={ self.state.next_matchup.ticket }>Get Tickets</a>
 
                     <InlineSVG src="/img/icon--button_bkgd.svg" uniquifyIDs={false}></InlineSVG>
                   </div>
