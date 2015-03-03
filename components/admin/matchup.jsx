@@ -562,7 +562,7 @@ var Matchup = React.createClass({
 
   newGame: function() {
     var current_games = this.state.games;
-    var new_games = current_games.concat({status: 'new', identifier: Math.random(), scores: []});
+    var new_games = current_games.concat({status: 'new', identifier: Math.random(), scores: [],date: moment()});
     console.log(' '+util.inspect(new_games));
     this.setState({games: new_games});
   },

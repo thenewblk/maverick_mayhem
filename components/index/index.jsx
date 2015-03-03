@@ -3,6 +3,42 @@ var React = require('react'),
     util = require('util');
 var Velocity = require('velocity-animate/velocity');
 
+var $ = require('jquery');
+
+$.fn.liScroll = function(settings) {
+  settings = $.extend({
+  travelocity: 0.07
+  }, settings);
+
+  return this.each(function(){
+      var $strip = $(this);
+      $strip.addClass("newsticker");
+      var stripWidth = 1;
+      $strip.find("li").each(function(i){
+      stripWidth += $(this, i).outerWidth(true); // thanks to Michael Haszprunar and Fabien Volpi
+      });
+      var $mask = $strip.wrap("<div class='mask'></div>");
+      var $tickercontainer = $strip.parent().wrap("<div class='tickercontainer'></div>");
+      var containerWidth = $strip.parent().parent().width();  //a.k.a. 'mask' width
+      $strip.width(stripWidth);
+      var totalTravel = stripWidth+containerWidth;
+      var defTiming = totalTravel/settings.travelocity; // thanks to Scott Waye
+      function scrollnews(spazio, tempo){
+      $strip.animate({left: '-='+ spazio}, tempo, "linear", function(){$strip.css("left", containerWidth); scrollnews(totalTravel, defTiming);});
+      }
+      scrollnews(totalTravel, defTiming);
+      $strip.hover(function(){
+      $(this).stop();
+      },
+      function(){
+      var offset = $(this).offset();
+      var residualSpace = offset.left + stripWidth;
+      var residualTime = residualSpace/settings.travelocity;
+      scrollnews(residualSpace, residualTime);
+      });
+  });
+};
+
 require('velocity-animate/velocity.ui');
 
 require('../../public/js/vendors/matchmedia.js');
@@ -10,6 +46,7 @@ require('../../public/js/vendors/matchMedia.addListener.js');
 
 var ResponsiveMixin = require('react-responsive-mixin');
 var FlickerIcon = require('../page/flickerIcon.jsx');
+
 var Instagram = React.createClass({
   getInitialState: function() {
     return {
@@ -322,6 +359,10 @@ var Main = React.createClass({
     tmp_pre_count++;
     if (tmp_pre_count == 2) {
       self.setState({loaded: true, pre_count: tmp_pre_count}); 
+
+      $('.marquee__list').liScroll();
+
+
     } else {
       self.setState({pre_count: tmp_pre_count}); 
     }
@@ -379,7 +420,7 @@ var Main = React.createClass({
               </div>
             </div>
             <div className="marquee">
-              <ul className="marquee__list">
+              <ul className="marquee__list" id="marquee__list">
                 <li className="marquee__list-item marquee__list-graphic">&nbsp;</li>
                 <li className="marquee__list-item">2/26 Women`s B-ball v. Ft. Wayne</li>
                 <li className="marquee__list-item">2/28 Women`s B-ball v. Denver</li>

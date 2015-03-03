@@ -3,9 +3,11 @@ var React = require('react'),
     util = require('util'),
     Dropzone = require('../dropzone.js');
 
+var Router = require('react-router');
+
 var Isvg = require('react-inlinesvg');
 
-var Content = window.slug || {};
+// var Content = window.slug || {};
 
 var Matchup = require('./matchup.jsx'),
     News = require('./news.jsx'),
@@ -13,6 +15,7 @@ var Matchup = require('./matchup.jsx'),
     PhotosUploader = require('./photos_uploader.jsx');
 
 var Page = React.createClass({
+  mixins: [ Router.State, Router.Navigation ],
   getInitialState: function() {
     return { 
       name: '', 
@@ -30,12 +33,13 @@ var Page = React.createClass({
   
   componentWillMount: function(){
     var self = this;
-
-    if (Content.length) {
-      console.log('Content: '+Content);
+    var slug = self.getParams().slug;
+    // if (Content.length) {
+    if (slug) {
+      console.log('Content: '+slug);
 
       request
-        .get('/api/pages/'+Content)
+        .get('/api/pages/'+slug)
         .end(function(res) {
           console.log(res)
           if (res.text) {
@@ -49,6 +53,26 @@ var Page = React.createClass({
       console.log('No Content found.');
     }
   },
+
+  componentWillReceiveProps: function () {
+    var self = this;
+
+    var slug = self.getParams().slug;
+    if (slug) { 
+      request
+        .get('/api/pages/'+slug)
+        .end(function(res) {
+          console.log(res)
+          if (res.text) {
+            var Page = JSON.parse(res.text);
+            Page.status = "edit";
+            self.setState(Page);
+            console.log(Page)
+          }
+        }.bind(self));
+    }
+  },
+
   handleNameChange: function(event) {
     this.setState({name: event.target.value});
   },
@@ -172,7 +196,7 @@ var Page = React.createClass({
   newMatchup: function() {
     console.log('newMatchup');
     var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: "", scores: []}]});
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: moment(), scores: []}]});
     this.setState({matchups: new_matchups});
   },
 
@@ -252,7 +276,8 @@ var Page = React.createClass({
           console.log(res)
           if (res.text) {
             var response = JSON.parse(res.text);
-            window.location = '/'+response.slug;
+            // window.location = '/'+response.slug;
+            self.transitionTo('/'+response.slug);
           }
         }.bind(self));
     } else if (self.state.status == "edit") {
@@ -261,7 +286,8 @@ var Page = React.createClass({
         .send(self.state)
         .end(function(res) {
           if (res.text) {
-            window.location = '/'+self.state.slug;
+            // window.location = '/'+self.state.slug;
+            self.transitionTo('/'+self.state.slug);
           }
         }.bind(self));
     }
@@ -341,51 +367,55 @@ var Page = React.createClass({
 
     if (status == 'new') {
       return (
-        <div className="page">
-          <h2 className="page_edit_title">New Page</h2>
-          <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
-          <h5><input type="text" value={headline} onChange={this.handleHeadlineChange} placeholder="Headline" /></h5>
-          <h5><input type="text" value={banner} onChange={this.handleBannerChange} placeholder="Banner" /></h5>
-          <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
+        <div className="container edit-container">
+          <div className="page" id="new_page">
+            <h2 className="page_edit_title">New Page</h2>
+            <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
+            <h5><input type="text" value={headline} onChange={this.handleHeadlineChange} placeholder="Headline" /></h5>
+            <h5><input type="text" value={banner} onChange={this.handleBannerChange} placeholder="Banner" /></h5>
+            <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
 
-          <div className="games">
-            <p className="page_edit_title_box">Matches</p>
-            <h6 className="new_game" onClick={this.newMatchup}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
-            {matchups}
-          </div> 
-          
+            <div className="games">
+              <p className="page_edit_title_box">Matches</p>
+              <h6 className="new_game" onClick={this.newMatchup}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
+              {matchups}
+            </div> 
+            
 
 
-          <div className="games">
-            <p className="page_edit_title_box">Press</p>
-            <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
-            {news}
-          </div> 
-          
-          <a className='submit' onClick={this.submitContent}>save page</a>
-          <a className='submit' onClick={this.testContent}>test</a>
+            <div className="games">
+              <p className="page_edit_title_box">Press</p>
+              <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
+              {news}
+            </div> 
+            
+            <a className='submit' onClick={this.submitContent}>save page</a>
+            <a className='submit' onClick={this.testContent}>test</a>
 
+          </div>
         </div>
       );
     } else if (status == 'edit') {
       return (
-        <div className="page">
-          <h2 className="page_edit_title">Edit {name}</h2>
-          <div className="games">
-            <p className="page_edit_title_box">Matches</p>
-            <h6 className="new_game" onClick={this.newMatchup}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
-            {matchups}
-          </div> 
+        <div className="container edit-container">
+          <div className="page" id="new_page">
+            <h2 className="page_edit_title">Edit {name}</h2>
+            <div className="games">
+              <p className="page_edit_title_box">Matches</p>
+              <h6 className="new_game" onClick={this.newMatchup}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
+              {matchups}
+            </div> 
 
-          <div className="games">
-            <p className="page_edit_title_box">Press</p>
-            <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
-            {news}
-          </div> 
-          <div className='edit_buttons'>
-            <a className='edit_button red' onClick={this.submitContent}>post</a>
-            <a className='edit_button' href={"/"+self.state.slug}>Cancel</a>
-            <a className='edit_button test' onClick={this.testContent}>Test</a>
+            <div className="games">
+              <p className="page_edit_title_box">Press</p>
+              <h6 className="new_game" onClick={this.newNews}><Isvg className="plus-icon" src="/img/icon--plus.svg"></Isvg></h6>
+              {news}
+            </div> 
+            <div className='edit_buttons'>
+              <a className='edit_button red' onClick={this.submitContent}>post</a>
+              <a className='edit_button' href={"/"+self.state.slug}>Cancel</a>
+              <a className='edit_button test' onClick={this.testContent}>Test</a>
+            </div>
           </div>
         </div>
       );
@@ -393,10 +423,9 @@ var Page = React.createClass({
   }
 });
 
+// React.renderComponent(
+//  Page(Content),
+//   document.getElementById('new_page')
+// )
 
-// module.exports = Page; 
-
-React.renderComponent(
- Page(Content),
-  document.getElementById('new_page')
-)
+module.exports = Page; 

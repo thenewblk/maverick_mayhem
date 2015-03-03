@@ -10,7 +10,9 @@ var Route = Router.Route,
 
 var Home = require('../index/index.jsx');
 var Page = require('../page/index.jsx');
+var Admin = require('../admin/index.jsx');
 var Arena = require('../arena-show/index.jsx');
+var ArenaEdit = require('../arena-edit/index.jsx');
 var InlineSVG = require('react-inlinesvg');
 
 require('../../public/js/vendors/headroom.js');
@@ -25,16 +27,19 @@ var App = React.createClass({
     return key;
   },
   getInitialState: function () { 
-  	return {  };
+  	return {
+  		nav_show: false
+  	};
 	},
 	openNav: function(){
+		console.log('openNav');
 		this.setState({nav_show: true});
 	},
 
 	closeNav: function(){
+		console.log('closeNav');
 		this.setState({nav_show: false});
 	},
-
 	componentDidMount: function(){
 		var navigation = document.querySelector("header");
 
@@ -45,14 +50,13 @@ var App = React.createClass({
 
 		headroom.init();
 	},
-	 
 	render: function () {
 		var self = this;
 
 		var nav;
-		if (self.state.nav_show) {
+		if (self.state.nav_show == true) {
 			nav = "App nav-show";
-		} else {
+		} else if (self.state.nav_show == false) {
 			nav = "App"
 		}
 
@@ -72,26 +76,37 @@ var App = React.createClass({
 		        </nav>
 
 
-		        <nav className="nav--primary " role="navigation">
+		        <nav className="nav--primary admin" role="navigation">
 		          <span key="menu" className="btn--menu icon--menu" onClick={self.openNav}>
-		            {self.getParams().slug ? self.getParams().slug : 'Sports' } 
+		            Admin
 		            <InlineSVG src="/img/icon--menu.svg" uniquifyIDs={false}></InlineSVG>
 
 		          </span>
 		          <span key="close" className="btn--menu-close icon--close"  onClick={self.closeNav}>
+		          	<a className="logout" href="/logout">Logout</a>
 		            <InlineSVG src="/img/icon--close.svg" uniquifyIDs={false}></InlineSVG>
 
 		          </span>
 		          <div className="menu menu--main-menu">
 		            <ul className="menu__list">
-		              <li className="menu__list--item"><Link to="page" params={{slug: "hockey"}} onClick={self.closeNav}>Hockey</Link></li>
-		              <li className="menu__list--item"><Link to="page" params={{slug: "basketball"}} onClick={self.closeNav}>Mens Basketball</Link></li>
+		              <li className="menu__list--item">
+		              	<Link className="page_title" to="page" params={{slug: "hockey"}} onClick={self.closeNav}>Hockey</Link>
+		              	<Link className="page_edit" to="admin" params={{slug: "hockey", status: "edit"}} onClick={self.closeNav}><span className="fa fa-edit"></span></Link>
+		              </li>
+		              <li className="menu__list--item">
+		              	<Link className="page_title" to="page" params={{slug: "basketball"}} onClick={self.closeNav}>Men`s Basketball</Link>
+		              	<Link className="page_edit" to="admin" params={{slug: "basketball", status: "edit"}} onClick={self.closeNav}><span className="fa fa-edit"></span></Link>
+		              </li>
+		              <li className="menu__list--item">
+		              	<Link className="page_title" to="our-house" onClick={self.closeNav}>Our House</Link>
+		              	<Link className="page_edit" to="our-house-edit" onClick={self.closeNav}><span className="fa fa-edit"></span></Link>
+		              </li>
 		            </ul>
 		          </div>
 		          <div className="menu menu--mobile-menu">
 		            <ul className="menu__list">
 		              <li className="menu__list--item"><Link to="page" params={{slug: "hockey"}} onClick={self.closeNav}>Hockey</Link></li>
-		              <li className="menu__list--item"><Link to="page" params={{slug: "basketball"}} onClick={self.closeNav}>Mens Basketball</Link></li>
+		              <li className="menu__list--item"><Link to="page" params={{slug: "basketball"}} onClick={self.closeNav}>Men`s Basketball</Link></li>
 		              <li className="menu__list--item"><Link to="our-house" onClick={self.closeNav}>Our House</Link></li>
 		            </ul>
 		          </div>
@@ -118,7 +133,9 @@ var App = React.createClass({
 var routes = (
   <Route handler={App} path="/">
     <DefaultRoute handler={Home} />
+    <Route name="our-house-edit" path="/our-house/edit" handler={ArenaEdit} />
     <Route name="our-house" path="/our-house" handler={Arena} />
+    <Route name="admin" path="/:slug/edit" handler={Admin} />
 	<Route name="page" path="/:slug" handler={Page} />
   </Route>
 );
