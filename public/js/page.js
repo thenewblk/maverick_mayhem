@@ -472,9 +472,6 @@ var Page = React.createClass({displayName: "Page",
   }
 });
 
-
-
-
 React.renderComponent(
   Page(),
   document.getElementById('content')

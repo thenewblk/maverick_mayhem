@@ -2,6 +2,7 @@
 var React = require('react'),
     request = require('superagent'),
     util = require('util'),
+    moment = require('moment'),
     Dropzone = require('../dropzone.js');
 
 var Isvg = require('react-inlinesvg');
@@ -173,7 +174,7 @@ var Page = React.createClass({displayName: "Page",
   newMatchup: function() {
     console.log('newMatchup');
     var current_matchups = this.state.matchups;
-    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: "", scores: []}]});
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: moment(), scores: []}]});
     this.setState({matchups: new_matchups});
   },
 
@@ -403,7 +404,7 @@ React.renderComponent(
 )
 
 module.exports = Page;
-},{"../dropzone.js":6,"./matchup.jsx":2,"./news.jsx":3,"./photo.jsx":4,"./photos_uploader.jsx":5,"react":189,"react-inlinesvg":30,"superagent":190,"util":11}],2:[function(require,module,exports){
+},{"../dropzone.js":6,"./matchup.jsx":2,"./news.jsx":3,"./photo.jsx":4,"./photos_uploader.jsx":5,"moment":12,"react":189,"react-inlinesvg":30,"superagent":190,"util":11}],2:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
     util = require('util'),
@@ -968,7 +969,7 @@ var Matchup = React.createClass({displayName: "Matchup",
 
   newGame: function() {
     var current_games = this.state.games;
-    var new_games = current_games.concat({status: 'new', identifier: Math.random(), scores: []});
+    var new_games = current_games.concat({status: 'new', identifier: Math.random(), scores: [], date: moment()});
     console.log(' '+util.inspect(new_games));
     this.setState({games: new_games});
   },
