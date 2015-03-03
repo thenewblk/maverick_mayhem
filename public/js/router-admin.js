@@ -5329,7 +5329,7 @@ var Page = React.createClass({displayName: "Page",
                   React.createElement("p", {className: "game_title"}, "vs ",  self.state.next_matchup.opponent, " @ ",  self.state.next_matchup.location), 
                    self.state.next_matchup.ticket ?  
                   React.createElement("div", {className: "ticket_button"}, 
-                    React.createElement("a", {href: "{ self.state.next_matchup.ticket }"}, "Get Tickets"), 
+                    React.createElement("a", {href:  self.state.next_matchup.ticket}, "Get Tickets"), 
 
                     React.createElement(InlineSVG, {src: "/img/icon--button_bkgd.svg", uniquifyIDs: false})
                   )
