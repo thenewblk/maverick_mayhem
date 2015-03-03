@@ -15,6 +15,7 @@ var Arena = require('../arena-show/index.jsx');
 var ArenaEdit = require('../arena-edit/index.jsx');
 var InlineSVG = require('react-inlinesvg');
 
+var $ = require('jquery');
 require('../../public/js/vendors/headroom.js');
 
 var App = React.createClass({
@@ -41,14 +42,29 @@ var App = React.createClass({
 		this.setState({nav_show: false});
 	},
 	componentDidMount: function(){
-		var navigation = document.querySelector("header");
+	    if(!('backgroundBlendMode' in document.body.style)) {
+	        // No support for background-blend-mode
+	      var html = document.getElementsByTagName("html")[0];
+	      html.className = html.className + " no-background-blend-mode";
+	    }
 
-		var headroom = new Headroom(navigation, {
-		  "offset": 500,
-		  "tolerance": 20,
-		});
+	    // HEADROOM.JS 
+			var navigation = document.querySelector("header");
 
-		headroom.init();
+			var headroom = new Headroom(navigation, {
+			  "offset": 500,
+			  "tolerance": 20,
+			});
+
+			headroom.init();
+
+	    $('.btn--show-pride').on('click', function () {
+	      $('.social_overlay').toggleClass('up');
+	    });
+
+	    $('.social_overlay #close-icon').on('click', function () {
+	      $('.social_overlay').removeClass('up');
+	    });
 	},
 	render: function () {
 		var self = this;

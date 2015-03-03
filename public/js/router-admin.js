@@ -16,6 +16,7 @@ var Arena = require('../arena-show/index.jsx');
 var ArenaEdit = require('../arena-edit/index.jsx');
 var InlineSVG = require('react-inlinesvg');
 
+var $ = require('jquery');
 require('../../public/js/vendors/headroom.js');
 
 var App = React.createClass({displayName: "App",
@@ -42,14 +43,29 @@ var App = React.createClass({displayName: "App",
 		this.setState({nav_show: false});
 	},
 	componentDidMount: function(){
-		var navigation = document.querySelector("header");
+	    if(!('backgroundBlendMode' in document.body.style)) {
+	        // No support for background-blend-mode
+	      var html = document.getElementsByTagName("html")[0];
+	      html.className = html.className + " no-background-blend-mode";
+	    }
 
-		var headroom = new Headroom(navigation, {
-		  "offset": 500,
-		  "tolerance": 20,
-		});
+	    // HEADROOM.JS 
+			var navigation = document.querySelector("header");
 
-		headroom.init();
+			var headroom = new Headroom(navigation, {
+			  "offset": 500,
+			  "tolerance": 20,
+			});
+
+			headroom.init();
+
+	    $('.btn--show-pride').on('click', function () {
+	      $('.social_overlay').toggleClass('up');
+	    });
+
+	    $('.social_overlay #close-icon').on('click', function () {
+	      $('.social_overlay').removeClass('up');
+	    });
 	},
 	render: function () {
 		var self = this;
@@ -145,7 +161,7 @@ var routes = (
 Router.run(routes, Router.HistoryLocation, function (Handler) {
   React.render(React.createElement(Handler, null), document.body);
 });
-},{"../../public/js/vendors/headroom.js":273,"../admin/index.jsx":2,"../arena-edit/index.jsx":7,"../arena-show/index.jsx":11,"../index/index.jsx":13,"../page/index.jsx":15,"react":267,"react-inlinesvg":44,"react-router":72}],2:[function(require,module,exports){
+},{"../../public/js/vendors/headroom.js":273,"../admin/index.jsx":2,"../arena-edit/index.jsx":7,"../arena-show/index.jsx":11,"../index/index.jsx":13,"../page/index.jsx":15,"jquery":25,"react":267,"react-inlinesvg":44,"react-router":72}],2:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
     util = require('util'),
@@ -2011,8 +2027,186 @@ module.exports = Page;
 },{"../dropzone.js":12,"./news.jsx":8,"./photo.jsx":9,"./photos_uploader.jsx":10,"react":267,"react-inlinesvg":44,"react-router":72,"superagent":268,"util":24}],8:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
 },{"dup":4,"react":267,"superagent":268,"util":24}],9:[function(require,module,exports){
-arguments[4][5][0].apply(exports,arguments)
-},{"../dropzone.js":12,"dup":5,"react":267,"superagent":268,"util":24}],10:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+
+var React = require('react'),
+    util = require('util'),
+    request = require('superagent');
+
+var Dropzone = require('../dropzone.js');
+
+var Photo = React.createClass({displayName: "Photo",
+
+  getInitialState: function() {
+    return { url: '', description: '', featured: false, _id: '', status: 'show'};
+  },
+
+  componentWillMount: function() {
+    var self = this;
+    var tmp_photo = {};
+    tmp_photo.identifier = self.props.identifier,
+    tmp_photo.url = self.props.url,
+    tmp_photo.featured = self.props.featured,
+    tmp_photo._id = self.props._id,
+    tmp_photo.matchup_status = self.props.matchup_status,
+    tmp_photo.description = self.props.description;
+    
+    self.setState(tmp_photo);
+  },
+
+  handleDescriptionChange: function(event) {
+    this.setState({description: event.target.value });
+  },
+
+  handleFeaturedChange: function(event) {
+    this.setState({featured: !this.state.featured });
+  },
+
+  handleClose: function() {
+    var self = this;
+    self.props.removed({id: self.props.identifier});
+  },
+
+  handleSwapPrevious: function() {
+    this.props.swap_previous({id: this.props.identifier});
+  },
+
+  handleSwapNext: function() {
+    this.props.swap_next({id: this.props.identifier});
+  },
+
+  componentDidMount: function() {
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
+
+    if (!image) {
+      console.log('componentDidMount: '+ _id);
+      Dropzone.autoDiscover = false;
+      var myDropzone = new Dropzone(".uploader-"+_id, {
+        init: function() {
+          var self = this;
+          self.on("addedfile", function(file) {
+            console.log('new file added ', file);
+          });
+        },
+        maxFiles: 1,
+        url: "/upload"
+      });
+
+      myDropzone.on("success", function(response) {
+        console.log('success: ' + util.inspect(response.xhr.response));
+        self.setState({url: response.xhr.response});
+      });
+    }
+  },
+
+  componentDidUpdate: function() {
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
+
+    if (!image) {
+      console.log('componentDidMount: '+  _id);
+      Dropzone.autoDiscover = false;
+      var myDropzone = new Dropzone(".uploader-"+ _id, {
+        init: function() {
+          var self = this;
+          self.on("addedfile", function(file) {
+            console.log('new file added ', file);
+          });
+        },
+        maxFiles: 1,
+        url: "/upload"
+      });
+
+      myDropzone.on("success", function(response) {
+        console.log('success: ' + util.inspect(response.xhr.response));
+        self.setState({url: response.xhr.response});
+      });
+    }
+  },
+
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
+
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
+
+  removeUrl: function(){
+    this.setState({url: ''});
+  },
+
+  handleRemove: function(){
+    this.props.remove_photo({_id: this.state._id});
+  },
+
+  submitContent: function(){
+    var self = this;
+    console.log('self.state._id: '+self.state._id);
+    request
+      .post('/api/photos/'+self.state._id+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          new_photo.status = 'show';
+          self.setState(new_photo);
+        }
+      }.bind(self));
+  },
+
+  render: function() {
+    var self = this,
+        url = self.state.url,
+        description = self.state.description,
+        featured = self.state.featured,
+        identifier = this.state.identifier,
+        _id = this.state._id,
+        status = this.state.status,
+        matchup_status = this.state.matchup_status;
+
+        var divStyles = {
+          backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev'+url+')'
+        };
+
+
+    var className = 'content-container';
+    if (status == 'show') {
+      return ( 
+        React.createElement("div", {className: "photo", ref: "contentwrapper", style: divStyles}, 
+              description ? React.createElement("p", null, description) : '', 
+              React.createElement("div", {className: "photo_buttons"}, 
+                React.createElement("a", {className: "photo_button", onClick: self.handleEdit}, "Edit"), 
+                React.createElement("a", {className: "photo_button", onClick: self.handleRemove}, "delete")
+              )
+        ) )
+    } else if (status == 'edit'){
+      return ( 
+        React.createElement("div", {className: "photo image-container"}, 
+          React.createElement("div", {className: "photo_edit"}, 
+            React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url})
+          ), 
+          React.createElement("input", {className: "description_input", type: "text", placeholder: "Description", value: description, onChange: self.handleDescriptionChange}), 
+          React.createElement("div", {className: "photo_buttons  edit_photo"}, 
+            React.createElement("a", {className: "photo_button", onClick: self.submitContent}, "save"), 
+            React.createElement("a", {className: "photo_button", onClick: self.cancelEdit}, "cancel")
+          )
+        )
+      )
+    }
+  }
+});
+
+module.exports = Photo;
+},{"../dropzone.js":12,"react":267,"superagent":268,"util":24}],10:[function(require,module,exports){
 arguments[4][6][0].apply(exports,arguments)
 },{"../dropzone.js":12,"./photo.jsx":9,"dup":6,"react":267,"superagent":268,"util":24}],11:[function(require,module,exports){
 var React = require('react'),
@@ -3966,7 +4160,8 @@ var React = require('react'),
     request = require('superagent'),
     util = require('util');
 var Velocity = require('velocity-animate/velocity');
-
+var InlineSVG = require('react-inlinesvg');
+var Router = require('react-router');
 var $ = require('jquery');
 
 $.fn.liScroll = function(settings) {
@@ -4065,7 +4260,7 @@ var Instagram = React.createClass({displayName: "Instagram",
           ), 
           React.createElement("div", {className: "bkgd_scribble"})
         ), 
-        React.createElement("img", {className: "instagram-icon", src: "/img/icon--instagram.svg"})
+        React.createElement(InlineSVG, {src: "/img/icon--instagram.svg", uniquifyIDs: false})
       )
     )
   }
@@ -4299,6 +4494,7 @@ var CombinedList = React.createClass({displayName: "CombinedList",
 
 var my_image, bkd_image;
 var Main = React.createClass({displayName: "Main",
+  mixins: [ Router.State ],
   getInitialState: function() {
     return { photos: [], news: [], pre_count: 0 };
   },
@@ -4340,8 +4536,18 @@ var Main = React.createClass({displayName: "Main",
     this.setState({playVideo: false});
   },
 
+  openSocial: function(){
+    console.log('openSocial');
+    this.setState({social_show: true});
+  },
+
+  closeSocial: function(){
+    console.log('closeSocial');
+    this.setState({social_show: false});
+  },
 
   scrollToPhotos: function() {
+    this.openSocial();
     Velocity(document.getElementById('instagrams'), 
         "scroll", {
           duration: 1000,
@@ -4360,6 +4566,12 @@ var Main = React.createClass({displayName: "Main",
       bkd_video.poster="/img/SportsCombineStill.jpg";
       bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4"
 
+    var social;
+    if (self.state.social_show) {
+      social = "social_overlay up";
+    } else {
+      social = "social_overlay"
+    }
     if (self.state.loaded == true) {
       return (
         React.createElement("div", null, 
@@ -4394,7 +4606,46 @@ var Main = React.createClass({displayName: "Main",
               )
             ), 
 
-            React.createElement(CombinedList, null)
+            React.createElement(CombinedList, null), 
+
+
+          React.createElement("div", {className: social}, 
+            React.createElement("div", {className: "social_wrapper"}, 
+              React.createElement("div", {className: "social_content"}, 
+                React.createElement("div", {className: "social_content_inner"}, 
+                  React.createElement("img", {className: "social_mayhem", src: "/img/icon--maverick-mayhem.svg"}), 
+                  React.createElement("p", null, "We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year."), 
+                  React.createElement("p", {className: "stayintouch"}, "Stay in Touch with the Mavericks"), 
+                  React.createElement("div", {className: "social_icons"}, 
+                    React.createElement("a", {href: "#", className: "link"}, 
+                      React.createElement(InlineSVG, {src: "/img/icon--facebook.svg", uniquifyIDs: false})
+                    ), 
+                    React.createElement("a", {href: "#", className: "link"}, 
+                      React.createElement(InlineSVG, {src: "/img/icon--twitter.svg", uniquifyIDs: false})
+                    ), 
+                    React.createElement("a", {href: "#", className: "link"}, 
+                      React.createElement(InlineSVG, {src: "/img/icon--instagram.svg", uniquifyIDs: false})
+
+                    ), 
+                    React.createElement("a", {href: "#", className: "link"}, 
+                        React.createElement(InlineSVG, {src: "/img/icon--youtube.svg", uniquifyIDs: false})
+                    )
+                  ), 
+                  React.createElement("form", {action: "http://universityofnebraskaomahaathletics.createsend.com/t/t/s/krihty/", method: "post"}, 
+                    React.createElement("p", null, 
+                        React.createElement("input", {id: "fieldEmail", name: "cm-krihty-krihty", placeholder: "Join our Email List", type: "email", required: true}), 
+                        React.createElement("button", {type: "submit"}, "Submit")
+                    )
+                  )
+                ), 
+                React.createElement("img", {className: "scribble_bkd", src: "/img/scribble_bkgrd_scale.svg"}), 
+                React.createElement("span", {onClick: self.closeSocial}, 
+                  React.createElement(InlineSVG, {src: "/img/icon--close.svg", uniquifyIDs: false})
+                )
+              )
+            )
+          )
+
         )
       )
     } else {
@@ -4414,7 +4665,7 @@ var Main = React.createClass({displayName: "Main",
 
 module.exports = Main;
 
-},{"../../public/js/vendors/matchMedia.addListener.js":274,"../../public/js/vendors/matchmedia.js":275,"../page/flickerIcon.jsx":14,"jquery":25,"react":267,"react-responsive-mixin":58,"superagent":268,"util":24,"velocity-animate/velocity":271,"velocity-animate/velocity.ui":272}],14:[function(require,module,exports){
+},{"../../public/js/vendors/matchMedia.addListener.js":274,"../../public/js/vendors/matchmedia.js":275,"../page/flickerIcon.jsx":14,"jquery":25,"react":267,"react-inlinesvg":44,"react-responsive-mixin":58,"react-router":72,"superagent":268,"util":24,"velocity-animate/velocity":271,"velocity-animate/velocity.ui":272}],14:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require('react/addons');

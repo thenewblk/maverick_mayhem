@@ -638,12 +638,10 @@ var Photo = React.createClass({displayName: "Photo",
       return ( 
         React.createElement("div", {className: "photo", ref: "contentwrapper", style: divStyles}, 
               description ? React.createElement("p", null, description) : '', 
-               (matchup_status == 'edit') ?
-                React.createElement("div", {className: "photo_buttons"}, 
-                  React.createElement("a", {className: "photo_button", onClick: self.handleEdit}, "Edit"), 
-                  React.createElement("a", {className: "photo_button", onClick: self.handleRemove}, "delete")
-                )
-              : ''
+              React.createElement("div", {className: "photo_buttons"}, 
+                React.createElement("a", {className: "photo_button", onClick: self.handleEdit}, "Edit"), 
+                React.createElement("a", {className: "photo_button", onClick: self.handleRemove}, "delete")
+              )
         ) )
     } else if (status == 'edit'){
       return ( 

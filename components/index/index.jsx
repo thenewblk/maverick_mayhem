@@ -2,7 +2,8 @@ var React = require('react'),
     request = require('superagent'),
     util = require('util');
 var Velocity = require('velocity-animate/velocity');
-
+var InlineSVG = require('react-inlinesvg');
+var Router = require('react-router');
 var $ = require('jquery');
 
 $.fn.liScroll = function(settings) {
@@ -101,7 +102,7 @@ var Instagram = React.createClass({
           </div>
           <div className="bkgd_scribble"></div>
         </div>
-        <img className="instagram-icon" src="/img/icon--instagram.svg" />
+        <InlineSVG src="/img/icon--instagram.svg" uniquifyIDs={false}></InlineSVG>
       </div>
     )
   }
@@ -335,6 +336,7 @@ var CombinedList = React.createClass({
 
 var my_image, bkd_image;
 var Main = React.createClass({
+  mixins: [ Router.State ],
   getInitialState: function() {
     return { photos: [], news: [], pre_count: 0 };
   },
@@ -376,8 +378,18 @@ var Main = React.createClass({
     this.setState({playVideo: false});
   },
 
+  openSocial: function(){
+    console.log('openSocial');
+    this.setState({social_show: true});
+  },
+
+  closeSocial: function(){
+    console.log('closeSocial');
+    this.setState({social_show: false});
+  },
 
   scrollToPhotos: function() {
+    this.openSocial();
     Velocity(document.getElementById('instagrams'), 
         "scroll", {
           duration: 1000,
@@ -396,6 +408,12 @@ var Main = React.createClass({
       bkd_video.poster="/img/SportsCombineStill.jpg";
       bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4"
 
+    var social;
+    if (self.state.social_show) {
+      social = "social_overlay up";
+    } else {
+      social = "social_overlay"
+    }
     if (self.state.loaded == true) {
       return (
         <div>
@@ -431,6 +449,45 @@ var Main = React.createClass({
             </div>
 
             <CombinedList />
+
+
+          <div className={social}>
+            <div className="social_wrapper">
+              <div className="social_content">
+                <div className="social_content_inner">
+                  <img className="social_mayhem" src="/img/icon--maverick-mayhem.svg" />
+                  <p>We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year.</p>
+                  <p className="stayintouch">Stay in Touch with the Mavericks</p>
+                  <div className="social_icons">
+                    <a href="#" className="link">
+                      <InlineSVG src="/img/icon--facebook.svg" uniquifyIDs={false}></InlineSVG>
+                    </a>
+                    <a href="#" className="link">
+                      <InlineSVG src="/img/icon--twitter.svg" uniquifyIDs={false}></InlineSVG>
+                    </a>
+                    <a href="#" className="link">
+                      <InlineSVG src="/img/icon--instagram.svg" uniquifyIDs={false}></InlineSVG>
+
+                    </a>
+                    <a href="#" className="link">
+                        <InlineSVG src="/img/icon--youtube.svg" uniquifyIDs={false}></InlineSVG>
+                    </a>
+                  </div>
+                  <form action="http://universityofnebraskaomahaathletics.createsend.com/t/t/s/krihty/" method="post">
+                    <p>
+                        <input id="fieldEmail" name="cm-krihty-krihty" placeholder="Join our Email List" type="email" required />
+                        <button type="submit">Submit</button>
+                    </p>
+                  </form>
+                </div>
+                <img className="scribble_bkd" src="/img/scribble_bkgrd_scale.svg" />
+                <span onClick={self.closeSocial}>
+                  <InlineSVG src="/img/icon--close.svg" uniquifyIDs={false}></InlineSVG>
+                </span>
+              </div>
+            </div>
+          </div>
+
         </div>
       )
     } else {

@@ -13,6 +13,7 @@ var Page = require('../page/index.jsx');
 var Arena = require('../arena-show/index.jsx');
 var InlineSVG = require('react-inlinesvg');
 
+var $ = require('jquery');
 require('../../public/js/vendors/headroom.js');
 
 var App = React.createClass({
@@ -36,16 +37,23 @@ var App = React.createClass({
 	},
 
 	componentDidMount: function(){
-		var navigation = document.querySelector("header");
+	    if(!('backgroundBlendMode' in document.body.style)) {
+	        // No support for background-blend-mode
+	      var html = document.getElementsByTagName("html")[0];
+	      html.className = html.className + " no-background-blend-mode";
+	    }
 
-		var headroom = new Headroom(navigation, {
-		  "offset": 500,
-		  "tolerance": 20,
-		});
+	    // HEADROOM.JS 
+			var navigation = document.querySelector("header");
 
-		headroom.init();
+			var headroom = new Headroom(navigation, {
+			  "offset": 500,
+			  "tolerance": 20,
+			});
+
+			headroom.init();
 	},
-	 
+
 	render: function () {
 		var self = this;
 
@@ -55,7 +63,7 @@ var App = React.createClass({
 		} else {
 			nav = "App"
 		}
-
+		
 		return (
 		  <div className={nav}>
 		    <header id="header">
@@ -100,6 +108,8 @@ var App = React.createClass({
 		    <div className="main_content">
 		      <RouteHandler key={this.getHandlerKey()} />
 		    </div>
+
+
 		    <footer>
 		        <div className="stripe">
 		          <img className="icon--mav-mayhem" src="/img/icon--maverick-mayhem.svg" alt="#maverickmayhem" />
@@ -117,7 +127,7 @@ var App = React.createClass({
 
 var routes = (
   <Route handler={App} path="/">
-    <DefaultRoute handler={Home} />
+    <DefaultRoute handler={Home} open_social={App.openSocial} />
     <Route name="our-house" path="/our-house" handler={Arena} />
 	<Route name="page" path="/:slug" handler={Page} />
   </Route>

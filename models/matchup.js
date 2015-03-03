@@ -68,7 +68,7 @@ matchupSchema.virtual('date').get(function () {
         return de_months[0] + ' ' + de_days[0] + ', ' + de_years[0];
       }
     } else {
-      return de_months[0] + ' ' + de_days[0] + '-' + de_days[games_length-1] + ', ' + de_de_years[0];
+      return de_months[0] + ' ' + de_days[0] + '-' + de_days[games_length-1] + ', ' + de_years[0];
     }
 
 

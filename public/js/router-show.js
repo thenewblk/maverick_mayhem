@@ -14,6 +14,7 @@ var Page = require('../page/index.jsx');
 var Arena = require('../arena-show/index.jsx');
 var InlineSVG = require('react-inlinesvg');
 
+var $ = require('jquery');
 require('../../public/js/vendors/headroom.js');
 
 var App = React.createClass({displayName: "App",
@@ -37,16 +38,23 @@ var App = React.createClass({displayName: "App",
 	},
 
 	componentDidMount: function(){
-		var navigation = document.querySelector("header");
+	    if(!('backgroundBlendMode' in document.body.style)) {
+	        // No support for background-blend-mode
+	      var html = document.getElementsByTagName("html")[0];
+	      html.className = html.className + " no-background-blend-mode";
+	    }
 
-		var headroom = new Headroom(navigation, {
-		  "offset": 500,
-		  "tolerance": 20,
-		});
+	    // HEADROOM.JS 
+			var navigation = document.querySelector("header");
 
-		headroom.init();
+			var headroom = new Headroom(navigation, {
+			  "offset": 500,
+			  "tolerance": 20,
+			});
+
+			headroom.init();
 	},
-	 
+
 	render: function () {
 		var self = this;
 
@@ -56,7 +64,7 @@ var App = React.createClass({displayName: "App",
 		} else {
 			nav = "App"
 		}
-
+		
 		return (
 		  React.createElement("div", {className: nav}, 
 		    React.createElement("header", {id: "header"}, 
@@ -101,6 +109,8 @@ var App = React.createClass({displayName: "App",
 		    React.createElement("div", {className: "main_content"}, 
 		      React.createElement(RouteHandler, {key: this.getHandlerKey()})
 		    ), 
+
+
 		    React.createElement("footer", null, 
 		        React.createElement("div", {className: "stripe"}, 
 		          React.createElement("img", {className: "icon--mav-mayhem", src: "/img/icon--maverick-mayhem.svg", alt: "#maverickmayhem"}), 
@@ -118,7 +128,7 @@ var App = React.createClass({displayName: "App",
 
 var routes = (
   React.createElement(Route, {handler: App, path: "/"}, 
-    React.createElement(DefaultRoute, {handler: Home}), 
+    React.createElement(DefaultRoute, {handler: Home, open_social: App.openSocial}), 
     React.createElement(Route, {name: "our-house", path: "/our-house", handler: Arena}), 
 	React.createElement(Route, {name: "page", path: "/:slug", handler: Page})
   )
@@ -128,7 +138,7 @@ var routes = (
 Router.run(routes, Router.HistoryLocation, function (Handler) {
   React.render(React.createElement(Handler, null), document.body);
 });
-},{"../../public/js/vendors/headroom.js":246,"../arena-show/index.jsx":2,"../index/index.jsx":3,"../page/index.jsx":5,"react":240,"react-inlinesvg":17,"react-router":45}],2:[function(require,module,exports){
+},{"../../public/js/vendors/headroom.js":246,"../arena-show/index.jsx":2,"../index/index.jsx":3,"../page/index.jsx":5,"jquery":15,"react":240,"react-inlinesvg":17,"react-router":45}],2:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
     util = require('util'),
@@ -359,7 +369,8 @@ var React = require('react'),
     request = require('superagent'),
     util = require('util');
 var Velocity = require('velocity-animate/velocity');
-
+var InlineSVG = require('react-inlinesvg');
+var Router = require('react-router');
 var $ = require('jquery');
 
 $.fn.liScroll = function(settings) {
@@ -458,7 +469,7 @@ var Instagram = React.createClass({displayName: "Instagram",
           ), 
           React.createElement("div", {className: "bkgd_scribble"})
         ), 
-        React.createElement("img", {className: "instagram-icon", src: "/img/icon--instagram.svg"})
+        React.createElement(InlineSVG, {src: "/img/icon--instagram.svg", uniquifyIDs: false})
       )
     )
   }
@@ -692,6 +703,7 @@ var CombinedList = React.createClass({displayName: "CombinedList",
 
 var my_image, bkd_image;
 var Main = React.createClass({displayName: "Main",
+  mixins: [ Router.State ],
   getInitialState: function() {
     return { photos: [], news: [], pre_count: 0 };
   },
@@ -733,8 +745,18 @@ var Main = React.createClass({displayName: "Main",
     this.setState({playVideo: false});
   },
 
+  openSocial: function(){
+    console.log('openSocial');
+    this.setState({social_show: true});
+  },
+
+  closeSocial: function(){
+    console.log('closeSocial');
+    this.setState({social_show: false});
+  },
 
   scrollToPhotos: function() {
+    this.openSocial();
     Velocity(document.getElementById('instagrams'), 
         "scroll", {
           duration: 1000,
@@ -753,6 +775,12 @@ var Main = React.createClass({displayName: "Main",
       bkd_video.poster="/img/SportsCombineStill.jpg";
       bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4"
 
+    var social;
+    if (self.state.social_show) {
+      social = "social_overlay up";
+    } else {
+      social = "social_overlay"
+    }
     if (self.state.loaded == true) {
       return (
         React.createElement("div", null, 
@@ -787,7 +815,46 @@ var Main = React.createClass({displayName: "Main",
               )
             ), 
 
-            React.createElement(CombinedList, null)
+            React.createElement(CombinedList, null), 
+
+
+          React.createElement("div", {className: social}, 
+            React.createElement("div", {className: "social_wrapper"}, 
+              React.createElement("div", {className: "social_content"}, 
+                React.createElement("div", {className: "social_content_inner"}, 
+                  React.createElement("img", {className: "social_mayhem", src: "/img/icon--maverick-mayhem.svg"}), 
+                  React.createElement("p", null, "We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year."), 
+                  React.createElement("p", {className: "stayintouch"}, "Stay in Touch with the Mavericks"), 
+                  React.createElement("div", {className: "social_icons"}, 
+                    React.createElement("a", {href: "#", className: "link"}, 
+                      React.createElement(InlineSVG, {src: "/img/icon--facebook.svg", uniquifyIDs: false})
+                    ), 
+                    React.createElement("a", {href: "#", className: "link"}, 
+                      React.createElement(InlineSVG, {src: "/img/icon--twitter.svg", uniquifyIDs: false})
+                    ), 
+                    React.createElement("a", {href: "#", className: "link"}, 
+                      React.createElement(InlineSVG, {src: "/img/icon--instagram.svg", uniquifyIDs: false})
+
+                    ), 
+                    React.createElement("a", {href: "#", className: "link"}, 
+                        React.createElement(InlineSVG, {src: "/img/icon--youtube.svg", uniquifyIDs: false})
+                    )
+                  ), 
+                  React.createElement("form", {action: "http://universityofnebraskaomahaathletics.createsend.com/t/t/s/krihty/", method: "post"}, 
+                    React.createElement("p", null, 
+                        React.createElement("input", {id: "fieldEmail", name: "cm-krihty-krihty", placeholder: "Join our Email List", type: "email", required: true}), 
+                        React.createElement("button", {type: "submit"}, "Submit")
+                    )
+                  )
+                ), 
+                React.createElement("img", {className: "scribble_bkd", src: "/img/scribble_bkgrd_scale.svg"}), 
+                React.createElement("span", {onClick: self.closeSocial}, 
+                  React.createElement(InlineSVG, {src: "/img/icon--close.svg", uniquifyIDs: false})
+                )
+              )
+            )
+          )
+
         )
       )
     } else {
@@ -807,7 +874,7 @@ var Main = React.createClass({displayName: "Main",
 
 module.exports = Main;
 
-},{"../../public/js/vendors/matchMedia.addListener.js":247,"../../public/js/vendors/matchmedia.js":248,"../page/flickerIcon.jsx":4,"jquery":15,"react":240,"react-responsive-mixin":31,"superagent":241,"util":14,"velocity-animate/velocity":244,"velocity-animate/velocity.ui":245}],4:[function(require,module,exports){
+},{"../../public/js/vendors/matchMedia.addListener.js":247,"../../public/js/vendors/matchmedia.js":248,"../page/flickerIcon.jsx":4,"jquery":15,"react":240,"react-inlinesvg":17,"react-responsive-mixin":31,"react-router":45,"superagent":241,"util":14,"velocity-animate/velocity":244,"velocity-animate/velocity.ui":245}],4:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require('react/addons');
