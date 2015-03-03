@@ -5,6 +5,8 @@ var React = require('react'),
 
 var Content = window.slug || {};
 
+var Router = require('react-router');
+
 var InlineSVG = require('react-inlinesvg');
 
 var News = require('./news.jsx'),
@@ -12,6 +14,7 @@ var News = require('./news.jsx'),
     PhotosUploader = require('./photos_uploader.jsx');
 
 var Page = React.createClass({
+  mixins: [ Router.State, Router.Navigation ],
   getInitialState: function() {
     return { 
       name: '', 
@@ -29,23 +32,32 @@ var Page = React.createClass({
   componentWillMount: function(){
     var self = this;
 
-    if (Content.length) {
-      console.log('Content: '+Content);
+    request
+      .get('/api/pages/our-house')
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var Page = JSON.parse(res.text);
+          Page.status = "edit";
+          self.setState(Page);
+          console.log(Page)
+        }
+      }.bind(self));
+  },
+  componentWillReceiveProps: function () { 
+    var self = this;
 
-      request
-        .get('/api/pages/our-house')
-        .end(function(res) {
-          console.log(res)
-          if (res.text) {
-            var Page = JSON.parse(res.text);
-            Page.status = "edit";
-            self.setState(Page);
-            console.log(Page)
-          }
-        }.bind(self));
-    } else {
-      console.log('No Content found.');
-    }
+    request
+      .get('/api/pages/our-house')
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var Page = JSON.parse(res.text);
+          Page.status = "edit";
+          self.setState(Page);
+          console.log(Page)
+        }
+      }.bind(self));
   },
   handleNameChange: function(event) {
     this.setState({name: event.target.value});
@@ -174,7 +186,8 @@ var Page = React.createClass({
           console.log(res)
           if (res.text) {
             var response = JSON.parse(res.text);
-            window.location = '/'+response.slug;
+            self.transitionTo('/'+response.slug);
+            // window.location = '/'+response.slug;
           }
         }.bind(self));
     } else if (self.state.status == "edit") {
@@ -183,7 +196,8 @@ var Page = React.createClass({
         .send(self.state)
         .end(function(res) {
           if (res.text) {
-            window.location = '/'+self.state.slug;
+            self.transitionTo('/'+self.state.slug);
+            // window.location = '/'+self.state.slug;
           }
         }.bind(self));
     }
@@ -237,58 +251,63 @@ var Page = React.createClass({
     });
 
     if (status == 'new') {
+
       return (
-        <div className="page">
-          <h2 className="page_edit_title">New Page</h2>
-          <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
-          <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
+        <div className="container edit-container">
+          <div className="page" id="new_page">
+            <h2 className="page_edit_title">New Page</h2>
+            <h3><input type="text" value={name} onChange={this.handleNameChange} placeholder="Name" /></h3>
+            <h5><input type="text" value={description} onChange={this.handleDescriptionChange} placeholder="Description" /></h5>
 
-          <div className="games">
-            <p className="page_edit_title_box">Press</p>
-            <h6 className="new_game" onClick={this.newNews}><InlineSVG className="plus-icon" src="/img/icon--plus.svg"></InlineSVG></h6>
-            {news}
-          </div> 
-
-          { photos ?
-            <div className="photos">
-              <p className="page_edit_title_small">Photos</p>
-              {photos}
+            <div className="games">
+              <p className="page_edit_title_box">Press</p>
+              <h6 className="new_game" onClick={this.newNews}><InlineSVG className="plus-icon" src="/img/icon--plus.svg"></InlineSVG></h6>
+              {news}
             </div> 
-            : ''
-          }
 
-          <PhotosUploader photos={this.handleNewPhoto} />
-          
-          <a className='submit' onClick={this.submitContent}>save page</a>
-          <a className='submit' onClick={this.testContent}>test</a>
+            { photos ?
+              <div className="photos">
+                <p className="page_edit_title_small">Photos</p>
+                {photos}
+              </div> 
+              : ''
+            }
 
+            <PhotosUploader photos={this.handleNewPhoto} />
+            
+            <a className='submit' onClick={this.submitContent}>save page</a>
+            <a className='submit' onClick={this.testContent}>test</a>
+
+          </div>
         </div>
       );
     } else if (status == 'edit') {
       return (
-        <div className="page">
-          <h2 className="page_edit_title">Edit {name}</h2>
+        <div className="container edit-container">
+          <div className="page" id="new_page">
+            <h2 className="page_edit_title">Edit {name}</h2>
 
-          <div className="games">
-            <p className="page_edit_title_box">Press</p>
-            <h6 className="new_game" onClick={this.newNews}><InlineSVG className="plus-icon" src="/img/icon--plus.svg"></InlineSVG></h6>
-            {news}
-          </div> 
-
-          { photos ?
-            <div className="photos">
-              <p className="page_edit_title_small">Photos</p>
-              {photos}
+            <div className="games">
+              <p className="page_edit_title_box">Press</p>
+              <h6 className="new_game" onClick={this.newNews}><InlineSVG className="plus-icon" src="/img/icon--plus.svg"></InlineSVG></h6>
+              {news}
             </div> 
-            : ''
-          }
 
-          <PhotosUploader photos={this.handleNewPhoto} />
+            { photos ?
+              <div className="photos">
+                <p className="page_edit_title_small">Photos</p>
+                {photos}
+              </div> 
+              : ''
+            }
 
-          <div className='edit_buttons'>
-            <a className='edit_button red' onClick={this.submitContent}>post</a>
-            <a className='edit_button' href={"/"+self.state.slug}>Cancel</a>
-            <a className='edit_button test' onClick={this.testContent}>Test</a>
+            <PhotosUploader photos={this.handleNewPhoto} />
+
+            <div className='edit_buttons'>
+              <a className='edit_button red' onClick={this.submitContent}>post</a>
+              <a className='edit_button' href={"/"+self.state.slug}>Cancel</a>
+              <a className='edit_button test' onClick={this.testContent}>Test</a>
+            </div>
           </div>
         </div>
       );
@@ -296,10 +315,4 @@ var Page = React.createClass({
   }
 });
 
-module.exports = Page;
-// module.exports = Page; 
-
-React.renderComponent(
- Page(Content),
-  document.getElementById('new_page')
-)
+module.exports = Page; 

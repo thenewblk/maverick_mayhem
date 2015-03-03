@@ -16,9 +16,9 @@ var Photo = React.createClass({
 
   componentWillMount: function(){
     var self = this;
-    var my_image = new Image();
-    my_image.onload = this.onLoad;
-    my_image.src = "https://s3.amazonaws.com/maverickmayhem-dev" + self.props.url;
+    var photo = new Image();
+    photo.onload = this.onLoad;
+    photo.src = "https://s3.amazonaws.com/maverickmayhem-dev" + self.props.url;
   },
 
 
@@ -69,7 +69,7 @@ var News = React.createClass({
   }
 });
 
-var my_image, bkd_image;
+var my_image1, bkd_image1;
 
 var AssetList = React.createClass({
   getInitialState: function() {
@@ -78,9 +78,9 @@ var AssetList = React.createClass({
   componentWillMount: function(){
     var self = this;
 
-    bkd_image = new Image();
-    bkd_image.onload = self.onLoad;
-    bkd_image.src = "/img/bkgrd_pattern_BLK.svg";
+    bkd_image1 = new Image();
+    bkd_image1.onload = self.onLoad;
+    bkd_image1.src = "/img/bkgrd_pattern_BLK.svg";
 
     request
       .get('/api/pages/our-house')
@@ -88,13 +88,34 @@ var AssetList = React.createClass({
         console.log(res)
         if (res.text) {
           var photos = JSON.parse(res.text);
-          my_image = new Image();
-          my_image.onload = self.onLoad;
-          my_image.src = "/img/bg--video_arena.jpg";
+          my_image1 = new Image();
+          my_image1.onload = self.onLoad;
+          my_image1.src = "/img/bg--video_arena.jpg";
           self.setState(photos);
         }
       }.bind(self));
 
+  },
+
+  componentWillReceiveProps: function () {
+    var self = this;
+
+    bkd_image1 = new Image();
+    bkd_image1.onload = self.onLoad;
+    bkd_image1.src = "/img/bkgrd_pattern_BLK.svg";
+
+    request
+      .get('/api/pages/our-house')
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var photos = JSON.parse(res.text);
+          my_image1 = new Image();
+          my_image1.onload = self.onLoad;
+          my_image1.src = "/img/bg--video_arena.jpg";
+          self.setState(photos);
+        }
+      }.bind(self));
   },
 
   onLoad: function() {
@@ -195,10 +216,5 @@ var AssetList = React.createClass({
     }
   }
 });
-
-React.renderComponent(
-  AssetList(),
-  document.getElementById('content')
-)
 
 module.exports = AssetList;

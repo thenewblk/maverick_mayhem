@@ -147,7 +147,7 @@
     .page_edit {
       float: right;
     }
-    a:hover {
+    a:hover, a.active {
       color: $black;
     }
   }

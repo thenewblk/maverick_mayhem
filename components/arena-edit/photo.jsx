@@ -154,12 +154,10 @@ var Photo = React.createClass({
       return ( 
         <div className='photo' ref='contentwrapper' style={divStyles}>
               {description ? <p>{description}</p> : '' }
-              { (matchup_status == 'edit') ?
-                <div className='photo_buttons'>
-                  <a className='photo_button' onClick={self.handleEdit}>Edit</a> 
-                  <a className='photo_button' onClick={self.handleRemove}>delete</a> 
-                </div>
-              : ''}
+              <div className='photo_buttons'>
+                <a className='photo_button' onClick={self.handleEdit}>Edit</a> 
+                <a className='photo_button' onClick={self.handleRemove}>delete</a> 
+              </div>
         </div> )
     } else if (status == 'edit'){
       return ( 

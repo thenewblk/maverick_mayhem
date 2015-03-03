@@ -20,7 +20,8 @@ var jshint = require('gulp-jshint'),
     folders = require('gulp-folders'),
     srcFolder = './components',
     destFolder = './public/js/',
-    minifyCSS = require('gulp-minify-css');
+    minifyCSS = require('gulp-minify-css'),
+    streamify = require('gulp-streamify');
 
 gulp.task('build-reacts', folders(srcFolder, function(folder){
 
@@ -29,6 +30,7 @@ gulp.task('build-reacts', folders(srcFolder, function(folder){
         .bundle()
         .pipe(source(folder+'.js'))
         .pipe(gulp.dest('public/js/'))
+        .pipe(streamify(uglify()))
         .pipe(rename(folder+'.min.js'))
         .pipe(gulp.dest(destFolder));;
 }));

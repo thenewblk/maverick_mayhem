@@ -75,19 +75,29 @@ module.exports = function(app, passport) {
 	});
 
 	app.get('/', function(req, res) {
-	  res.render('index', {
-	  	user: req.user
-	  });
+		if (req.user) {
+		  res.render('index-admin', {
+		  	user: req.user
+		  });
+		} else {
+		  res.render('index-show');
+		}
 	});
 
-  app.get('/our-house', function(req, res) {
-    res.render('arena', {
-      user: req.user,
-      title: " - Our House",
-    });
-  });
+  // app.get('/our-house', function(req, res) {
+  //   res.render('arena', {
+  //     user: req.user,
+  //     title: " - Our House",
+  //   });
+  // });
 
-	// app.get('*', function(req, res) {
-	//   res.render('index', { title: 'Hello World', user: req.user });
-	// });
+	app.get('*', function(req, res) {
+	 	if (req.user) {
+		  res.render('index-admin', {
+		  	user: req.user
+		  });
+		} else {
+		  res.render('index-show');
+		}
+	});
 };

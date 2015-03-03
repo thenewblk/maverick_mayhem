@@ -1,4 +1,4151 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var React = require('react');
+var Router = require('react-router');
+
+var Route = Router.Route,
+	DefaultRoute = Router.DefaultRoute,
+  	NotFoundRoute = Router.NotFoundRoute,
+  	RouteHandler = Router.RouteHandler,
+  	Link = Router.Link;
+
+
+var Home = require('../index/index.jsx');
+var Page = require('../page/index.jsx');
+var Admin = require('../admin/index.jsx');
+var Arena = require('../arena-show/index.jsx');
+var ArenaEdit = require('../arena-edit/index.jsx');
+var InlineSVG = require('react-inlinesvg');
+
+var $ = require('jquery');
+require('../../public/js/vendors/headroom.js');
+
+var App = React.createClass({displayName: "App",
+	mixins: [Router.State], 
+  getHandlerKey: function () {
+    var childDepth = 1; // assuming App is top-level route
+    var key = this.getRoutes()[childDepth].name;
+    var id = this.getParams().id;
+    if (id) { key += id; }
+    return key;
+  },
+  getInitialState: function () { 
+  	return {
+  		nav_show: false
+  	};
+	},
+	openNav: function(){
+		console.log('openNav');
+		this.setState({nav_show: true});
+	},
+
+	closeNav: function(){
+		console.log('closeNav');
+		this.setState({nav_show: false});
+	},
+	componentDidMount: function(){
+	    if(!('backgroundBlendMode' in document.body.style)) {
+	        // No support for background-blend-mode
+	      var html = document.getElementsByTagName("html")[0];
+	      html.className = html.className + " no-background-blend-mode";
+	    }
+
+	    // HEADROOM.JS 
+			var navigation = document.querySelector("header");
+
+			var headroom = new Headroom(navigation, {
+			  "offset": 500,
+			  "tolerance": 20,
+			});
+
+			headroom.init();
+
+	    $('.btn--show-pride').on('click', function () {
+	      $('.social_overlay').toggleClass('up');
+	    });
+
+	    $('.social_overlay #close-icon').on('click', function () {
+	      $('.social_overlay').removeClass('up');
+	    });
+	},
+	render: function () {
+		var self = this;
+
+		var nav;
+		if (self.state.nav_show == true) {
+			nav = "App nav-show";
+		} else if (self.state.nav_show == false) {
+			nav = "App"
+		}
+
+		return (
+		  React.createElement("div", {className: nav}, 
+		    React.createElement("header", {id: "header"}, 
+		    	React.createElement(Link, {to: "/", className: "logo"}, 
+		          React.createElement("img", {src: "/img/icon--bull.svg", alt: "UNO Maverics bull icon"})
+		        ), 
+
+		        React.createElement("nav", {className: "nav--secondary", role: "navigation"}, 
+		          React.createElement("div", {className: "menu"}, 
+		            React.createElement("ul", {className: "menu--secondary menu__list"}, 
+		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "our-house", onClick: self.closeNav}, "Our House"))
+		            )
+		          )
+		        ), 
+
+
+		        React.createElement("nav", {className: "nav--primary admin", role: "navigation"}, 
+		          React.createElement("span", {key: "menu", className: "btn--menu icon--menu", onClick: self.openNav}, 
+		            "Admin", 
+		            React.createElement(InlineSVG, {src: "/img/icon--menu.svg", uniquifyIDs: false})
+
+		          ), 
+		          React.createElement("span", {key: "close", className: "btn--menu-close icon--close", onClick: self.closeNav}, 
+		          	React.createElement("a", {className: "logout", href: "/logout"}, "Logout"), 
+		            React.createElement(InlineSVG, {src: "/img/icon--close.svg", uniquifyIDs: false})
+
+		          ), 
+		          React.createElement("div", {className: "menu menu--main-menu"}, 
+		            React.createElement("ul", {className: "menu__list"}, 
+		              React.createElement("li", {className: "menu__list--item"}, 
+		              	React.createElement(Link, {className: "page_title", to: "page", params: {slug: "hockey"}, onClick: self.closeNav}, "Hockey"), 
+		              	React.createElement(Link, {className: "page_edit", to: "admin", params: {slug: "hockey", status: "edit"}, onClick: self.closeNav}, React.createElement("span", {className: "fa fa-edit"}))
+		              ), 
+		              React.createElement("li", {className: "menu__list--item"}, 
+		              	React.createElement(Link, {className: "page_title", to: "page", params: {slug: "basketball"}, onClick: self.closeNav}, "Men`s Basketball"), 
+		              	React.createElement(Link, {className: "page_edit", to: "admin", params: {slug: "basketball", status: "edit"}, onClick: self.closeNav}, React.createElement("span", {className: "fa fa-edit"}))
+		              ), 
+		              React.createElement("li", {className: "menu__list--item"}, 
+		              	React.createElement(Link, {className: "page_title", to: "our-house", onClick: self.closeNav}, "Our House"), 
+		              	React.createElement(Link, {className: "page_edit", to: "our-house-edit", onClick: self.closeNav}, React.createElement("span", {className: "fa fa-edit"}))
+		              )
+		            )
+		          ), 
+		          React.createElement("div", {className: "menu menu--mobile-menu"}, 
+		            React.createElement("ul", {className: "menu__list"}, 
+		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "page", params: {slug: "hockey"}, onClick: self.closeNav}, "Hockey")), 
+		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "page", params: {slug: "basketball"}, onClick: self.closeNav}, "Men`s Basketball")), 
+		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "our-house", onClick: self.closeNav}, "Our House"))
+		            )
+		          )
+		        )
+		    ), 
+		    React.createElement("div", {className: "main_content"}, 
+		      React.createElement(RouteHandler, {key: this.getHandlerKey()})
+		    ), 
+		    React.createElement("footer", null, 
+		        React.createElement("div", {className: "stripe"}, 
+		          React.createElement("img", {className: "icon--mav-mayhem", src: "/img/icon--maverick-mayhem.svg", alt: "#maverickmayhem"}), 
+		          React.createElement("img", {className: "icon--bull", src: "/img/bg--bull_footer.svg", alt: "UNO Maverick's bull icon"})
+		        ), 
+		        React.createElement("div", {className: "contact-info"}, 
+		          React.createElement("p", {className: "copyright"}, "©  2015, University of Nebraska Omaha. All rights reserved.")
+		        )
+
+		    )
+		  )
+		);
+	}
+});
+
+var routes = (
+  React.createElement(Route, {handler: App, path: "/"}, 
+    React.createElement(DefaultRoute, {handler: Home}), 
+    React.createElement(Route, {name: "our-house-edit", path: "/our-house/edit", handler: ArenaEdit}), 
+    React.createElement(Route, {name: "our-house", path: "/our-house", handler: Arena}), 
+    React.createElement(Route, {name: "admin", path: "/:slug/edit", handler: Admin}), 
+	React.createElement(Route, {name: "page", path: "/:slug", handler: Page})
+  )
+);
+
+
+Router.run(routes, Router.HistoryLocation, function (Handler) {
+  React.render(React.createElement(Handler, null), document.body);
+});
+},{"../../public/js/vendors/headroom.js":273,"../admin/index.jsx":2,"../arena-edit/index.jsx":7,"../arena-show/index.jsx":11,"../index/index.jsx":13,"../page/index.jsx":15,"jquery":25,"react":267,"react-inlinesvg":44,"react-router":72}],2:[function(require,module,exports){
+var React = require('react'),
+    request = require('superagent'),
+    util = require('util'),
+    moment = require('moment'),
+    Dropzone = require('../dropzone.js');
+
+var Router = require('react-router');
+
+var Isvg = require('react-inlinesvg');
+
+// var Content = window.slug || {};
+
+var Matchup = require('./matchup.jsx'),
+    News = require('./news.jsx'),
+    Photo = require('./photo.jsx'),
+    PhotosUploader = require('./photos_uploader.jsx');
+
+var Page = React.createClass({displayName: "Page",
+  mixins: [ Router.State, Router.Navigation ],
+  getInitialState: function() {
+    return { 
+      name: '', 
+      status: 'new', 
+      headline: '', 
+      banner: '', 
+      description: '', 
+      video: {}, 
+      icon: {}, 
+      matchups: [], 
+      photos: [], 
+      news: [], 
+      submitted: false };
+  },
+  
+  componentWillMount: function(){
+    var self = this;
+    var slug = self.getParams().slug;
+    // if (Content.length) {
+    if (slug) {
+      console.log('Content: '+slug);
+
+      request
+        .get('/api/pages/'+slug)
+        .end(function(res) {
+          console.log(res)
+          if (res.text) {
+            var Page = JSON.parse(res.text);
+            Page.status = "edit";
+            self.setState(Page);
+            console.log(Page)
+          }
+        }.bind(self));
+    } else {
+      console.log('No Content found.');
+    }
+  },
+
+  componentWillReceiveProps: function () {
+    var self = this;
+
+    var slug = self.getParams().slug;
+    if (slug) { 
+      request
+        .get('/api/pages/'+slug)
+        .end(function(res) {
+          console.log(res)
+          if (res.text) {
+            var Page = JSON.parse(res.text);
+            Page.status = "edit";
+            self.setState(Page);
+            console.log(Page)
+          }
+        }.bind(self));
+    }
+  },
+
+  handleNameChange: function(event) {
+    this.setState({name: event.target.value});
+  },
+
+  handleHeadlineChange: function(event) {
+    this.setState({headline: event.target.value});
+  },
+
+  handleBannerChange: function(event) {
+    this.setState({banner: event.target.value});
+  },
+
+  handleDescriptionChange: function(event) {
+    this.setState({description: event.target.value});
+  },
+
+
+  handleNewPhoto: function(photo) {
+    var self = this,
+        current_tmp_photos = self.state.tmp_photos,
+        current_photos = self.state.photos;
+
+    request
+      .post('/api/photos/new')
+      .send(photo)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          var new_photos = current_photos.concat(new_photo);
+          self.setState({photos: new_photos });
+        }
+      }.bind(self));
+  },
+
+  handleRemovePhoto: function(photo) {
+
+    var self = this,
+        current_photos = self.state.photos,
+        found_photo;
+
+    for ( i in  current_photos) {
+      if ( current_photos[i] == photo._id ){
+        found_photo = i;
+      }
+    }
+    current_photos.splice(found_photo, 1);
+
+    self.setState({photos: current_photos });
+  },
+
+
+  handleRemoveMatchup: function(matchup) {
+    console.log('matchup removed _id: ' + matchup._id);
+    var self = this,
+        current_matchups = self.state.matchups, 
+        found_matchup;
+
+    if (matchup._id) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i]._id == matchup._id ){
+          found_matchup = i;
+        }
+      }
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      }      
+    } else if (matchup.identifier) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i].identifier == matchup.identifier ){
+          found_matchup = i;
+        }
+      }
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      } 
+    }
+
+  },
+
+  handleNewRemoveMatchup: function(matchup) {
+    console.log('matchup new removed _id: ' + util.inspect(matchup));
+    var self = this,
+        current_matchups = self.state.matchups, 
+        found_matchup;
+
+    if (matchup.identifier) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i].identifier == matchup.identifier ){
+          found_matchup = i;
+        }
+      }
+      if (found_matchup){
+        current_matchups.splice(found_matchup, 1);
+        self.setState({matchups: current_matchups });     
+      } 
+    }
+
+  },
+
+  newMatchupSaved: function(content) {
+    console.log("new matchup saved: "+ util.inspect(content));
+    var self = this,
+        current_matchups = self.state.matchups, 
+        found_matchup;
+
+    if (content.identifier) {
+      for ( i in  current_matchups) {
+        if ( current_matchups[i].identifier == content.identifier ){
+          found_matchup = i;
+        }
+      }
+      current_matchups[found_matchup] = content;
+
+      self.setState({matchups: current_matchups });      
+    }
+  },
+
+  newMatchup: function() {
+    console.log('newMatchup');
+    var current_matchups = this.state.matchups;
+    var new_matchups = current_matchups.concat({status: 'new', identifier: Math.random(), photos: [], games: [{date: moment(), scores: []}]});
+    this.setState({matchups: new_matchups});
+  },
+
+  newNews: function() {
+    console.log('newNews');
+    var current_news = this.state.news;
+    var new_news = current_news.concat({status: 'new', identifier: Math.random()});
+    this.setState({news: new_news});
+  },
+
+  newNewsSaved: function(content) {
+    console.log("new new saved: "+ util.inspect(content));
+    var self = this,
+        current_news = self.state.news, 
+        found_new;
+
+    if (content.identifier) {
+      for ( i in  current_news) {
+        if ( current_news[i].identifier == content.identifier ){
+          found_new = i;
+        }
+      }
+      current_news[found_new] = content;
+
+      self.setState({news: current_news });      
+    }
+  },
+
+
+  handleRemoveNews: function(object) {
+
+    var self = this,
+        current_news = self.state.news,
+        found_new;
+
+    if (object._id) {
+      for ( i in  current_news) {
+        if ( current_news[i] == object._id ){
+          found_new = i;
+        }
+      }
+      current_news.splice(found_new, 1);
+
+      self.setState({news: current_news });      
+    }
+  },
+
+  handleRemoveNewNews: function(object) {
+
+    var self = this,
+        current_news = self.state.news,
+        found_new;
+
+    if (object._id) {
+      for ( i in  current_news) {
+        if ( current_news[i].identifier == object._id ){
+          found_new = i;
+        }
+      }
+      current_news.splice(found_new, 1);
+
+      self.setState({news: current_news });      
+    }
+  },
+
+  submitContent: function(){
+    var self = this;
+    var tmp_matchups = self.state.matchups.sort(function(a,b){
+      return new Date(a.games[0].date) - new Date(b.games[0].date);
+    });
+    self.setState({submitted: true, matchups: tmp_matchups});
+    if (self.state.status == "new") {
+      request
+        .post('/api/pages/new')
+        .send(self.state)
+        .end(function(res) {
+          console.log(res)
+          if (res.text) {
+            var response = JSON.parse(res.text);
+            // window.location = '/'+response.slug;
+            self.transitionTo('/'+response.slug);
+          }
+        }.bind(self));
+    } else if (self.state.status == "edit") {
+      request
+        .post('/api/pages/'+self.state.slug+'/edit')
+        .send(self.state)
+        .end(function(res) {
+          if (res.text) {
+            // window.location = '/'+self.state.slug;
+            self.transitionTo('/'+self.state.slug);
+          }
+        }.bind(self));
+    }
+  },
+
+  testContent: function(){
+    console.log(util.inspect(this.state));
+  },
+
+  render: function () {
+    var self = this;
+
+    var name = self.state.name,
+        headline = self.state.headline,
+        banner = self.state.banner,
+        description = self.state.description,
+        status = self.state.status;
+
+    var matchups = self.state.matchups.map(function(object) {
+      return React.createElement(Matchup, {
+        name: object.name, 
+        _id: object._id, 
+        slug: object.slug, 
+        opponent: object.opponent, 
+        ticket: object.ticket, 
+        location: object.location, 
+        home: object.home, 
+        games: object.games, 
+        photos: object.photos, 
+        status: object.status, 
+
+        date: object.date, 
+        time: object.time, 
+
+        remove_matchup: self.handleRemoveMatchup, 
+        remove_new_matchup: self.handleNewRemoveMatchup, 
+
+        identifier: object.identifier, 
+
+        key: object._id || object.identifier, 
+        new_matchup: self.newMatchupSaved})
+    }); 
+
+    var photos = self.state.photos.map(function(object) {
+      return React.createElement(Photo, {
+        url: object.url, 
+        _id: object._id, 
+
+        key: object._id, 
+        featured: object.featured, 
+        description: object.description, 
+        remove_photo: self.handleRemovePhoto, 
+
+        identifier: Math.random()})
+    });
+
+    var news = self.state.news.map(function(object) {
+      console.log('news: '+util.inspect(object));
+      return React.createElement(News, {
+        title: object.title, 
+        link: object.link, 
+        image: object.image, 
+        credit: object.credit, 
+        status: object.status, 
+
+        _id: object._id, 
+
+        key: object._id, 
+
+        remove_news: self.handleRemoveNews, 
+        remove_new_news: self.handleRemoveNewNews, 
+
+        new_news: self.newNewsSaved, 
+
+        identifier: object.identifier})
+    });
+
+    if (status == 'new') {
+      return (
+        React.createElement("div", {className: "container edit-container"}, 
+          React.createElement("div", {className: "page", id: "new_page"}, 
+            React.createElement("h2", {className: "page_edit_title"}, "New Page"), 
+            React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
+            React.createElement("h5", null, React.createElement("input", {type: "text", value: headline, onChange: this.handleHeadlineChange, placeholder: "Headline"})), 
+            React.createElement("h5", null, React.createElement("input", {type: "text", value: banner, onChange: this.handleBannerChange, placeholder: "Banner"})), 
+            React.createElement("h5", null, React.createElement("input", {type: "text", value: description, onChange: this.handleDescriptionChange, placeholder: "Description"})), 
+
+            React.createElement("div", {className: "games"}, 
+              React.createElement("p", {className: "page_edit_title_box"}, "Matches"), 
+              React.createElement("h6", {className: "new_game", onClick: this.newMatchup}, React.createElement(Isvg, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
+              matchups
+            ), 
+            
+
+
+            React.createElement("div", {className: "games"}, 
+              React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
+              React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement(Isvg, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
+              news
+            ), 
+            
+            React.createElement("a", {className: "submit", onClick: this.submitContent}, "save page"), 
+            React.createElement("a", {className: "submit", onClick: this.testContent}, "test")
+
+          )
+        )
+      );
+    } else if (status == 'edit') {
+      return (
+        React.createElement("div", {className: "container edit-container"}, 
+          React.createElement("div", {className: "page", id: "new_page"}, 
+            React.createElement("h2", {className: "page_edit_title"}, "Edit ", name), 
+            React.createElement("div", {className: "games"}, 
+              React.createElement("p", {className: "page_edit_title_box"}, "Matches"), 
+              React.createElement("h6", {className: "new_game", onClick: this.newMatchup}, React.createElement(Isvg, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
+              matchups
+            ), 
+
+            React.createElement("div", {className: "games"}, 
+              React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
+              React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement(Isvg, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
+              news
+            ), 
+            React.createElement("div", {className: "edit_buttons"}, 
+              React.createElement("a", {className: "edit_button red", onClick: this.submitContent}, "post"), 
+              React.createElement("a", {className: "edit_button", href: "/"+self.state.slug}, "Cancel"), 
+              React.createElement("a", {className: "edit_button test", onClick: this.testContent}, "Test")
+            )
+          )
+        )
+      );
+    }
+  }
+});
+
+
+module.exports = Page; 
+
+},{"../dropzone.js":12,"./matchup.jsx":3,"./news.jsx":4,"./photo.jsx":5,"./photos_uploader.jsx":6,"moment":26,"react":267,"react-inlinesvg":44,"react-router":72,"superagent":268,"util":24}],3:[function(require,module,exports){
+var React = require('react'),
+    request = require('superagent'),
+    util = require('util'),
+    moment = require('moment'),
+    Dropzone = require('../dropzone.js'),
+    Photo = require('./photo.jsx'),
+    PhotosUploader = require('./photos_uploader.jsx'),
+    DatePicker = require('react-date-picker'),
+    tools = require('../../lib/utils');
+
+var Isvg = require('react-inlinesvg');
+
+function getPeriod(i) {
+  if (this.slug == "hockey"){ 
+    if (i < 4 ) {
+      return tools.ordinal(i);
+    } else {
+      return "OT";
+    }
+  } else {
+    return tools.ordinal(i);
+  }
+}
+
+function getUsTotal(game) {
+  var total = game.scores.reduce(function(a, b) {
+    return a + b.us;
+  }, 0);
+  return total;
+};
+
+function getThemTotal(game) {
+  var total = game.scores.reduce(function(a, b) {
+    return a + b.them;
+  }, 0);
+  return total;
+};
+
+function getSmallDate(i) {
+  return moment(i).format('MMM. D');
+};
+
+
+
+var Score = React.createClass({displayName: "Score",
+  getInitialState: function() {
+    return { us: Number, them: Number };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var tmp_score = {};
+    tmp_score.identifier = self.props.identifier,
+    tmp_score.us = self.props.us,
+    tmp_score.them = self.props.them,
+    tmp_score.status = self.props.status,
+    tmp_score.game_status = self.props.game_status;
+
+    self.setState(tmp_score);
+  },
+
+  handleUsChange: function(event) {
+    var self = this;
+    if ( (event.target.value % 1) == 0 ) {
+      self.setState({us: event.target.value});
+    } 
+  },
+
+  handleThemChange: function(event) {
+    var self = this;
+    if ( (event.target.value % 1) == 0 ) {
+      self.setState({them: event.target.value});
+    } 
+  },
+
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
+
+  submitContent: function(){
+    var self = this;
+    var tmp_score = {};
+        tmp_score = self.state,
+        tmp_score.status = 'show';
+
+    self.props.submit(tmp_score);
+
+    // self.setState({status: 'show'})
+  },
+
+  render: function () {
+    var self = this;
+
+    var us = self.state.us,
+        them = self.state.them,
+        status = self.state.status,
+        game_status = self.state.game_status;
+        
+    if ((game_status == 'edit') &( status == 'new' ) || ( status == 'edit' )) {
+      return (
+        React.createElement("div", {className: "score  edit_view"}, 
+          React.createElement("input", {className: "us_input", type: "text", value: us, onChange: this.handleUsChange, placeholder: "Us"}), 
+          React.createElement("input", {className: "them_input", type: "text", value: them, onChange: this.handleThemChange, placeholder: "Them"}), 
+          React.createElement("a", {className: "score_submit", onClick: this.submitContent}, "save")
+        )
+      )
+    } else if (game_status == 'edit') {
+      return (
+        React.createElement("div", {className: "score edit_click", onClick: this.handleEdit}, 
+          React.createElement("span", {className: "us"}, us), 
+          React.createElement("span", {className: "them"}, them)
+        )
+      )
+    } else  {
+      return (
+        React.createElement("div", {className: "score"}, 
+          us, ", ", them
+        )
+      )
+    }
+  }
+});
+
+var Game = React.createClass({displayName: "Game",
+  getInitialState: function() {
+    return { date: '', time: '', scores: [] };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var tmp_game = {};
+    tmp_game._id = self.props._id,
+    tmp_game.identifier = self.props.identifier,
+    tmp_game.date = self.props.date,
+    tmp_game.time = self.props.time,
+    tmp_game.scores = self.props.scores,
+    tmp_game.matchup_status = self.props.matchup_status,
+    tmp_game.status = self.props.status;
+
+    console.log('game: ' + util.inspect(tmp_game));
+    self.setState(tmp_game);
+  },
+
+  dateChange: function(moment, dateText) {
+    console.log('moment: ' + moment);
+    console.log('dateText: ' + dateText);
+    this.setState({date: dateText}); 
+  },
+
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
+
+  handleRemove: function(){
+    console.log('handleRemoveGame:');
+    console.log(' this.state._id:'+this.state._id);
+    console.log(' this.state.identifier:'+this.state.identifier);
+
+
+    if (this.state._id) {
+      this.props.remove_game({_id: this.state._id});
+    } else if ( this.state.identifier ) {
+      this.props.remove_game({_id: this.state.identifier});
+    }
+  },
+
+  handleScoreChange: function(content) {
+    var current_scores = this.state.scores;
+
+    for(var i in current_scores) {
+      if (current_scores[i].identifier == content.identifier || current_scores[i]._id == content.identifier){
+        current_scores[i].us = content.us;
+        current_scores[i].them = content.them;
+        current_scores[i].status = content.status;
+      }
+    }
+
+    this.setState({ scores: current_scores});
+
+  },
+
+  newScore: function() {
+    console.log('newGame');
+    var current_scores = this.state.scores;
+    console.log(' '+util.inspect(current_scores));
+    var new_scores = current_scores.concat({status: 'new', identifier: Math.random()});
+    console.log(' '+util.inspect(new_scores));
+    this.setState({scores: new_scores});
+
+  },
+
+  submitContent: function(){
+    var self = this;
+    var tmp_game = {};
+        tmp_game = self.state,
+        tmp_game.status = 'show';
+    console.log('tmp_game: ' + util.inspect(tmp_game));
+    self.props.submit(tmp_game);
+  },
+
+  render: function () {
+    var self = this;
+    var date = self.state.date,
+        time = self.state.time,
+        matchup_status = 'edit',
+        status = self.state.status,
+        scores = self.state.scores,
+        identifier = self.state.identifier;
+
+    var the_scores = scores.map(function(object) {
+      var identifier = object.identifier || object._id;
+      var object_status = object.status || "show";
+      return React.createElement(Score, {
+        us: object.us, 
+        them: object.them, 
+        status: object_status, 
+        game_status: status, 
+        identifier: identifier, 
+        key: identifier, 
+        submit: self.handleScoreChange})
+    });
+
+    console.log('game status: ' + status);
+    console.log('game matchup_status: ' + matchup_status);
+
+        var periods = scores.map(function(object, index) {
+          return React.createElement("th", null,  getPeriod(index +1) )
+        });
+
+        var us_scores = scores.map(function(score) {
+          return React.createElement("td", {className: "score"},  score.us)
+        });
+
+        var them_scores = scores.map(function(score) {
+          return React.createElement("td", {className: "score"},  score.them)
+        });
+
+
+        
+    // if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & ( status == 'new' )) {
+    //   return (
+    //     <div className="game">
+    //       <h5>Date: </h5>
+    //       <DatePicker
+    //               hideFooter={true}
+    //               date={date} 
+    //               onChange={self.dateChange}  />
+          
+    //       <h5><input type="text" value={time} onChange={this.handleTimeChange} placeholder="Time" /></h5>
+
+    //       <div className="edit_buttons">
+    //         <a className='edit_button border' onClick={this.submitContent}>save</a>
+    //       </div>
+    //     </div>
+    //   )
+    // } else 
+    if (((matchup_status == 'edit') || (matchup_status == 'new')  ) & (( status == 'edit' ) || ( status == 'new' ))) {
+      return (
+        React.createElement("div", {className: "game"}, 
+          React.createElement("h5", null, "Date: "), 
+          React.createElement(DatePicker, {
+                  hideFooter: true, 
+                  date: date, 
+                  onChange: self.dateChange}), 
+          
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: time, onChange: this.handleTimeChange, placeholder: "Time"})), 
+          
+          React.createElement("h5", null, "Scores: "), 
+           the_scores ?
+            React.createElement("div", {className: "Scores"}, 
+
+              React.createElement("div", {className: "team_labels"}, 
+                React.createElement("div", {className: "uno_label"}, "UNO"), 
+                React.createElement("div", {className: "uno_label"}, "Opponent")
+              ), 
+              the_scores, 
+              React.createElement("span", {className: "new_score_button", onClick: this.newScore}, React.createElement(Isvg, {className: "plus-icon", src: "/img/icon--plus.svg"}))
+            ) 
+          : '', 
+
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button border", onClick: this.submitContent}, "save")
+          )
+        )
+      )
+    } else if (matchup_status == 'edit') {
+      return (
+        React.createElement("div", {className: "game"}, 
+          React.createElement("p", {className: "game_title"}, "Game ", this.props.index + 1), 
+          React.createElement("p", null, moment(date).format("MMMM Do, YYYY")), 
+          React.createElement("p", null, time), 
+          React.createElement("p", {className: "game_title"}, "Score"), 
+          React.createElement("table", {className: "last_matchup_table sport__scoreboard sport__scoreboard-hockey active"}, 
+            React.createElement("thead", null, 
+              React.createElement("tr", {className: "scoreboard__header"}, 
+                React.createElement("th", {className: "team-name"}, " "), 
+                periods
+              )
+            ), 
+            React.createElement("tbody", null, 
+              React.createElement("tr", {className: "team visitor"}, 
+                React.createElement("td", {className: "team-name"}, "Omaha"), 
+                us_scores
+              ), 
+              React.createElement("tr", {className: "team away"}, 
+                React.createElement("td", {className: "team-name"}, "Opponent"), 
+                them_scores
+              )
+            )
+          ), 
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "Edit"), 
+            React.createElement("a", {className: "edit_button", onClick: self.handleRemove}, "Remove")
+          )
+        )
+      )
+    } else {
+      return (
+        React.createElement("div", {className: "game"}, 
+          React.createElement("p", {className: "game_title"}, "Game ", this.props.index + 1), 
+          React.createElement("p", null, moment(date).format("MMMM Do, YYYY")), 
+          React.createElement("p", null, time), 
+          React.createElement("p", {className: "game_title"}, "Score"), 
+          React.createElement("table", {className: "last_matchup_table sport__scoreboard sport__scoreboard-hockey active"}, 
+            React.createElement("thead", null, 
+              React.createElement("tr", {className: "scoreboard__header"}, 
+                React.createElement("th", {className: "team-name"}, " "), 
+                periods
+              )
+            ), 
+            React.createElement("tbody", null, 
+              React.createElement("tr", {className: "team visitor"}, 
+                React.createElement("td", {className: "team-name"}, "Omaha"), 
+                us_scores
+              ), 
+              React.createElement("tr", {className: "team away"}, 
+                React.createElement("td", {className: "team-name"}, "Opponent"), 
+                them_scores
+              )
+            )
+          )
+        )
+      )
+    }
+  }
+});
+
+var Matchup = React.createClass({displayName: "Matchup",
+  getInitialState: function() {
+    return { 
+        name: '', 
+        status: 'show', 
+        opponent: '', 
+        ticket: '', 
+        location: '', 
+        home: false, 
+        photos: [],
+        games: [] };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    // console.log('self: '+util.inspect(self.props));
+    var tmp_matchup = {};
+        tmp_matchup._id = self.props._id, 
+        tmp_matchup.name = self.props.name, 
+        tmp_matchup.slug = self.props.slug, 
+        tmp_matchup.status = self.props.status, 
+        tmp_matchup.opponent = self.props.opponent, 
+        tmp_matchup.ticket = self.props.ticket, 
+        tmp_matchup.location = self.props.location, 
+        tmp_matchup.home = self.props.home, 
+        tmp_matchup.photos = self.props.photos,
+        tmp_matchup.games = self.props.games; 
+        tmp_matchup.identifier = self.props.identifier; 
+
+
+    self.setState(tmp_matchup);
+  },
+
+  componentDidMount: function(){},
+
+
+  handleNameChange: function(event) {
+    this.setState({name: event.target.value});
+  },
+
+  handleOpponentChange: function(event) {
+    this.setState({opponent: event.target.value});
+  },
+  handleDateChange: function(event) {
+    this.setState({date: event.target.value});
+  },
+  handleTimeChange: function(event) {
+    this.setState({time: event.target.value});
+  },
+  handleTicketChange: function(event) {
+    this.setState({ticket: event.target.value});
+  },
+  handleLocationChange: function(event) {
+    this.setState({location: event.target.value});
+  },
+  handleHomeChange: function(event) {
+    console.log('handleHomeChange: '+event.target.value);
+    this.setState({home: !this.state.home});
+  },
+
+  // Photo Stuff
+
+  handleNewPhoto: function(photo) {
+    var self = this,
+        current_photos = self.state.photos;
+
+    console.log('handleNewPhoto:' + util.inspect(photo));
+
+    request
+      .post('/api/photos/new')
+      .send(photo)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          var new_photos = current_photos.concat(new_photo);
+          self.setState({photos: new_photos });
+        }
+      }.bind(self));
+  },
+
+  handleRemovePhoto: function(photo) {
+
+    var self = this,
+        current_photos = self.state.photos;
+
+    var found_photo;
+    for ( i in  current_photos) {
+      if ( current_photos[i]._id == photo._id ){
+        found_photo = i;
+      }
+    }
+    current_photos.splice(found_photo, 1);
+
+    self.setState({photos: current_photos });
+  },
+
+  // Score Stuff
+
+  handleScoreChange: function(content) {
+    var current_scores = this.state.scores;
+
+    for(var i in current_scores) {
+      if (current_scores[i].identifier == content.identifier || current_scores[i]._id == content.identifier){
+        current_scores[i].us = content.us;
+        current_scores[i].them = content.them;
+        current_scores[i].status = content.status;
+      }
+    }
+
+    this.setState({ scores: current_scores});
+  },
+
+  newScore: function() {
+    console.log('newmatchup');
+    var current_scores = this.state.scores;
+    console.log(' '+util.inspect(current_scores));
+    var new_scores = current_scores.concat({status: 'new', identifier: Math.random()});
+    console.log(' '+util.inspect(new_scores));
+    this.setState({scores: new_scores});
+
+  },
+
+  handleEdit: function(){
+    this.setState({status: "edit"})
+  },
+
+  handleRemove: function(){
+    console.log('matchup handleRemove: ' + util.inspect(this.state));
+    if (this.state.identifier){
+      this.props.remove_matchup({identifier: this.state.identifier});
+    } else {
+      this.props.remove_matchup({_id: this.state._id});
+    }
+  },
+
+  handleRemoveNew: function(){
+    this.props.remove_new_matchup({identifier: this.state.identifier});
+  },
+
+
+  submitContent: function(){
+    var self = this;
+    var tmp_matchup = self.state;
+    var current_scores = tmp_matchup.scores;
+
+
+
+    for(var i in current_scores) {
+        delete current_scores[i].status;
+        delete current_scores[i].identifier
+    }
+
+    tmp_matchup.scores = current_scores;
+
+    request
+      .post('/api/matchups/new')
+      .send(tmp_matchup)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          console.log('new matchup: '+res.text);
+          var new_matchup = JSON.parse(res.text);
+          new_matchup.identifier = self.state.identifier;
+          new_matchup.status = 'show';
+          self.props.new_matchup(new_matchup);
+          self.setState(new_matchup);
+        }
+      }.bind(self));
+  },
+
+  editContent: function(){
+    var self = this;
+    var tmp_matchup = self.state;
+    var current_scores = tmp_matchup.scores;
+
+
+
+    for(var i in current_scores) {
+        delete current_scores[i].status;
+        delete current_scores[i].identifier
+    }
+
+    tmp_matchup.scores = current_scores;
+
+
+    console.log('editContent: '+util.inspect(self.state));
+    // self.setState({submitted: true});
+    request
+      .post('/api/matchups/'+self.state._id+'/edit')
+      .send(tmp_matchup)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          console.log('new matchup: '+res.text);
+          var new_matchup = JSON.parse(res.text);
+          new_matchup.identifier = self.state.identifier;
+          new_matchup.status = 'show';
+          self.setState(new_matchup);
+        }
+      }.bind(self));
+  },
+
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
+
+  dateChange: function(moment, dateText) {
+    this.setState({date: moment}); 
+  },
+
+  printPhotos: function(){
+    console.log(util.inspect(this.state.photos));
+  },
+
+  newGame: function() {
+    var current_games = this.state.games;
+    var new_games = current_games.concat({status: 'new', identifier: Math.random(), scores: [], date: moment()});
+
+    console.log(' '+util.inspect(new_games));
+    this.setState({games: new_games});
+  },
+
+  handleGameChange: function(content) {
+    var current_games = this.state.games;
+    console.log('content: ' + util.inspect(content));
+    console.log('current_games: ' + util.inspect(current_games));
+    for(var i in current_games) {
+      if ((current_games[i].identifier == content.identifier) || (current_games[i]._id == content._id)){
+        current_games[i].date = content.date;
+        current_games[i].time = content.time;
+        current_games[i].scores = content.scores;
+      }
+    }
+    this.setState({ games: current_games});
+  },
+
+
+  handleRemoveGame: function(content) {
+
+    console.log('Matchup - handleRemoveGame:');
+    console.log(' content:'+util.inspect(content));
+
+
+
+    var current_games = this.state.games;
+    var found_game;
+    for(var i in current_games) {
+      if ((current_games[i].identifier == content._id) || (current_games[i]._id == content._id)){
+        found_game = i;
+      }
+    }
+    if (found_game) {
+      current_games.splice(found_game, 1);
+    }
+
+    this.setState({ games: current_games});
+  },
+
+
+  render: function () {
+    var self = this;
+
+    var name = self.state.name,
+        opponent = self.state.opponent,
+        date = self.state.date,
+        ticket = self.state.ticket,
+        location = self.state.location,
+        home = self.state.home,
+        status = self.state.status;
+
+    var games = self.state.games.map(function(object, index) {
+      return React.createElement(Game, {
+        status: object.status, 
+        date: object.date, 
+        time: object.time, 
+        scores: object.scores, 
+        matchup_status: status, 
+        remove_game: self.handleRemoveGame, 
+        _id: object._id, 
+        identifier: object.identifier || object._id, 
+
+        key: object.identifier || object._id, 
+
+        index: index, 
+
+        submit: self.handleGameChange})
+    });
+
+    var photos = self.state.photos.map(function(object) {
+      return React.createElement(Photo, {
+        url: object.url, 
+        _id: object._id || Math.random(), 
+        matchup_status: status, 
+        key: object._id, 
+        featured: object.featured, 
+        description: object.description, 
+        remove_photo: self.handleRemovePhoto, 
+
+        identifier: Math.random()})
+    });
+
+
+    if ((status == 'new') || (status == 'edit')) {
+      return (
+        React.createElement("div", {className: "matchup"}, 
+           status == 'new' ? 
+            React.createElement("h3", null, "New matchup") 
+          : 
+            React.createElement("h3", null, "Edit matchup"), 
+          
+          React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: opponent, onChange: this.handleOpponentChange, placeholder: "Opponent"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: ticket, onChange: this.handleTicketChange, placeholder: "Ticket Link"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: location, onChange: this.handleLocationChange, placeholder: "Location"})), 
+          React.createElement("h5", {className: "home"}, "Home: ", React.createElement("input", {type: "checkbox", checked: home, onChange: this.handleHomeChange})), 
+
+          games, 
+
+          React.createElement("a", {className: "submit", onClick: self.newGame}, "new game"), 
+
+           photos ?
+            React.createElement("div", {className: "photos"}, 
+              React.createElement("p", {className: "page_edit_title_small"}, "Photos"), 
+              photos
+            ) 
+            : '', 
+          
+
+          React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
+          
+          React.createElement("div", {className: "edit_buttons"}, 
+            
+             status == 'new' ? 
+              React.createElement("span", null, 
+                React.createElement("a", {className: "edit_button border", onClick: self.submitContent}, "save"), 
+                React.createElement("a", {className: "edit_button", onClick: self.handleRemoveNew}, "Cancel")
+              ) 
+            : 
+              React.createElement("span", null, 
+                React.createElement("a", {className: "edit_button border", onClick: self.editContent}, "save"), 
+                React.createElement("a", {className: "edit_button", onClick: self.cancelEdit}, "Cancel")
+              )
+            
+            
+            
+          )
+        )
+      )
+    } else {
+
+      return (
+        React.createElement("div", {className: "matchup show"}, 
+          React.createElement("h3", null, name), 
+
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "edit"), 
+            React.createElement("a", {className: "edit_button", onClick: self.handleRemove}, "remove")
+          )
+        )
+      )
+    }
+  }
+});
+
+module.exports = Matchup;
+},{"../../lib/utils":16,"../dropzone.js":12,"./photo.jsx":5,"./photos_uploader.jsx":6,"moment":26,"react":267,"react-date-picker":31,"react-inlinesvg":44,"superagent":268,"util":24}],4:[function(require,module,exports){
+var React = require('react'),
+    request = require('superagent'),
+    util = require('util');
+
+var News = React.createClass({displayName: "News",
+  getInitialState: function() {
+    return { title: '', status: 'show', link: '', image: '', credit: '' };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var tmp_news = {};
+    tmp_news.identifier = self.props.identifier,
+    tmp_news.title = self.props.title,
+    tmp_news.credit = self.props.credit,
+    tmp_news.link = self.props.link,
+    tmp_news.image = self.props.image,
+    tmp_news._id = self.props._id,
+    tmp_news.status = self.props.status;
+    
+    self.setState(tmp_news);
+
+  },
+
+  componentDidMount: function(){
+
+  },
+
+  handleTitleChange: function(event) {
+    this.setState({title: event.target.value});
+  },
+
+  handleLinkChange: function(event) {
+    this.setState({link: event.target.value});
+  },
+
+  handleImageChange: function(event) {
+    this.setState({image: event.target.value});
+  },
+
+  handleCreditChange: function(event) {
+    this.setState({credit: event.target.value});
+  },
+
+  handleEdit: function(){
+    this.setState({status: "edit"})
+  },
+
+  handleRemove: function(){
+    this.props.remove_news({_id: this.state._id});
+  },
+
+
+  handleRemoveNew: function(){
+    this.props.remove_new_news({_id: 4});
+  },
+
+  submitContent: function(){
+    var self = this;
+    request
+      .post('/api/news/new')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          console.log('new news: '+res.text);
+          var new_game = JSON.parse(res.text);
+          new_game.identifier = self.state.identifier;
+          new_game.status = 'show';
+          self.props.new_news(new_game);
+          self.setState(new_game);
+        }
+      }.bind(self));
+  },
+
+  editContent: function(){
+    var self = this;
+
+    request
+      .post('/api/news/'+self.state._id+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          console.log('new news: '+res.text);
+          var new_game = JSON.parse(res.text);
+          new_game.identifier = self.state.identifier;
+          new_game.status = 'show';
+          self.setState(new_game);
+        }
+      }.bind(self));
+  },
+
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
+
+  render: function () {
+    var self = this;
+
+    var title = self.state.title,
+        link = self.state.link,
+        image = self.state.image,
+        credit = self.state.credit,
+        status = self.state.status;
+
+
+    if (status == 'new') {
+      return (
+        React.createElement("div", {className: "matchup"}, 
+          React.createElement("h3", null, "New News"), 
+          React.createElement("h3", null, React.createElement("input", {type: "text", value: title, onChange: this.handleTitleChange, placeholder: "Title"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: link, onChange: this.handleLinkChange, placeholder: "Link"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: image, onChange: this.handleImageChange, placeholder: "Image"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: credit, onChange: this.handleCreditChange, placeholder: "Credit"})), 
+          
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button red", onClick: self.submitContent}, "save"), 
+            React.createElement("a", {className: "edit_button", onClick: self.handleRemoveNew}, "cancel")
+          )
+        )
+      )
+    } else if (status == 'edit') {
+      return (
+        React.createElement("div", {className: "matchup"}, 
+          React.createElement("h3", null, "Edit News"), 
+          React.createElement("h3", null, React.createElement("input", {type: "text", value: title, onChange: this.handleTitleChange, placeholder: "Title"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: link, onChange: this.handleLinkChange, placeholder: "Link"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: image, onChange: this.handleImageChange, placeholder: "Image"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: credit, onChange: this.handleCreditChange, placeholder: "Credit"})), 
+          
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button red", onClick: self.editContent}, "save"), 
+            React.createElement("a", {className: "edit_button", onClick: self.cancelEdit}, "cancel")
+          )
+        )
+      )
+    } else {
+      return (
+        React.createElement("div", {className: "matchup"}, 
+          React.createElement("h3", null, name), 
+          React.createElement("ul", null, 
+            React.createElement("li", null, "Title: ", title), 
+            React.createElement("li", null, "Link: ", link), 
+            React.createElement("li", null, "Image: ", image), 
+            React.createElement("li", null, "Credit: ", credit)
+          ), 
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "edit"), 
+            React.createElement("a", {className: "edit_button", onClick: self.handleRemove}, "remove")
+          )
+        )
+      )
+    }
+  }
+});
+
+module.exports = News;
+},{"react":267,"superagent":268,"util":24}],5:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+
+var React = require('react'),
+    util = require('util'),
+    request = require('superagent');
+
+var Dropzone = require('../dropzone.js');
+
+var Photo = React.createClass({displayName: "Photo",
+
+  getInitialState: function() {
+    return { url: '', description: '', featured: false, _id: '', status: 'show'};
+  },
+
+  componentWillMount: function() {
+    var self = this;
+    var tmp_photo = {};
+    tmp_photo.identifier = self.props.identifier,
+    tmp_photo.url = self.props.url,
+    tmp_photo.featured = self.props.featured,
+    tmp_photo._id = self.props._id,
+    tmp_photo.matchup_status = self.props.matchup_status,
+    tmp_photo.description = self.props.description;
+    
+    self.setState(tmp_photo);
+  },
+
+  handleDescriptionChange: function(event) {
+    this.setState({description: event.target.value });
+  },
+
+  handleFeaturedChange: function(event) {
+    this.setState({featured: !this.state.featured });
+  },
+
+  handleClose: function() {
+    var self = this;
+    self.props.removed({id: self.props.identifier});
+  },
+
+  handleSwapPrevious: function() {
+    this.props.swap_previous({id: this.props.identifier});
+  },
+
+  handleSwapNext: function() {
+    this.props.swap_next({id: this.props.identifier});
+  },
+
+  componentDidMount: function() {
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
+
+    if (!image) {
+      console.log('componentDidMount: '+ _id);
+      Dropzone.autoDiscover = false;
+      var myDropzone = new Dropzone(".uploader-"+_id, {
+        init: function() {
+          var self = this;
+          self.on("addedfile", function(file) {
+            console.log('new file added ', file);
+          });
+        },
+        maxFiles: 1,
+        url: "/upload"
+      });
+
+      myDropzone.on("success", function(response) {
+        console.log('success: ' + util.inspect(response.xhr.response));
+        self.setState({url: response.xhr.response});
+      });
+    }
+  },
+
+  componentDidUpdate: function() {
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
+
+    if (!image) {
+      console.log('componentDidMount: '+  _id);
+      Dropzone.autoDiscover = false;
+      var myDropzone = new Dropzone(".uploader-"+ _id, {
+        init: function() {
+          var self = this;
+          self.on("addedfile", function(file) {
+            console.log('new file added ', file);
+          });
+        },
+        maxFiles: 1,
+        url: "/upload"
+      });
+
+      myDropzone.on("success", function(response) {
+        console.log('success: ' + util.inspect(response.xhr.response));
+        self.setState({url: response.xhr.response});
+      });
+    }
+  },
+
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
+
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
+
+  removeUrl: function(){
+    this.setState({url: ''});
+  },
+
+  handleRemove: function(){
+    this.props.remove_photo({_id: this.state._id});
+  },
+
+  submitContent: function(){
+    var self = this;
+    console.log('self.state._id: '+self.state._id);
+    request
+      .post('/api/photos/'+self.state._id+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          new_photo.status = 'show';
+          self.setState(new_photo);
+        }
+      }.bind(self));
+  },
+
+  render: function() {
+    var self = this,
+        url = self.state.url,
+        description = self.state.description,
+        featured = self.state.featured,
+        identifier = this.state.identifier,
+        _id = this.state._id,
+        status = this.state.status,
+        matchup_status = this.state.matchup_status;
+
+        var divStyles = {
+          backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev'+url+')'
+        };
+
+
+    var className = 'content-container';
+    if (status == 'show') {
+      return ( 
+        React.createElement("div", {className: "photo", ref: "contentwrapper", style: divStyles}, 
+              description ? React.createElement("p", null, description) : '', 
+               (matchup_status == 'edit') ?
+                React.createElement("div", {className: "photo_buttons"}, 
+                  React.createElement("a", {className: "photo_button", onClick: self.handleEdit}, "Edit"), 
+                  React.createElement("a", {className: "photo_button", onClick: self.handleRemove}, "delete")
+                )
+              : ''
+        ) )
+    } else if (status == 'edit'){
+      return ( 
+        React.createElement("div", {className: "photo image-container"}, 
+          React.createElement("div", {className: "photo_edit"}, 
+            React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url})
+          ), 
+          React.createElement("input", {className: "description_input", type: "text", placeholder: "Description", value: description, onChange: self.handleDescriptionChange}), 
+          React.createElement("div", {className: "photo_buttons  edit_photo"}, 
+            React.createElement("a", {className: "photo_button", onClick: self.submitContent}, "save"), 
+            React.createElement("a", {className: "photo_button", onClick: self.cancelEdit}, "cancel")
+          )
+        )
+      )
+    }
+  }
+});
+
+module.exports = Photo;
+},{"../dropzone.js":12,"react":267,"superagent":268,"util":24}],6:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+
+var React = require('react'),
+    util = require('util'),
+    request = require('superagent');
+
+var Dropzone = require('../dropzone.js');
+
+var Photo = require('./photo.jsx');
+
+var PhotosUploader = React.createClass({displayName: "PhotosUploader",
+
+  componentDidMount: function() {
+    var self = this;
+    Dropzone.autoDiscover = false;
+    var myDropzone = new Dropzone(".photo-uploader", {
+      init: function() {
+        var self = this;
+        self.on("addedfile", function(file) {
+          console.log('new file added ', file);
+        });
+      },
+      url: "/upload"
+    });
+
+    myDropzone.on("success", function(response) {
+      console.log('success: ' + util.inspect(response.xhr.response));
+      self.props.photos({url: response.xhr.response});
+    });
+
+    myDropzone.on("complete", function(file) {
+      myDropzone.removeFile(file);
+    });
+  },
+
+
+  render: function() {
+    var self = this;
+
+    return ( 
+        React.createElement("div", {className: "image-container"}, 
+          React.createElement("div", {className: "image-uploader photo-uploader dropzone"}, 
+            React.createElement("div", {className: "dz-default dz-message"}, React.createElement("span", {className: "fa fa-image upload-icon"}), React.createElement("span", null, "Drop Photos Here to Upload"))
+          )
+        ) 
+      )
+  }
+});
+
+module.exports = PhotosUploader;
+},{"../dropzone.js":12,"./photo.jsx":5,"react":267,"superagent":268,"util":24}],7:[function(require,module,exports){
+var React = require('react'),
+    request = require('superagent'),
+    util = require('util'),
+    Dropzone = require('../dropzone.js');
+
+var Content = window.slug || {};
+
+var Router = require('react-router');
+
+var InlineSVG = require('react-inlinesvg');
+
+var News = require('./news.jsx'),
+    Photo = require('./photo.jsx'),
+    PhotosUploader = require('./photos_uploader.jsx');
+
+var Page = React.createClass({displayName: "Page",
+  mixins: [ Router.State, Router.Navigation ],
+  getInitialState: function() {
+    return { 
+      name: '', 
+      status: 'new', 
+      headline: '', 
+      banner: '', 
+      description: '', 
+      video: {}, 
+      icon: {}, 
+      photos: [], 
+      news: [], 
+      submitted: false };
+  },
+  
+  componentWillMount: function(){
+    var self = this;
+
+    request
+      .get('/api/pages/our-house')
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var Page = JSON.parse(res.text);
+          Page.status = "edit";
+          self.setState(Page);
+          console.log(Page)
+        }
+      }.bind(self));
+  },
+  componentWillReceiveProps: function () { 
+    var self = this;
+
+    request
+      .get('/api/pages/our-house')
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var Page = JSON.parse(res.text);
+          Page.status = "edit";
+          self.setState(Page);
+          console.log(Page)
+        }
+      }.bind(self));
+  },
+  handleNameChange: function(event) {
+    this.setState({name: event.target.value});
+  },
+
+  handleHeadlineChange: function(event) {
+    this.setState({headline: event.target.value});
+  },
+
+  handleBannerChange: function(event) {
+    this.setState({banner: event.target.value});
+  },
+
+  handleDescriptionChange: function(event) {
+    this.setState({description: event.target.value});
+  },
+
+
+  handleNewPhoto: function(photo) {
+    var self = this,
+        current_tmp_photos = self.state.tmp_photos,
+        current_photos = self.state.photos;
+
+    request
+      .post('/api/photos/new')
+      .send(photo)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          var new_photos = current_photos.concat(new_photo);
+          self.setState({photos: new_photos });
+        }
+      }.bind(self));
+  },
+
+  handleRemovePhoto: function(photo) {
+
+    var self = this,
+        current_photos = self.state.photos,
+        found_photo;
+
+    for ( i in  current_photos) {
+      if ( current_photos[i] == photo._id ){
+        found_photo = i;
+      }
+    }
+    current_photos.splice(found_photo, 1);
+
+    self.setState({photos: current_photos });
+  },
+
+  newNews: function() {
+    console.log('newNews');
+    var current_news = this.state.news;
+    var new_news = current_news.concat({status: 'new', identifier: Math.random()});
+    this.setState({news: new_news});
+  },
+
+  newNewsSaved: function(content) {
+    console.log("new new saved: "+ util.inspect(content));
+    var self = this,
+        current_news = self.state.news, 
+        found_new;
+
+    if (content.identifier) {
+      for ( i in  current_news) {
+        if ( current_news[i].identifier == content.identifier ){
+          found_new = i;
+        }
+      }
+      current_news[found_new] = content;
+
+      self.setState({news: current_news });      
+    }
+  },
+
+
+  handleRemoveNews: function(object) {
+
+    var self = this,
+        current_news = self.state.news,
+        found_new;
+
+    if (object._id) {
+      for ( i in  current_news) {
+        if ( current_news[i] == object._id ){
+          found_new = i;
+        }
+      }
+      current_news.splice(found_new, 1);
+
+      self.setState({news: current_news });      
+    }
+  },
+
+  handleRemoveNewNews: function(object) {
+
+    var self = this,
+        current_news = self.state.news,
+        found_new;
+
+    if (object._id) {
+      for ( i in  current_news) {
+        if ( current_news[i].identifier == object._id ){
+          found_new = i;
+        }
+      }
+      current_news.splice(found_new, 1);
+
+      self.setState({news: current_news });      
+    }
+  },
+
+  submitContent: function(){
+    var self = this;
+    var tmp_matchups = self.state.matchups.sort(function(a,b){
+      return new Date(a.games[0].date) - new Date(b.games[0].date);
+    });
+    self.setState({submitted: true, matchups: tmp_matchups});
+    if (self.state.status == "new") {
+      request
+        .post('/api/pages/new')
+        .send(self.state)
+        .end(function(res) {
+          console.log(res)
+          if (res.text) {
+            var response = JSON.parse(res.text);
+            self.transitionTo('/'+response.slug);
+            // window.location = '/'+response.slug;
+          }
+        }.bind(self));
+    } else if (self.state.status == "edit") {
+      request
+        .post('/api/pages/'+self.state.slug+'/edit')
+        .send(self.state)
+        .end(function(res) {
+          if (res.text) {
+            self.transitionTo('/'+self.state.slug);
+            // window.location = '/'+self.state.slug;
+          }
+        }.bind(self));
+    }
+  },
+
+  testContent: function(){
+    console.log(util.inspect(this.state));
+  },
+
+  render: function () {
+    var self = this;
+
+    var name = self.state.name,
+        headline = self.state.headline,
+        banner = self.state.banner,
+        description = self.state.description,
+        status = self.state.status;
+
+    var photos = self.state.photos.map(function(object) {
+      return React.createElement(Photo, {
+        url: object.url, 
+        _id: object._id, 
+
+        key: object._id, 
+        featured: object.featured, 
+        description: object.description, 
+        remove_photo: self.handleRemovePhoto, 
+
+        identifier: Math.random()})
+    });
+
+    var news = self.state.news.reverse().map(function(object) {
+      console.log('news: '+util.inspect(object));
+      return React.createElement(News, {
+        title: object.title, 
+        link: object.link, 
+        image: object.image, 
+        credit: object.credit, 
+        status: object.status, 
+
+        _id: object._id, 
+
+        key: object._id, 
+
+        remove_news: self.handleRemoveNews, 
+        remove_new_news: self.handleRemoveNewNews, 
+
+        new_news: self.newNewsSaved, 
+
+        identifier: object.identifier})
+    });
+
+    if (status == 'new') {
+
+      return (
+        React.createElement("div", {className: "container edit-container"}, 
+          React.createElement("div", {className: "page", id: "new_page"}, 
+            React.createElement("h2", {className: "page_edit_title"}, "New Page"), 
+            React.createElement("h3", null, React.createElement("input", {type: "text", value: name, onChange: this.handleNameChange, placeholder: "Name"})), 
+            React.createElement("h5", null, React.createElement("input", {type: "text", value: description, onChange: this.handleDescriptionChange, placeholder: "Description"})), 
+
+            React.createElement("div", {className: "games"}, 
+              React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
+              React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement(InlineSVG, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
+              news
+            ), 
+
+             photos ?
+              React.createElement("div", {className: "photos"}, 
+                React.createElement("p", {className: "page_edit_title_small"}, "Photos"), 
+                photos
+              ) 
+              : '', 
+            
+
+            React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
+            
+            React.createElement("a", {className: "submit", onClick: this.submitContent}, "save page"), 
+            React.createElement("a", {className: "submit", onClick: this.testContent}, "test")
+
+          )
+        )
+      );
+    } else if (status == 'edit') {
+      return (
+        React.createElement("div", {className: "container edit-container"}, 
+          React.createElement("div", {className: "page", id: "new_page"}, 
+            React.createElement("h2", {className: "page_edit_title"}, "Edit ", name), 
+
+            React.createElement("div", {className: "games"}, 
+              React.createElement("p", {className: "page_edit_title_box"}, "Press"), 
+              React.createElement("h6", {className: "new_game", onClick: this.newNews}, React.createElement(InlineSVG, {className: "plus-icon", src: "/img/icon--plus.svg"})), 
+              news
+            ), 
+
+             photos ?
+              React.createElement("div", {className: "photos"}, 
+                React.createElement("p", {className: "page_edit_title_small"}, "Photos"), 
+                photos
+              ) 
+              : '', 
+            
+
+            React.createElement(PhotosUploader, {photos: this.handleNewPhoto}), 
+
+            React.createElement("div", {className: "edit_buttons"}, 
+              React.createElement("a", {className: "edit_button red", onClick: this.submitContent}, "post"), 
+              React.createElement("a", {className: "edit_button", href: "/"+self.state.slug}, "Cancel"), 
+              React.createElement("a", {className: "edit_button test", onClick: this.testContent}, "Test")
+            )
+          )
+        )
+      );
+    }
+  }
+});
+
+module.exports = Page; 
+
+},{"../dropzone.js":12,"./news.jsx":8,"./photo.jsx":9,"./photos_uploader.jsx":10,"react":267,"react-inlinesvg":44,"react-router":72,"superagent":268,"util":24}],8:[function(require,module,exports){
+arguments[4][4][0].apply(exports,arguments)
+},{"dup":4,"react":267,"superagent":268,"util":24}],9:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+
+var React = require('react'),
+    util = require('util'),
+    request = require('superagent');
+
+var Dropzone = require('../dropzone.js');
+
+var Photo = React.createClass({displayName: "Photo",
+
+  getInitialState: function() {
+    return { url: '', description: '', featured: false, _id: '', status: 'show'};
+  },
+
+  componentWillMount: function() {
+    var self = this;
+    var tmp_photo = {};
+    tmp_photo.identifier = self.props.identifier,
+    tmp_photo.url = self.props.url,
+    tmp_photo.featured = self.props.featured,
+    tmp_photo._id = self.props._id,
+    tmp_photo.matchup_status = self.props.matchup_status,
+    tmp_photo.description = self.props.description;
+    
+    self.setState(tmp_photo);
+  },
+
+  handleDescriptionChange: function(event) {
+    this.setState({description: event.target.value });
+  },
+
+  handleFeaturedChange: function(event) {
+    this.setState({featured: !this.state.featured });
+  },
+
+  handleClose: function() {
+    var self = this;
+    self.props.removed({id: self.props.identifier});
+  },
+
+  handleSwapPrevious: function() {
+    this.props.swap_previous({id: this.props.identifier});
+  },
+
+  handleSwapNext: function() {
+    this.props.swap_next({id: this.props.identifier});
+  },
+
+  componentDidMount: function() {
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
+
+    if (!image) {
+      console.log('componentDidMount: '+ _id);
+      Dropzone.autoDiscover = false;
+      var myDropzone = new Dropzone(".uploader-"+_id, {
+        init: function() {
+          var self = this;
+          self.on("addedfile", function(file) {
+            console.log('new file added ', file);
+          });
+        },
+        maxFiles: 1,
+        url: "/upload"
+      });
+
+      myDropzone.on("success", function(response) {
+        console.log('success: ' + util.inspect(response.xhr.response));
+        self.setState({url: response.xhr.response});
+      });
+    }
+  },
+
+  componentDidUpdate: function() {
+    var self = this,
+        image = this.state.url,
+        identifier = this.state.identifier,
+        _id = this.state._id;
+
+    if (!image) {
+      console.log('componentDidMount: '+  _id);
+      Dropzone.autoDiscover = false;
+      var myDropzone = new Dropzone(".uploader-"+ _id, {
+        init: function() {
+          var self = this;
+          self.on("addedfile", function(file) {
+            console.log('new file added ', file);
+          });
+        },
+        maxFiles: 1,
+        url: "/upload"
+      });
+
+      myDropzone.on("success", function(response) {
+        console.log('success: ' + util.inspect(response.xhr.response));
+        self.setState({url: response.xhr.response});
+      });
+    }
+  },
+
+  handleEdit: function() {
+    this.setState({status: 'edit'});
+  },
+
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
+
+  removeUrl: function(){
+    this.setState({url: ''});
+  },
+
+  handleRemove: function(){
+    this.props.remove_photo({_id: this.state._id});
+  },
+
+  submitContent: function(){
+    var self = this;
+    console.log('self.state._id: '+self.state._id);
+    request
+      .post('/api/photos/'+self.state._id+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var new_photo = JSON.parse(res.text);
+          new_photo.status = 'show';
+          self.setState(new_photo);
+        }
+      }.bind(self));
+  },
+
+  render: function() {
+    var self = this,
+        url = self.state.url,
+        description = self.state.description,
+        featured = self.state.featured,
+        identifier = this.state.identifier,
+        _id = this.state._id,
+        status = this.state.status,
+        matchup_status = this.state.matchup_status;
+
+        var divStyles = {
+          backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev'+url+')'
+        };
+
+
+    var className = 'content-container';
+    if (status == 'show') {
+      return ( 
+        React.createElement("div", {className: "photo", ref: "contentwrapper", style: divStyles}, 
+              description ? React.createElement("p", null, description) : '', 
+              React.createElement("div", {className: "photo_buttons"}, 
+                React.createElement("a", {className: "photo_button", onClick: self.handleEdit}, "Edit"), 
+                React.createElement("a", {className: "photo_button", onClick: self.handleRemove}, "delete")
+              )
+        ) )
+    } else if (status == 'edit'){
+      return ( 
+        React.createElement("div", {className: "photo image-container"}, 
+          React.createElement("div", {className: "photo_edit"}, 
+            React.createElement("img", {src: "https://s3.amazonaws.com/maverickmayhem-dev"+url})
+          ), 
+          React.createElement("input", {className: "description_input", type: "text", placeholder: "Description", value: description, onChange: self.handleDescriptionChange}), 
+          React.createElement("div", {className: "photo_buttons  edit_photo"}, 
+            React.createElement("a", {className: "photo_button", onClick: self.submitContent}, "save"), 
+            React.createElement("a", {className: "photo_button", onClick: self.cancelEdit}, "cancel")
+          )
+        )
+      )
+    }
+  }
+});
+
+module.exports = Photo;
+},{"../dropzone.js":12,"react":267,"superagent":268,"util":24}],10:[function(require,module,exports){
+arguments[4][6][0].apply(exports,arguments)
+},{"../dropzone.js":12,"./photo.jsx":9,"dup":6,"react":267,"superagent":268,"util":24}],11:[function(require,module,exports){
+var React = require('react'),
+    request = require('superagent'),
+    util = require('util'),
+    ResponsiveMixin = require('react-responsive-mixin');
+
+var InlineSVG = require('react-inlinesvg');
+
+var FlickerIcon = require('../page/flickerIcon.jsx');
+
+var Photo = React.createClass({displayName: "Photo",
+  getInitialState: function() {
+    return { 
+      className: 'loading',
+    };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var photo = new Image();
+    photo.onload = this.onLoad;
+    photo.src = "https://s3.amazonaws.com/maverickmayhem-dev" + self.props.url;
+  },
+
+
+
+  onLoad: function() {
+    var self = this;
+    self.setState({className: "loaded"});
+
+  },
+
+  componentDidMount: function () {},
+
+  render: function(){
+    var self = this;
+    var divStyles = {
+      backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev' + self.props.url + '), url(../img/bkgrd_pattern_RED.svg)',
+    };
+    return (
+      React.createElement("div", {className: "matchup_photo "+self.state.className, style: divStyles}, 
+        React.createElement("div", {className: "description", style: divStyles}, 
+          React.createElement("img", {src: "../img/expand_img.svg"}), 
+          React.createElement("p", null, self.props.description)
+        )
+      )
+      )
+  }
+});
+
+var News = React.createClass({displayName: "News",
+  componentDidMount: function () {},
+
+  render: function(){
+    var self = this;
+    var divStyles = {
+      background: 'url(' + self.props.image + ') no-repeat center',
+    };
+    return (
+
+      React.createElement("li", {className: "news__list-item", style: divStyles}, 
+        React.createElement("a", {target: "_blank", href: self.props.link}, 
+          React.createElement("h4", {className: "news__title"}, React.createElement("span", {className: "news__title__inner"}, self.props.title, React.createElement("em", {className: "news__byline"}, "by ", self.props.credit)))
+        )
+      )
+
+
+
+      )
+  }
+});
+
+var my_image1, bkd_image1;
+
+var AssetList = React.createClass({displayName: "AssetList",
+  getInitialState: function() {
+    return { photos: [], news: [], pre_count: 0 };
+  },
+  componentWillMount: function(){
+    var self = this;
+
+    bkd_image1 = new Image();
+    bkd_image1.onload = self.onLoad;
+    bkd_image1.src = "/img/bkgrd_pattern_BLK.svg";
+
+    request
+      .get('/api/pages/our-house')
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var photos = JSON.parse(res.text);
+          my_image1 = new Image();
+          my_image1.onload = self.onLoad;
+          my_image1.src = "/img/bg--video_arena.jpg";
+          self.setState(photos);
+        }
+      }.bind(self));
+
+  },
+
+  componentWillReceiveProps: function () {
+    var self = this;
+
+    bkd_image1 = new Image();
+    bkd_image1.onload = self.onLoad;
+    bkd_image1.src = "/img/bkgrd_pattern_BLK.svg";
+
+    request
+      .get('/api/pages/our-house')
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          var photos = JSON.parse(res.text);
+          my_image1 = new Image();
+          my_image1.onload = self.onLoad;
+          my_image1.src = "/img/bg--video_arena.jpg";
+          self.setState(photos);
+        }
+      }.bind(self));
+  },
+
+  onLoad: function() {
+
+    console.log('onLoad');
+    var self = this;
+    var tmp_pre_count = self.state.pre_count;
+    tmp_pre_count++;
+    if (tmp_pre_count == 2) {
+      self.setState({loaded: true, pre_count: tmp_pre_count}); 
+    } else {
+      self.setState({pre_count: tmp_pre_count}); 
+    }
+  },
+
+  playVideo: function (){
+    this.setState({playVideo: true});
+  },
+
+  stopVideo: function (){
+    this.setState({playVideo: false});
+  },
+
+
+  componentDidMount: function () {
+        // $('.instagram .imageloader.loaded img').velocity('transition.slideUpBigIn');
+  },
+
+  render: function() {
+    var self = this;
+
+    var news = self.state.news.map(function(object) {
+      return React.createElement(News, {link: object.link, title: object.title, image: object.image, credit: object.credit, key: object._id})
+    });
+
+    var photos = self.state.photos.map(function(object) {
+      return React.createElement(Photo, {url: object.url, description: object.description, key: object._id})
+    });
+
+    var bkd_video = {},
+          youtube_video = {};
+      bkd_video.poster="/img/bg--video_arena.jpg";
+      bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_arena.mp4"
+
+      youtube_video.src = "https://www.youtube.com/embed/wCzTEu9tSK0?rel=0&autoplay=1";
+    if (self.state.loaded == true) {
+      return (
+        React.createElement("div", null, 
+            React.createElement("div", {className:  self.state.playVideo ? "page-video-wrapper show" : "page-video-wrapper"}, 
+              React.createElement("div", {className: "video-center", onClick: self.stopVideo}, 
+                React.createElement("iframe", {className: "tunnel-walk", width: "853", height: "480", src:  self.state.playVideo ? youtube_video.src : '', frameBorder: "0", allowFullScreen: true})
+              )
+            ), 
+            React.createElement("div", {className: "page_container", id: "main", role: "main"}, 
+              React.createElement("div", {className: "hero hero-home"}, 
+                React.createElement("div", {className: "hero__inner"}, 
+                  React.createElement("div", {className: "hero__content-wrap hero__content-home"}, 
+                    React.createElement("div", {className: "hero__content"}, 
+                      React.createElement("img", {src: "/img/every-moment2.svg", alt: "Where every moment is the main event."}), 
+                      React.createElement("p", null, "Opening Fall 2015, construction on the new UNO arena on Center St. near Aksarben Village is well underway. Not only will the arena be home to Mavericks hockey and basketball, it will also play host to a wide range of community events. ")
+                    )
+                  )
+                ), 
+
+                React.createElement("div", {className: "play_button", onClick: self.playVideo}, 
+                  React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
+
+                   self.state.name, " Tunnel Walk Video"
+                ), 
+
+                React.createElement("div", {className: "hero__overlay"}), 
+
+                React.createElement("div", {className: "hero__media"}, 
+                  React.createElement("video", {id: "video-background", className: "video-wrap", poster: bkd_video.poster, autoPlay: true, muted: "muted", loop: true}, 
+                    React.createElement("source", {src: bkd_video.src, type: "video/mp4"})
+                  )
+                )
+              )
+            ), 
+          React.createElement("div", {className: "container"}, 
+            React.createElement("div", {className: "news arena"}, 
+              React.createElement("ul", {className: "news__list"}, 
+                news
+              )
+            )
+          ), 
+          React.createElement("div", {className: "matchup_photos"}, 
+            photos
+          )
+        )
+      )
+    } else {
+      return (
+        React.createElement("div", {className: "preloader"}, 
+          React.createElement(FlickerIcon, {loop: true})
+        )
+      )
+    }
+  }
+});
+
+module.exports = AssetList;
+},{"../page/flickerIcon.jsx":14,"react":267,"react-inlinesvg":44,"react-responsive-mixin":58,"superagent":268,"util":24}],12:[function(require,module,exports){
+
+/*
+ *
+ * More info at [www.dropzonejs.com](http://www.dropzonejs.com)
+ *
+ * Copyright (c) 2012, Matias Meno
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
+(function() {
+  var Dropzone, Emitter, camelize, contentLoaded, detectVerticalSquash, drawImageIOSFix, noop, without,
+    __slice = [].slice,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  noop = function() {};
+
+  Emitter = (function() {
+    function Emitter() {}
+
+    Emitter.prototype.addEventListener = Emitter.prototype.on;
+
+    Emitter.prototype.on = function(event, fn) {
+      this._callbacks = this._callbacks || {};
+      if (!this._callbacks[event]) {
+        this._callbacks[event] = [];
+      }
+      this._callbacks[event].push(fn);
+      return this;
+    };
+
+    Emitter.prototype.emit = function() {
+      var args, callback, callbacks, event, _i, _len;
+      event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      this._callbacks = this._callbacks || {};
+      callbacks = this._callbacks[event];
+      if (callbacks) {
+        for (_i = 0, _len = callbacks.length; _i < _len; _i++) {
+          callback = callbacks[_i];
+          callback.apply(this, args);
+        }
+      }
+      return this;
+    };
+
+    Emitter.prototype.removeListener = Emitter.prototype.off;
+
+    Emitter.prototype.removeAllListeners = Emitter.prototype.off;
+
+    Emitter.prototype.removeEventListener = Emitter.prototype.off;
+
+    Emitter.prototype.off = function(event, fn) {
+      var callback, callbacks, i, _i, _len;
+      if (!this._callbacks || arguments.length === 0) {
+        this._callbacks = {};
+        return this;
+      }
+      callbacks = this._callbacks[event];
+      if (!callbacks) {
+        return this;
+      }
+      if (arguments.length === 1) {
+        delete this._callbacks[event];
+        return this;
+      }
+      for (i = _i = 0, _len = callbacks.length; _i < _len; i = ++_i) {
+        callback = callbacks[i];
+        if (callback === fn) {
+          callbacks.splice(i, 1);
+          break;
+        }
+      }
+      return this;
+    };
+
+    return Emitter;
+
+  })();
+
+  Dropzone = (function(_super) {
+    var extend, resolveOption;
+
+    __extends(Dropzone, _super);
+
+    Dropzone.prototype.Emitter = Emitter;
+
+
+    /*
+    This is a list of all available events you can register on a dropzone object.
+    
+    You can register an event handler like this:
+    
+        dropzone.on("dragEnter", function() { });
+     */
+
+    Dropzone.prototype.events = ["drop", "dragstart", "dragend", "dragenter", "dragover", "dragleave", "addedfile", "removedfile", "thumbnail", "error", "errormultiple", "processing", "processingmultiple", "uploadprogress", "totaluploadprogress", "sending", "sendingmultiple", "success", "successmultiple", "canceled", "canceledmultiple", "complete", "completemultiple", "reset", "maxfilesexceeded", "maxfilesreached", "queuecomplete"];
+
+    Dropzone.prototype.defaultOptions = {
+      url: null,
+      method: "post",
+      withCredentials: false,
+      parallelUploads: 2,
+      uploadMultiple: false,
+      maxFilesize: 256,
+      paramName: "file",
+      createImageThumbnails: true,
+      maxThumbnailFilesize: 10,
+      thumbnailWidth: 120,
+      thumbnailHeight: 120,
+      filesizeBase: 1000,
+      maxFiles: null,
+      filesizeBase: 1000,
+      params: {},
+      clickable: true,
+      ignoreHiddenFiles: true,
+      acceptedFiles: null,
+      acceptedMimeTypes: null,
+      autoProcessQueue: true,
+      autoQueue: true,
+      addRemoveLinks: false,
+      previewsContainer: null,
+      capture: null,
+      dictDefaultMessage: "Drop files here to upload",
+      dictFallbackMessage: "Your browser does not support drag'n'drop file uploads.",
+      dictFallbackText: "Please use the fallback form below to upload your files like in the olden days.",
+      dictFileTooBig: "File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.",
+      dictInvalidFileType: "You can't upload files of this type.",
+      dictResponseError: "Server responded with {{statusCode}} code.",
+      dictCancelUpload: "Cancel upload",
+      dictCancelUploadConfirmation: "Are you sure you want to cancel this upload?",
+      dictRemoveFile: "Remove file",
+      dictRemoveFileConfirmation: null,
+      dictMaxFilesExceeded: "You can not upload any more files.",
+      accept: function(file, done) {
+        return done();
+      },
+      init: function() {
+        return noop;
+      },
+      forceFallback: false,
+      fallback: function() {
+        var child, messageElement, span, _i, _len, _ref;
+        this.element.className = "" + this.element.className + " dz-browser-not-supported";
+        _ref = this.element.getElementsByTagName("div");
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
+          if (/(^| )dz-message($| )/.test(child.className)) {
+            messageElement = child;
+            child.className = "dz-message";
+            continue;
+          }
+        }
+        if (!messageElement) {
+          messageElement = Dropzone.createElement("<div class=\"dz-message\"><span></span></div>");
+          this.element.appendChild(messageElement);
+        }
+        span = messageElement.getElementsByTagName("span")[0];
+        if (span) {
+          span.textContent = this.options.dictFallbackMessage;
+        }
+        return this.element.appendChild(this.getFallbackForm());
+      },
+      resize: function(file) {
+        var info, srcRatio, trgRatio;
+        info = {
+          srcX: 0,
+          srcY: 0,
+          srcWidth: file.width,
+          srcHeight: file.height
+        };
+        srcRatio = file.width / file.height;
+        info.optWidth = this.options.thumbnailWidth;
+        info.optHeight = this.options.thumbnailHeight;
+        if ((info.optWidth == null) && (info.optHeight == null)) {
+          info.optWidth = info.srcWidth;
+          info.optHeight = info.srcHeight;
+        } else if (info.optWidth == null) {
+          info.optWidth = srcRatio * info.optHeight;
+        } else if (info.optHeight == null) {
+          info.optHeight = (1 / srcRatio) * info.optWidth;
+        }
+        trgRatio = info.optWidth / info.optHeight;
+        if (file.height < info.optHeight || file.width < info.optWidth) {
+          info.trgHeight = info.srcHeight;
+          info.trgWidth = info.srcWidth;
+        } else {
+          if (srcRatio > trgRatio) {
+            info.srcHeight = file.height;
+            info.srcWidth = info.srcHeight * trgRatio;
+          } else {
+            info.srcWidth = file.width;
+            info.srcHeight = info.srcWidth / trgRatio;
+          }
+        }
+        info.srcX = (file.width - info.srcWidth) / 2;
+        info.srcY = (file.height - info.srcHeight) / 2;
+        return info;
+      },
+
+      /*
+      Those functions register themselves to the events on init and handle all
+      the user interface specific stuff. Overwriting them won't break the upload
+      but can break the way it's displayed.
+      You can overwrite them if you don't like the default behavior. If you just
+      want to add an additional event handler, register it on the dropzone object
+      and don't overwrite those options.
+       */
+      drop: function(e) {
+        return this.element.classList.remove("dz-drag-hover");
+      },
+      dragstart: noop,
+      dragend: function(e) {
+        return this.element.classList.remove("dz-drag-hover");
+      },
+      dragenter: function(e) {
+        return this.element.classList.add("dz-drag-hover");
+      },
+      dragover: function(e) {
+        return this.element.classList.add("dz-drag-hover");
+      },
+      dragleave: function(e) {
+        return this.element.classList.remove("dz-drag-hover");
+      },
+      paste: noop,
+      reset: function() {
+        return this.element.classList.remove("dz-started");
+      },
+      addedfile: function(file) {
+        var node, removeFileEvent, removeLink, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _results;
+        if (this.element === this.previewsContainer) {
+          this.element.classList.add("dz-started");
+        }
+        if (this.previewsContainer) {
+          file.previewElement = Dropzone.createElement(this.options.previewTemplate.trim());
+          file.previewTemplate = file.previewElement;
+          this.previewsContainer.appendChild(file.previewElement);
+          _ref = file.previewElement.querySelectorAll("[data-dz-name]");
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            node = _ref[_i];
+            node.textContent = file.name;
+          }
+          _ref1 = file.previewElement.querySelectorAll("[data-dz-size]");
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            node = _ref1[_j];
+            node.innerHTML = this.filesize(file.size);
+          }
+          if (this.options.addRemoveLinks) {
+            file._removeLink = Dropzone.createElement("<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>" + this.options.dictRemoveFile + "</a>");
+            file.previewElement.appendChild(file._removeLink);
+          }
+          removeFileEvent = (function(_this) {
+            return function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              if (file.status === Dropzone.UPLOADING) {
+                return Dropzone.confirm(_this.options.dictCancelUploadConfirmation, function() {
+                  return _this.removeFile(file);
+                });
+              } else {
+                if (_this.options.dictRemoveFileConfirmation) {
+                  return Dropzone.confirm(_this.options.dictRemoveFileConfirmation, function() {
+                    return _this.removeFile(file);
+                  });
+                } else {
+                  return _this.removeFile(file);
+                }
+              }
+            };
+          })(this);
+          _ref2 = file.previewElement.querySelectorAll("[data-dz-remove]");
+          _results = [];
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            removeLink = _ref2[_k];
+            _results.push(removeLink.addEventListener("click", removeFileEvent));
+          }
+          return _results;
+        }
+      },
+      removedfile: function(file) {
+        var _ref;
+        if (file.previewElement) {
+          if ((_ref = file.previewElement) != null) {
+            _ref.parentNode.removeChild(file.previewElement);
+          }
+        }
+        return this._updateMaxFilesReachedClass();
+      },
+      thumbnail: function(file, dataUrl) {
+        var thumbnailElement, _i, _len, _ref;
+        if (file.previewElement) {
+          file.previewElement.classList.remove("dz-file-preview");
+          _ref = file.previewElement.querySelectorAll("[data-dz-thumbnail]");
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            thumbnailElement = _ref[_i];
+            thumbnailElement.alt = file.name;
+            thumbnailElement.src = dataUrl;
+          }
+          return setTimeout(((function(_this) {
+            return function() {
+              return file.previewElement.classList.add("dz-image-preview");
+            };
+          })(this)), 1);
+        }
+      },
+      error: function(file, message) {
+        var node, _i, _len, _ref, _results;
+        if (file.previewElement) {
+          file.previewElement.classList.add("dz-error");
+          if (typeof message !== "String" && message.error) {
+            message = message.error;
+          }
+          _ref = file.previewElement.querySelectorAll("[data-dz-errormessage]");
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            node = _ref[_i];
+            _results.push(node.textContent = message);
+          }
+          return _results;
+        }
+      },
+      errormultiple: noop,
+      processing: function(file) {
+        if (file.previewElement) {
+          file.previewElement.classList.add("dz-processing");
+          if (file._removeLink) {
+            return file._removeLink.textContent = this.options.dictCancelUpload;
+          }
+        }
+      },
+      processingmultiple: noop,
+      uploadprogress: function(file, progress, bytesSent) {
+        var node, _i, _len, _ref, _results;
+        if (file.previewElement) {
+          _ref = file.previewElement.querySelectorAll("[data-dz-uploadprogress]");
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            node = _ref[_i];
+            if (node.nodeName === 'PROGRESS') {
+              _results.push(node.value = progress);
+            } else {
+              _results.push(node.style.width = "" + progress + "%");
+            }
+          }
+          return _results;
+        }
+      },
+      totaluploadprogress: noop,
+      sending: noop,
+      sendingmultiple: noop,
+      success: function(file) {
+        if (file.previewElement) {
+          return file.previewElement.classList.add("dz-success");
+        }
+      },
+      successmultiple: noop,
+      canceled: function(file) {
+        return this.emit("error", file, "Upload canceled.");
+      },
+      canceledmultiple: noop,
+      complete: function(file) {
+        if (file._removeLink) {
+          file._removeLink.textContent = this.options.dictRemoveFile;
+        }
+        if (file.previewElement) {
+          return file.previewElement.classList.add("dz-complete");
+        }
+      },
+      completemultiple: noop,
+      maxfilesexceeded: noop,
+      maxfilesreached: noop,
+      queuecomplete: noop,
+      previewTemplate: "<div class=\"dz-preview dz-file-preview\">\n  <div class=\"dz-image\"><img data-dz-thumbnail /></div>\n  <div class=\"dz-details\">\n    <div class=\"dz-size\"><span data-dz-size></span></div>\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n  </div>\n  <div class=\"dz-progress\"><span class=\"dz-upload\" data-dz-uploadprogress></span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n  <div class=\"dz-success-mark\">\n    <svg width=\"54px\" height=\"54px\" viewBox=\"0 0 54 54\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\">\n      <title>Check</title>\n      <defs></defs>\n      <g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\">\n        <path d=\"M23.5,31.8431458 L17.5852419,25.9283877 C16.0248253,24.3679711 13.4910294,24.366835 11.9289322,25.9289322 C10.3700136,27.4878508 10.3665912,30.0234455 11.9283877,31.5852419 L20.4147581,40.0716123 C20.5133999,40.1702541 20.6159315,40.2626649 20.7218615,40.3488435 C22.2835669,41.8725651 24.794234,41.8626202 26.3461564,40.3106978 L43.3106978,23.3461564 C44.8771021,21.7797521 44.8758057,19.2483887 43.3137085,17.6862915 C41.7547899,16.1273729 39.2176035,16.1255422 37.6538436,17.6893022 L23.5,31.8431458 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z\" id=\"Oval-2\" stroke-opacity=\"0.198794158\" stroke=\"#747474\" fill-opacity=\"0.816519475\" fill=\"#FFFFFF\" sketch:type=\"MSShapeGroup\"></path>\n      </g>\n    </svg>\n  </div>\n  <div class=\"dz-error-mark\">\n    <svg width=\"54px\" height=\"54px\" viewBox=\"0 0 54 54\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\">\n      <title>Error</title>\n      <defs></defs>\n      <g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\">\n        <g id=\"Check-+-Oval-2\" sketch:type=\"MSLayerGroup\" stroke=\"#747474\" stroke-opacity=\"0.198794158\" fill=\"#FFFFFF\" fill-opacity=\"0.816519475\">\n          <path d=\"M32.6568542,29 L38.3106978,23.3461564 C39.8771021,21.7797521 39.8758057,19.2483887 38.3137085,17.6862915 C36.7547899,16.1273729 34.2176035,16.1255422 32.6538436,17.6893022 L27,23.3431458 L21.3461564,17.6893022 C19.7823965,16.1255422 17.2452101,16.1273729 15.6862915,17.6862915 C14.1241943,19.2483887 14.1228979,21.7797521 15.6893022,23.3461564 L21.3431458,29 L15.6893022,34.6538436 C14.1228979,36.2202479 14.1241943,38.7516113 15.6862915,40.3137085 C17.2452101,41.8726271 19.7823965,41.8744578 21.3461564,40.3106978 L27,34.6568542 L32.6538436,40.3106978 C34.2176035,41.8744578 36.7547899,41.8726271 38.3137085,40.3137085 C39.8758057,38.7516113 39.8771021,36.2202479 38.3106978,34.6538436 L32.6568542,29 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z\" id=\"Oval-2\" sketch:type=\"MSShapeGroup\"></path>\n        </g>\n      </g>\n    </svg>\n  </div>\n</div>"
+    };
+
+    extend = function() {
+      var key, object, objects, target, val, _i, _len;
+      target = arguments[0], objects = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      for (_i = 0, _len = objects.length; _i < _len; _i++) {
+        object = objects[_i];
+        for (key in object) {
+          val = object[key];
+          target[key] = val;
+        }
+      }
+      return target;
+    };
+
+    function Dropzone(element, options) {
+      var elementOptions, fallback, _ref;
+      this.element = element;
+      this.version = Dropzone.version;
+      this.defaultOptions.previewTemplate = this.defaultOptions.previewTemplate.replace(/\n*/g, "");
+      this.clickableElements = [];
+      this.listeners = [];
+      this.files = [];
+      if (typeof this.element === "string") {
+        this.element = document.querySelector(this.element);
+      }
+      if (!(this.element && (this.element.nodeType != null))) {
+        throw new Error("Invalid dropzone element.");
+      }
+      if (this.element.dropzone) {
+        throw new Error("Dropzone already attached.");
+      }
+      Dropzone.instances.push(this);
+      this.element.dropzone = this;
+      elementOptions = (_ref = Dropzone.optionsForElement(this.element)) != null ? _ref : {};
+      this.options = extend({}, this.defaultOptions, elementOptions, options != null ? options : {});
+      if (this.options.forceFallback || !Dropzone.isBrowserSupported()) {
+        return this.options.fallback.call(this);
+      }
+      if (this.options.url == null) {
+        this.options.url = this.element.getAttribute("action");
+      }
+      if (!this.options.url) {
+        throw new Error("No URL provided.");
+      }
+      if (this.options.acceptedFiles && this.options.acceptedMimeTypes) {
+        throw new Error("You can't provide both 'acceptedFiles' and 'acceptedMimeTypes'. 'acceptedMimeTypes' is deprecated.");
+      }
+      if (this.options.acceptedMimeTypes) {
+        this.options.acceptedFiles = this.options.acceptedMimeTypes;
+        delete this.options.acceptedMimeTypes;
+      }
+      this.options.method = this.options.method.toUpperCase();
+      if ((fallback = this.getExistingFallback()) && fallback.parentNode) {
+        fallback.parentNode.removeChild(fallback);
+      }
+      if (this.options.previewsContainer !== false) {
+        if (this.options.previewsContainer) {
+          this.previewsContainer = Dropzone.getElement(this.options.previewsContainer, "previewsContainer");
+        } else {
+          this.previewsContainer = this.element;
+        }
+      }
+      if (this.options.clickable) {
+        if (this.options.clickable === true) {
+          this.clickableElements = [this.element];
+        } else {
+          this.clickableElements = Dropzone.getElements(this.options.clickable, "clickable");
+        }
+      }
+      this.init();
+    }
+
+    Dropzone.prototype.getAcceptedFiles = function() {
+      var file, _i, _len, _ref, _results;
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (file.accepted) {
+          _results.push(file);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.getRejectedFiles = function() {
+      var file, _i, _len, _ref, _results;
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (!file.accepted) {
+          _results.push(file);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.getFilesWithStatus = function(status) {
+      var file, _i, _len, _ref, _results;
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (file.status === status) {
+          _results.push(file);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.getQueuedFiles = function() {
+      return this.getFilesWithStatus(Dropzone.QUEUED);
+    };
+
+    Dropzone.prototype.getUploadingFiles = function() {
+      return this.getFilesWithStatus(Dropzone.UPLOADING);
+    };
+
+    Dropzone.prototype.getActiveFiles = function() {
+      var file, _i, _len, _ref, _results;
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (file.status === Dropzone.UPLOADING || file.status === Dropzone.QUEUED) {
+          _results.push(file);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.init = function() {
+      var eventName, noPropagation, setupHiddenFileInput, _i, _len, _ref, _ref1;
+      if (this.element.tagName === "form") {
+        this.element.setAttribute("enctype", "multipart/form-data");
+      }
+      if (this.element.classList.contains("dropzone") && !this.element.querySelector(".dz-message")) {
+        this.element.appendChild(Dropzone.createElement("<div class=\"dz-default dz-message\"><span>" + this.options.dictDefaultMessage + "</span></div>"));
+      }
+      if (this.clickableElements.length) {
+        setupHiddenFileInput = (function(_this) {
+          return function() {
+            if (_this.hiddenFileInput) {
+              document.body.removeChild(_this.hiddenFileInput);
+            }
+            _this.hiddenFileInput = document.createElement("input");
+            _this.hiddenFileInput.setAttribute("type", "file");
+            if ((_this.options.maxFiles == null) || _this.options.maxFiles > 1) {
+              _this.hiddenFileInput.setAttribute("multiple", "multiple");
+            }
+            _this.hiddenFileInput.className = "dz-hidden-input";
+            if (_this.options.acceptedFiles != null) {
+              _this.hiddenFileInput.setAttribute("accept", _this.options.acceptedFiles);
+            }
+            if (_this.options.capture != null) {
+              _this.hiddenFileInput.setAttribute("capture", _this.options.capture);
+            }
+            _this.hiddenFileInput.style.visibility = "hidden";
+            _this.hiddenFileInput.style.position = "absolute";
+            _this.hiddenFileInput.style.top = "0";
+            _this.hiddenFileInput.style.left = "0";
+            _this.hiddenFileInput.style.height = "0";
+            _this.hiddenFileInput.style.width = "0";
+            document.body.appendChild(_this.hiddenFileInput);
+            return _this.hiddenFileInput.addEventListener("change", function() {
+              var file, files, _i, _len;
+              files = _this.hiddenFileInput.files;
+              if (files.length) {
+                for (_i = 0, _len = files.length; _i < _len; _i++) {
+                  file = files[_i];
+                  _this.addFile(file);
+                }
+              }
+              return setupHiddenFileInput();
+            });
+          };
+        })(this);
+        setupHiddenFileInput();
+      }
+      this.URL = (_ref = window.URL) != null ? _ref : window.webkitURL;
+      _ref1 = this.events;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        eventName = _ref1[_i];
+        this.on(eventName, this.options[eventName]);
+      }
+      this.on("uploadprogress", (function(_this) {
+        return function() {
+          return _this.updateTotalUploadProgress();
+        };
+      })(this));
+      this.on("removedfile", (function(_this) {
+        return function() {
+          return _this.updateTotalUploadProgress();
+        };
+      })(this));
+      this.on("canceled", (function(_this) {
+        return function(file) {
+          return _this.emit("complete", file);
+        };
+      })(this));
+      this.on("complete", (function(_this) {
+        return function(file) {
+          if (_this.getUploadingFiles().length === 0 && _this.getQueuedFiles().length === 0) {
+            return setTimeout((function() {
+              return _this.emit("queuecomplete");
+            }), 0);
+          }
+        };
+      })(this));
+      noPropagation = function(e) {
+        e.stopPropagation();
+        if (e.preventDefault) {
+          return e.preventDefault();
+        } else {
+          return e.returnValue = false;
+        }
+      };
+      this.listeners = [
+        {
+          element: this.element,
+          events: {
+            "dragstart": (function(_this) {
+              return function(e) {
+                return _this.emit("dragstart", e);
+              };
+            })(this),
+            "dragenter": (function(_this) {
+              return function(e) {
+                noPropagation(e);
+                return _this.emit("dragenter", e);
+              };
+            })(this),
+            "dragover": (function(_this) {
+              return function(e) {
+                var efct;
+                try {
+                  efct = e.dataTransfer.effectAllowed;
+                } catch (_error) {}
+                e.dataTransfer.dropEffect = 'move' === efct || 'linkMove' === efct ? 'move' : 'copy';
+                noPropagation(e);
+                return _this.emit("dragover", e);
+              };
+            })(this),
+            "dragleave": (function(_this) {
+              return function(e) {
+                return _this.emit("dragleave", e);
+              };
+            })(this),
+            "drop": (function(_this) {
+              return function(e) {
+                noPropagation(e);
+                return _this.drop(e);
+              };
+            })(this),
+            "dragend": (function(_this) {
+              return function(e) {
+                return _this.emit("dragend", e);
+              };
+            })(this)
+          }
+        }
+      ];
+      this.clickableElements.forEach((function(_this) {
+        return function(clickableElement) {
+          return _this.listeners.push({
+            element: clickableElement,
+            events: {
+              "click": function(evt) {
+                if ((clickableElement !== _this.element) || (evt.target === _this.element || Dropzone.elementInside(evt.target, _this.element.querySelector(".dz-message")))) {
+                  return _this.hiddenFileInput.click();
+                }
+              }
+            }
+          });
+        };
+      })(this));
+      this.enable();
+      return this.options.init.call(this);
+    };
+
+    Dropzone.prototype.destroy = function() {
+      var _ref;
+      this.disable();
+      this.removeAllFiles(true);
+      if ((_ref = this.hiddenFileInput) != null ? _ref.parentNode : void 0) {
+        this.hiddenFileInput.parentNode.removeChild(this.hiddenFileInput);
+        this.hiddenFileInput = null;
+      }
+      delete this.element.dropzone;
+      return Dropzone.instances.splice(Dropzone.instances.indexOf(this), 1);
+    };
+
+    Dropzone.prototype.updateTotalUploadProgress = function() {
+      var activeFiles, file, totalBytes, totalBytesSent, totalUploadProgress, _i, _len, _ref;
+      totalBytesSent = 0;
+      totalBytes = 0;
+      activeFiles = this.getActiveFiles();
+      if (activeFiles.length) {
+        _ref = this.getActiveFiles();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          file = _ref[_i];
+          totalBytesSent += file.upload.bytesSent;
+          totalBytes += file.upload.total;
+        }
+        totalUploadProgress = 100 * totalBytesSent / totalBytes;
+      } else {
+        totalUploadProgress = 100;
+      }
+      return this.emit("totaluploadprogress", totalUploadProgress, totalBytes, totalBytesSent);
+    };
+
+    Dropzone.prototype._getParamName = function(n) {
+      if (typeof this.options.paramName === "function") {
+        return this.options.paramName(n);
+      } else {
+        return "" + this.options.paramName + (this.options.uploadMultiple ? "[" + n + "]" : "");
+      }
+    };
+
+    Dropzone.prototype.getFallbackForm = function() {
+      var existingFallback, fields, fieldsString, form;
+      if (existingFallback = this.getExistingFallback()) {
+        return existingFallback;
+      }
+      fieldsString = "<div class=\"dz-fallback\">";
+      if (this.options.dictFallbackText) {
+        fieldsString += "<p>" + this.options.dictFallbackText + "</p>";
+      }
+      fieldsString += "<input type=\"file\" name=\"" + (this._getParamName(0)) + "\" " + (this.options.uploadMultiple ? 'multiple="multiple"' : void 0) + " /><input type=\"submit\" value=\"Upload!\"></div>";
+      fields = Dropzone.createElement(fieldsString);
+      if (this.element.tagName !== "FORM") {
+        form = Dropzone.createElement("<form action=\"" + this.options.url + "\" enctype=\"multipart/form-data\" method=\"" + this.options.method + "\"></form>");
+        form.appendChild(fields);
+      } else {
+        this.element.setAttribute("enctype", "multipart/form-data");
+        this.element.setAttribute("method", this.options.method);
+      }
+      return form != null ? form : fields;
+    };
+
+    Dropzone.prototype.getExistingFallback = function() {
+      var fallback, getFallback, tagName, _i, _len, _ref;
+      getFallback = function(elements) {
+        var el, _i, _len;
+        for (_i = 0, _len = elements.length; _i < _len; _i++) {
+          el = elements[_i];
+          if (/(^| )fallback($| )/.test(el.className)) {
+            return el;
+          }
+        }
+      };
+      _ref = ["div", "form"];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tagName = _ref[_i];
+        if (fallback = getFallback(this.element.getElementsByTagName(tagName))) {
+          return fallback;
+        }
+      }
+    };
+
+    Dropzone.prototype.setupEventListeners = function() {
+      var elementListeners, event, listener, _i, _len, _ref, _results;
+      _ref = this.listeners;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elementListeners = _ref[_i];
+        _results.push((function() {
+          var _ref1, _results1;
+          _ref1 = elementListeners.events;
+          _results1 = [];
+          for (event in _ref1) {
+            listener = _ref1[event];
+            _results1.push(elementListeners.element.addEventListener(event, listener, false));
+          }
+          return _results1;
+        })());
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.removeEventListeners = function() {
+      var elementListeners, event, listener, _i, _len, _ref, _results;
+      _ref = this.listeners;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elementListeners = _ref[_i];
+        _results.push((function() {
+          var _ref1, _results1;
+          _ref1 = elementListeners.events;
+          _results1 = [];
+          for (event in _ref1) {
+            listener = _ref1[event];
+            _results1.push(elementListeners.element.removeEventListener(event, listener, false));
+          }
+          return _results1;
+        })());
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.disable = function() {
+      var file, _i, _len, _ref, _results;
+      this.clickableElements.forEach(function(element) {
+        return element.classList.remove("dz-clickable");
+      });
+      this.removeEventListeners();
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        _results.push(this.cancelUpload(file));
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.enable = function() {
+      this.clickableElements.forEach(function(element) {
+        return element.classList.add("dz-clickable");
+      });
+      return this.setupEventListeners();
+    };
+
+    Dropzone.prototype.filesize = function(size) {
+      var cutoff, i, selectedSize, selectedUnit, unit, units, _i, _len;
+      units = ['TB', 'GB', 'MB', 'KB', 'b'];
+      selectedSize = selectedUnit = null;
+      for (i = _i = 0, _len = units.length; _i < _len; i = ++_i) {
+        unit = units[i];
+        cutoff = Math.pow(this.options.filesizeBase, 4 - i) / 10;
+        if (size >= cutoff) {
+          selectedSize = size / Math.pow(this.options.filesizeBase, 4 - i);
+          selectedUnit = unit;
+          break;
+        }
+      }
+      selectedSize = Math.round(10 * selectedSize) / 10;
+      return "<strong>" + selectedSize + "</strong> " + selectedUnit;
+    };
+
+    Dropzone.prototype._updateMaxFilesReachedClass = function() {
+      if ((this.options.maxFiles != null) && this.getAcceptedFiles().length >= this.options.maxFiles) {
+        if (this.getAcceptedFiles().length === this.options.maxFiles) {
+          this.emit('maxfilesreached', this.files);
+        }
+        return this.element.classList.add("dz-max-files-reached");
+      } else {
+        return this.element.classList.remove("dz-max-files-reached");
+      }
+    };
+
+    Dropzone.prototype.drop = function(e) {
+      var files, items;
+      if (!e.dataTransfer) {
+        return;
+      }
+      this.emit("drop", e);
+      files = e.dataTransfer.files;
+      if (files.length) {
+        items = e.dataTransfer.items;
+        if (items && items.length && (items[0].webkitGetAsEntry != null)) {
+          this._addFilesFromItems(items);
+        } else {
+          this.handleFiles(files);
+        }
+      }
+    };
+
+    Dropzone.prototype.paste = function(e) {
+      var items, _ref;
+      if ((e != null ? (_ref = e.clipboardData) != null ? _ref.items : void 0 : void 0) == null) {
+        return;
+      }
+      this.emit("paste", e);
+      items = e.clipboardData.items;
+      if (items.length) {
+        return this._addFilesFromItems(items);
+      }
+    };
+
+    Dropzone.prototype.handleFiles = function(files) {
+      var file, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        _results.push(this.addFile(file));
+      }
+      return _results;
+    };
+
+    Dropzone.prototype._addFilesFromItems = function(items) {
+      var entry, item, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = items.length; _i < _len; _i++) {
+        item = items[_i];
+        if ((item.webkitGetAsEntry != null) && (entry = item.webkitGetAsEntry())) {
+          if (entry.isFile) {
+            _results.push(this.addFile(item.getAsFile()));
+          } else if (entry.isDirectory) {
+            _results.push(this._addFilesFromDirectory(entry, entry.name));
+          } else {
+            _results.push(void 0);
+          }
+        } else if (item.getAsFile != null) {
+          if ((item.kind == null) || item.kind === "file") {
+            _results.push(this.addFile(item.getAsFile()));
+          } else {
+            _results.push(void 0);
+          }
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype._addFilesFromDirectory = function(directory, path) {
+      var dirReader, entriesReader;
+      dirReader = directory.createReader();
+      entriesReader = (function(_this) {
+        return function(entries) {
+          var entry, _i, _len;
+          for (_i = 0, _len = entries.length; _i < _len; _i++) {
+            entry = entries[_i];
+            if (entry.isFile) {
+              entry.file(function(file) {
+                if (_this.options.ignoreHiddenFiles && file.name.substring(0, 1) === '.') {
+                  return;
+                }
+                file.fullPath = "" + path + "/" + file.name;
+                return _this.addFile(file);
+              });
+            } else if (entry.isDirectory) {
+              _this._addFilesFromDirectory(entry, "" + path + "/" + entry.name);
+            }
+          }
+        };
+      })(this);
+      return dirReader.readEntries(entriesReader, function(error) {
+        return typeof console !== "undefined" && console !== null ? typeof console.log === "function" ? console.log(error) : void 0 : void 0;
+      });
+    };
+
+    Dropzone.prototype.accept = function(file, done) {
+      if (file.size > this.options.maxFilesize * 1024 * 1024) {
+        return done(this.options.dictFileTooBig.replace("{{filesize}}", Math.round(file.size / 1024 / 10.24) / 100).replace("{{maxFilesize}}", this.options.maxFilesize));
+      } else if (!Dropzone.isValidFile(file, this.options.acceptedFiles)) {
+        return done(this.options.dictInvalidFileType);
+      } else if ((this.options.maxFiles != null) && this.getAcceptedFiles().length >= this.options.maxFiles) {
+        done(this.options.dictMaxFilesExceeded.replace("{{maxFiles}}", this.options.maxFiles));
+        return this.emit("maxfilesexceeded", file);
+      } else {
+        return this.options.accept.call(this, file, done);
+      }
+    };
+
+    Dropzone.prototype.addFile = function(file) {
+      file.upload = {
+        progress: 0,
+        total: file.size,
+        bytesSent: 0
+      };
+      this.files.push(file);
+      file.status = Dropzone.ADDED;
+      this.emit("addedfile", file);
+      this._enqueueThumbnail(file);
+      return this.accept(file, (function(_this) {
+        return function(error) {
+          if (error) {
+            file.accepted = false;
+            _this._errorProcessing([file], error);
+          } else {
+            file.accepted = true;
+            if (_this.options.autoQueue) {
+              _this.enqueueFile(file);
+            }
+          }
+          return _this._updateMaxFilesReachedClass();
+        };
+      })(this));
+    };
+
+    Dropzone.prototype.enqueueFiles = function(files) {
+      var file, _i, _len;
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        this.enqueueFile(file);
+      }
+      return null;
+    };
+
+    Dropzone.prototype.enqueueFile = function(file) {
+      if (file.status === Dropzone.ADDED && file.accepted === true) {
+        file.status = Dropzone.QUEUED;
+        if (this.options.autoProcessQueue) {
+          return setTimeout(((function(_this) {
+            return function() {
+              return _this.processQueue();
+            };
+          })(this)), 0);
+        }
+      } else {
+        throw new Error("This file can't be queued because it has already been processed or was rejected.");
+      }
+    };
+
+    Dropzone.prototype._thumbnailQueue = [];
+
+    Dropzone.prototype._processingThumbnail = false;
+
+    Dropzone.prototype._enqueueThumbnail = function(file) {
+      if (this.options.createImageThumbnails && file.type.match(/image.*/) && file.size <= this.options.maxThumbnailFilesize * 1024 * 1024) {
+        this._thumbnailQueue.push(file);
+        return setTimeout(((function(_this) {
+          return function() {
+            return _this._processThumbnailQueue();
+          };
+        })(this)), 0);
+      }
+    };
+
+    Dropzone.prototype._processThumbnailQueue = function() {
+      if (this._processingThumbnail || this._thumbnailQueue.length === 0) {
+        return;
+      }
+      this._processingThumbnail = true;
+      return this.createThumbnail(this._thumbnailQueue.shift(), (function(_this) {
+        return function() {
+          _this._processingThumbnail = false;
+          return _this._processThumbnailQueue();
+        };
+      })(this));
+    };
+
+    Dropzone.prototype.removeFile = function(file) {
+      if (file.status === Dropzone.UPLOADING) {
+        this.cancelUpload(file);
+      }
+      this.files = without(this.files, file);
+      this.emit("removedfile", file);
+      if (this.files.length === 0) {
+        return this.emit("reset");
+      }
+    };
+
+    Dropzone.prototype.removeAllFiles = function(cancelIfNecessary) {
+      var file, _i, _len, _ref;
+      if (cancelIfNecessary == null) {
+        cancelIfNecessary = false;
+      }
+      _ref = this.files.slice();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (file.status !== Dropzone.UPLOADING || cancelIfNecessary) {
+          this.removeFile(file);
+        }
+      }
+      return null;
+    };
+
+    Dropzone.prototype.createThumbnail = function(file, callback) {
+      var fileReader;
+      fileReader = new FileReader;
+      fileReader.onload = (function(_this) {
+        return function() {
+          var img;
+          if (file.type === "image/svg+xml") {
+            _this.emit("thumbnail", file, fileReader.result);
+            if (callback != null) {
+              callback();
+            }
+            return;
+          }
+          img = document.createElement("img");
+          img.onload = function() {
+            var canvas, ctx, resizeInfo, thumbnail, _ref, _ref1, _ref2, _ref3;
+            file.width = img.width;
+            file.height = img.height;
+            resizeInfo = _this.options.resize.call(_this, file);
+            if (resizeInfo.trgWidth == null) {
+              resizeInfo.trgWidth = resizeInfo.optWidth;
+            }
+            if (resizeInfo.trgHeight == null) {
+              resizeInfo.trgHeight = resizeInfo.optHeight;
+            }
+            canvas = document.createElement("canvas");
+            ctx = canvas.getContext("2d");
+            canvas.width = resizeInfo.trgWidth;
+            canvas.height = resizeInfo.trgHeight;
+            drawImageIOSFix(ctx, img, (_ref = resizeInfo.srcX) != null ? _ref : 0, (_ref1 = resizeInfo.srcY) != null ? _ref1 : 0, resizeInfo.srcWidth, resizeInfo.srcHeight, (_ref2 = resizeInfo.trgX) != null ? _ref2 : 0, (_ref3 = resizeInfo.trgY) != null ? _ref3 : 0, resizeInfo.trgWidth, resizeInfo.trgHeight);
+            thumbnail = canvas.toDataURL("image/png");
+            _this.emit("thumbnail", file, thumbnail);
+            if (callback != null) {
+              return callback();
+            }
+          };
+          img.onerror = callback;
+          return img.src = fileReader.result;
+        };
+      })(this);
+      return fileReader.readAsDataURL(file);
+    };
+
+    Dropzone.prototype.processQueue = function() {
+      var i, parallelUploads, processingLength, queuedFiles;
+      parallelUploads = this.options.parallelUploads;
+      processingLength = this.getUploadingFiles().length;
+      i = processingLength;
+      if (processingLength >= parallelUploads) {
+        return;
+      }
+      queuedFiles = this.getQueuedFiles();
+      if (!(queuedFiles.length > 0)) {
+        return;
+      }
+      if (this.options.uploadMultiple) {
+        return this.processFiles(queuedFiles.slice(0, parallelUploads - processingLength));
+      } else {
+        while (i < parallelUploads) {
+          if (!queuedFiles.length) {
+            return;
+          }
+          this.processFile(queuedFiles.shift());
+          i++;
+        }
+      }
+    };
+
+    Dropzone.prototype.processFile = function(file) {
+      return this.processFiles([file]);
+    };
+
+    Dropzone.prototype.processFiles = function(files) {
+      var file, _i, _len;
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        file.processing = true;
+        file.status = Dropzone.UPLOADING;
+        this.emit("processing", file);
+      }
+      if (this.options.uploadMultiple) {
+        this.emit("processingmultiple", files);
+      }
+      return this.uploadFiles(files);
+    };
+
+    Dropzone.prototype._getFilesWithXhr = function(xhr) {
+      var file, files;
+      return files = (function() {
+        var _i, _len, _ref, _results;
+        _ref = this.files;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          file = _ref[_i];
+          if (file.xhr === xhr) {
+            _results.push(file);
+          }
+        }
+        return _results;
+      }).call(this);
+    };
+
+    Dropzone.prototype.cancelUpload = function(file) {
+      var groupedFile, groupedFiles, _i, _j, _len, _len1, _ref;
+      if (file.status === Dropzone.UPLOADING) {
+        groupedFiles = this._getFilesWithXhr(file.xhr);
+        for (_i = 0, _len = groupedFiles.length; _i < _len; _i++) {
+          groupedFile = groupedFiles[_i];
+          groupedFile.status = Dropzone.CANCELED;
+        }
+        file.xhr.abort();
+        for (_j = 0, _len1 = groupedFiles.length; _j < _len1; _j++) {
+          groupedFile = groupedFiles[_j];
+          this.emit("canceled", groupedFile);
+        }
+        if (this.options.uploadMultiple) {
+          this.emit("canceledmultiple", groupedFiles);
+        }
+      } else if ((_ref = file.status) === Dropzone.ADDED || _ref === Dropzone.QUEUED) {
+        file.status = Dropzone.CANCELED;
+        this.emit("canceled", file);
+        if (this.options.uploadMultiple) {
+          this.emit("canceledmultiple", [file]);
+        }
+      }
+      if (this.options.autoProcessQueue) {
+        return this.processQueue();
+      }
+    };
+
+    resolveOption = function() {
+      var args, option;
+      option = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (typeof option === 'function') {
+        return option.apply(this, args);
+      }
+      return option;
+    };
+
+    Dropzone.prototype.uploadFile = function(file) {
+      return this.uploadFiles([file]);
+    };
+
+    Dropzone.prototype.uploadFiles = function(files) {
+      var file, formData, handleError, headerName, headerValue, headers, i, input, inputName, inputType, key, method, option, progressObj, response, updateProgress, url, value, xhr, _i, _j, _k, _l, _len, _len1, _len2, _len3, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      xhr = new XMLHttpRequest();
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        file.xhr = xhr;
+      }
+      method = resolveOption(this.options.method, files);
+      url = resolveOption(this.options.url, files);
+      xhr.open(method, url, true);
+      xhr.withCredentials = !!this.options.withCredentials;
+      response = null;
+      handleError = (function(_this) {
+        return function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = files.length; _j < _len1; _j++) {
+            file = files[_j];
+            _results.push(_this._errorProcessing(files, response || _this.options.dictResponseError.replace("{{statusCode}}", xhr.status), xhr));
+          }
+          return _results;
+        };
+      })(this);
+      updateProgress = (function(_this) {
+        return function(e) {
+          var allFilesFinished, progress, _j, _k, _l, _len1, _len2, _len3, _results;
+          if (e != null) {
+            progress = 100 * e.loaded / e.total;
+            for (_j = 0, _len1 = files.length; _j < _len1; _j++) {
+              file = files[_j];
+              file.upload = {
+                progress: progress,
+                total: e.total,
+                bytesSent: e.loaded
+              };
+            }
+          } else {
+            allFilesFinished = true;
+            progress = 100;
+            for (_k = 0, _len2 = files.length; _k < _len2; _k++) {
+              file = files[_k];
+              if (!(file.upload.progress === 100 && file.upload.bytesSent === file.upload.total)) {
+                allFilesFinished = false;
+              }
+              file.upload.progress = progress;
+              file.upload.bytesSent = file.upload.total;
+            }
+            if (allFilesFinished) {
+              return;
+            }
+          }
+          _results = [];
+          for (_l = 0, _len3 = files.length; _l < _len3; _l++) {
+            file = files[_l];
+            _results.push(_this.emit("uploadprogress", file, progress, file.upload.bytesSent));
+          }
+          return _results;
+        };
+      })(this);
+      xhr.onload = (function(_this) {
+        return function(e) {
+          var _ref;
+          if (files[0].status === Dropzone.CANCELED) {
+            return;
+          }
+          if (xhr.readyState !== 4) {
+            return;
+          }
+          response = xhr.responseText;
+          if (xhr.getResponseHeader("content-type") && ~xhr.getResponseHeader("content-type").indexOf("application/json")) {
+            try {
+              response = JSON.parse(response);
+            } catch (_error) {
+              e = _error;
+              response = "Invalid JSON response from server.";
+            }
+          }
+          updateProgress();
+          if (!((200 <= (_ref = xhr.status) && _ref < 300))) {
+            return handleError();
+          } else {
+            return _this._finished(files, response, e);
+          }
+        };
+      })(this);
+      xhr.onerror = (function(_this) {
+        return function() {
+          if (files[0].status === Dropzone.CANCELED) {
+            return;
+          }
+          return handleError();
+        };
+      })(this);
+      progressObj = (_ref = xhr.upload) != null ? _ref : xhr;
+      progressObj.onprogress = updateProgress;
+      headers = {
+        "Accept": "application/json",
+        "Cache-Control": "no-cache",
+        "X-Requested-With": "XMLHttpRequest"
+      };
+      if (this.options.headers) {
+        extend(headers, this.options.headers);
+      }
+      for (headerName in headers) {
+        headerValue = headers[headerName];
+        xhr.setRequestHeader(headerName, headerValue);
+      }
+      formData = new FormData();
+      if (this.options.params) {
+        _ref1 = this.options.params;
+        for (key in _ref1) {
+          value = _ref1[key];
+          formData.append(key, value);
+        }
+      }
+      for (_j = 0, _len1 = files.length; _j < _len1; _j++) {
+        file = files[_j];
+        this.emit("sending", file, xhr, formData);
+      }
+      if (this.options.uploadMultiple) {
+        this.emit("sendingmultiple", files, xhr, formData);
+      }
+      if (this.element.tagName === "FORM") {
+        _ref2 = this.element.querySelectorAll("input, textarea, select, button");
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          input = _ref2[_k];
+          inputName = input.getAttribute("name");
+          inputType = input.getAttribute("type");
+          if (input.tagName === "SELECT" && input.hasAttribute("multiple")) {
+            _ref3 = input.options;
+            for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+              option = _ref3[_l];
+              if (option.selected) {
+                formData.append(inputName, option.value);
+              }
+            }
+          } else if (!inputType || ((_ref4 = inputType.toLowerCase()) !== "checkbox" && _ref4 !== "radio") || input.checked) {
+            formData.append(inputName, input.value);
+          }
+        }
+      }
+      for (i = _m = 0, _ref5 = files.length - 1; 0 <= _ref5 ? _m <= _ref5 : _m >= _ref5; i = 0 <= _ref5 ? ++_m : --_m) {
+        formData.append(this._getParamName(i), files[i], files[i].name);
+      }
+      return xhr.send(formData);
+    };
+
+    Dropzone.prototype._finished = function(files, responseText, e) {
+      var file, _i, _len;
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        file.status = Dropzone.SUCCESS;
+        this.emit("success", file, responseText, e);
+        this.emit("complete", file);
+      }
+      if (this.options.uploadMultiple) {
+        this.emit("successmultiple", files, responseText, e);
+        this.emit("completemultiple", files);
+      }
+      if (this.options.autoProcessQueue) {
+        return this.processQueue();
+      }
+    };
+
+    Dropzone.prototype._errorProcessing = function(files, message, xhr) {
+      var file, _i, _len;
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        file.status = Dropzone.ERROR;
+        this.emit("error", file, message, xhr);
+        this.emit("complete", file);
+      }
+      if (this.options.uploadMultiple) {
+        this.emit("errormultiple", files, message, xhr);
+        this.emit("completemultiple", files);
+      }
+      if (this.options.autoProcessQueue) {
+        return this.processQueue();
+      }
+    };
+
+    return Dropzone;
+
+  })(Emitter);
+
+  Dropzone.version = "4.0.0";
+
+  Dropzone.options = {};
+
+  Dropzone.optionsForElement = function(element) {
+    if (element.getAttribute("id")) {
+      return Dropzone.options[camelize(element.getAttribute("id"))];
+    } else {
+      return void 0;
+    }
+  };
+
+  Dropzone.instances = [];
+
+  Dropzone.forElement = function(element) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    if ((element != null ? element.dropzone : void 0) == null) {
+      throw new Error("No Dropzone found for given element. This is probably because you're trying to access it before Dropzone had the time to initialize. Use the `init` option to setup any additional observers on your Dropzone.");
+    }
+    return element.dropzone;
+  };
+
+  Dropzone.autoDiscover = true;
+
+  Dropzone.discover = function() {
+    var checkElements, dropzone, dropzones, _i, _len, _results;
+    if (document.querySelectorAll) {
+      dropzones = document.querySelectorAll(".dropzone");
+    } else {
+      dropzones = [];
+      checkElements = function(elements) {
+        var el, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = elements.length; _i < _len; _i++) {
+          el = elements[_i];
+          if (/(^| )dropzone($| )/.test(el.className)) {
+            _results.push(dropzones.push(el));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+      checkElements(document.getElementsByTagName("div"));
+      checkElements(document.getElementsByTagName("form"));
+    }
+    _results = [];
+    for (_i = 0, _len = dropzones.length; _i < _len; _i++) {
+      dropzone = dropzones[_i];
+      if (Dropzone.optionsForElement(dropzone) !== false) {
+        _results.push(new Dropzone(dropzone));
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
+  };
+
+  Dropzone.blacklistedBrowsers = [/opera.*Macintosh.*version\/12/i];
+
+  Dropzone.isBrowserSupported = function() {
+    var capableBrowser, regex, _i, _len, _ref;
+    capableBrowser = true;
+    if (window.File && window.FileReader && window.FileList && window.Blob && window.FormData && document.querySelector) {
+      if (!("classList" in document.createElement("a"))) {
+        capableBrowser = false;
+      } else {
+        _ref = Dropzone.blacklistedBrowsers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          regex = _ref[_i];
+          if (regex.test(navigator.userAgent)) {
+            capableBrowser = false;
+            continue;
+          }
+        }
+      }
+    } else {
+      capableBrowser = false;
+    }
+    return capableBrowser;
+  };
+
+  without = function(list, rejectedItem) {
+    var item, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = list.length; _i < _len; _i++) {
+      item = list[_i];
+      if (item !== rejectedItem) {
+        _results.push(item);
+      }
+    }
+    return _results;
+  };
+
+  camelize = function(str) {
+    return str.replace(/[\-_](\w)/g, function(match) {
+      return match.charAt(1).toUpperCase();
+    });
+  };
+
+  Dropzone.createElement = function(string) {
+    var div;
+    div = document.createElement("div");
+    div.innerHTML = string;
+    return div.childNodes[0];
+  };
+
+  Dropzone.elementInside = function(element, container) {
+    if (element === container) {
+      return true;
+    }
+    while (element = element.parentNode) {
+      if (element === container) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  Dropzone.getElement = function(el, name) {
+    var element;
+    if (typeof el === "string") {
+      element = document.querySelector(el);
+    } else if (el.nodeType != null) {
+      element = el;
+    }
+    if (element == null) {
+      throw new Error("Invalid `" + name + "` option provided. Please provide a CSS selector or a plain HTML element.");
+    }
+    return element;
+  };
+
+  Dropzone.getElements = function(els, name) {
+    var e, el, elements, _i, _j, _len, _len1, _ref;
+    if (els instanceof Array) {
+      elements = [];
+      try {
+        for (_i = 0, _len = els.length; _i < _len; _i++) {
+          el = els[_i];
+          elements.push(this.getElement(el, name));
+        }
+      } catch (_error) {
+        e = _error;
+        elements = null;
+      }
+    } else if (typeof els === "string") {
+      elements = [];
+      _ref = document.querySelectorAll(els);
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        el = _ref[_j];
+        elements.push(el);
+      }
+    } else if (els.nodeType != null) {
+      elements = [els];
+    }
+    if (!((elements != null) && elements.length)) {
+      throw new Error("Invalid `" + name + "` option provided. Please provide a CSS selector, a plain HTML element or a list of those.");
+    }
+    return elements;
+  };
+
+  Dropzone.confirm = function(question, accepted, rejected) {
+    if (window.confirm(question)) {
+      return accepted();
+    } else if (rejected != null) {
+      return rejected();
+    }
+  };
+
+  Dropzone.isValidFile = function(file, acceptedFiles) {
+    var baseMimeType, mimeType, validType, _i, _len;
+    if (!acceptedFiles) {
+      return true;
+    }
+    acceptedFiles = acceptedFiles.split(",");
+    mimeType = file.type;
+    baseMimeType = mimeType.replace(/\/.*$/, "");
+    for (_i = 0, _len = acceptedFiles.length; _i < _len; _i++) {
+      validType = acceptedFiles[_i];
+      validType = validType.trim();
+      if (validType.charAt(0) === ".") {
+        if (file.name.toLowerCase().indexOf(validType.toLowerCase(), file.name.length - validType.length) !== -1) {
+          return true;
+        }
+      } else if (/\/\*$/.test(validType)) {
+        if (baseMimeType === validType.replace(/\/.*$/, "")) {
+          return true;
+        }
+      } else {
+        if (mimeType === validType) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  if (typeof jQuery !== "undefined" && jQuery !== null) {
+    jQuery.fn.dropzone = function(options) {
+      return this.each(function() {
+        return new Dropzone(this, options);
+      });
+    };
+  }
+
+  if (typeof module !== "undefined" && module !== null) {
+    module.exports = Dropzone;
+  } else {
+    window.Dropzone = Dropzone;
+  }
+
+  Dropzone.ADDED = "added";
+
+  Dropzone.QUEUED = "queued";
+
+  Dropzone.ACCEPTED = Dropzone.QUEUED;
+
+  Dropzone.UPLOADING = "uploading";
+
+  Dropzone.PROCESSING = Dropzone.UPLOADING;
+
+  Dropzone.CANCELED = "canceled";
+
+  Dropzone.ERROR = "error";
+
+  Dropzone.SUCCESS = "success";
+
+
+  /*
+  
+  Bugfix for iOS 6 and 7
+  Source: http://stackoverflow.com/questions/11929099/html5-canvas-drawimage-ratio-bug-ios
+  based on the work of https://github.com/stomita/ios-imagefile-megapixel
+   */
+
+  detectVerticalSquash = function(img) {
+    var alpha, canvas, ctx, data, ey, ih, iw, py, ratio, sy;
+    iw = img.naturalWidth;
+    ih = img.naturalHeight;
+    canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = ih;
+    ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    data = ctx.getImageData(0, 0, 1, ih).data;
+    sy = 0;
+    ey = ih;
+    py = ih;
+    while (py > sy) {
+      alpha = data[(py - 1) * 4 + 3];
+      if (alpha === 0) {
+        ey = py;
+      } else {
+        sy = py;
+      }
+      py = (ey + sy) >> 1;
+    }
+    ratio = py / ih;
+    if (ratio === 0) {
+      return 1;
+    } else {
+      return ratio;
+    }
+  };
+
+  drawImageIOSFix = function(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
+    var vertSquashRatio;
+    vertSquashRatio = detectVerticalSquash(img);
+    return ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh / vertSquashRatio);
+  };
+
+
+  /*
+   * contentloaded.js
+   *
+   * Author: Diego Perini (diego.perini at gmail.com)
+   * Summary: cross-browser wrapper for DOMContentLoaded
+   * Updated: 20101020
+   * License: MIT
+   * Version: 1.2
+   *
+   * URL:
+   * http://javascript.nwbox.com/ContentLoaded/
+   * http://javascript.nwbox.com/ContentLoaded/MIT-LICENSE
+   */
+
+  contentLoaded = function(win, fn) {
+    var add, doc, done, init, poll, pre, rem, root, top;
+    done = false;
+    top = true;
+    doc = win.document;
+    root = doc.documentElement;
+    add = (doc.addEventListener ? "addEventListener" : "attachEvent");
+    rem = (doc.addEventListener ? "removeEventListener" : "detachEvent");
+    pre = (doc.addEventListener ? "" : "on");
+    init = function(e) {
+      if (e.type === "readystatechange" && doc.readyState !== "complete") {
+        return;
+      }
+      (e.type === "load" ? win : doc)[rem](pre + e.type, init, false);
+      if (!done && (done = true)) {
+        return fn.call(win, e.type || e);
+      }
+    };
+    poll = function() {
+      var e;
+      try {
+        root.doScroll("left");
+      } catch (_error) {
+        e = _error;
+        setTimeout(poll, 50);
+        return;
+      }
+      return init("poll");
+    };
+    if (doc.readyState !== "complete") {
+      if (doc.createEventObject && root.doScroll) {
+        try {
+          top = !win.frameElement;
+        } catch (_error) {}
+        if (top) {
+          poll();
+        }
+      }
+      doc[add](pre + "DOMContentLoaded", init, false);
+      doc[add](pre + "readystatechange", init, false);
+      return win[add](pre + "load", init, false);
+    }
+  };
+
+  Dropzone._autoDiscoverFunction = function() {
+    if (Dropzone.autoDiscover) {
+      return Dropzone.discover();
+    }
+  };
+
+  contentLoaded(window, Dropzone._autoDiscoverFunction);
+
+}).call(this);
+},{}],13:[function(require,module,exports){
 var React = require('react'),
     request = require('superagent'),
     util = require('util');
@@ -503,7 +4650,7 @@ var Main = React.createClass({displayName: "Main",
 
 module.exports = Main;
 
-},{"../../public/js/vendors/matchMedia.addListener.js":241,"../../public/js/vendors/matchmedia.js":242,"../page/flickerIcon.jsx":2,"jquery":11,"react":235,"react-inlinesvg":12,"react-responsive-mixin":26,"react-router":40,"superagent":236,"util":10,"velocity-animate/velocity":239,"velocity-animate/velocity.ui":240}],2:[function(require,module,exports){
+},{"../../public/js/vendors/matchMedia.addListener.js":274,"../../public/js/vendors/matchmedia.js":275,"../page/flickerIcon.jsx":14,"jquery":25,"react":267,"react-inlinesvg":44,"react-responsive-mixin":58,"react-router":72,"superagent":268,"util":24,"velocity-animate/velocity":271,"velocity-animate/velocity.ui":272}],14:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require('react/addons');
@@ -680,7 +4827,595 @@ var FlickerIcon = React.createClass({displayName: "FlickerIcon",
 });
 
 module.exports = FlickerIcon;
-},{"react-inlinesvg":12,"react/addons":74,"util":10,"velocity-animate/velocity":239,"velocity-animate/velocity.ui":240}],3:[function(require,module,exports){
+},{"react-inlinesvg":44,"react/addons":106,"util":24,"velocity-animate/velocity":271,"velocity-animate/velocity.ui":272}],15:[function(require,module,exports){
+var React = require('react'),
+    request = require('superagent'),
+    util = require('util'),
+    moment = require('moment'),
+    tools = require('../../lib/utils');
+
+var Router = require('react-router');
+
+var InlineSVG = require('react-inlinesvg');
+
+function getPeriod(i) {
+  if (this.slug == "hockey"){ 
+    if (i < 4 ) {
+      return tools.ordinal(i);
+    } else {
+      return "OT";
+    }
+  } else {
+    return tools.ordinal(i);
+  }
+}
+
+function getUsTotal(game) {
+  var total = game.scores.reduce(function(a, b) {
+    return a + b.us;
+  }, 0);
+  return total;
+};
+
+function getThemTotal(game) {
+  var total = game.scores.reduce(function(a, b) {
+    return a + b.them;
+  }, 0);
+  return total;
+};
+
+function getSmallDate(i) {
+  return moment(i).format('MMM. D');
+};
+
+
+var Content = window.slug || {};
+
+var FlickerIcon = require('./flickerIcon.jsx');
+
+
+var Photo = React.createClass({displayName: "Photo",
+  getInitialState: function() {
+    return { 
+      className: 'loading',
+    };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var my_image = new Image();
+    my_image.onload = this.onLoad;
+    my_image.src = "https://s3.amazonaws.com/maverickmayhem-dev" + self.props.url;
+  },
+
+
+
+  onLoad: function() {
+    var self = this;
+    self.setState({className: "loaded"});
+
+  },
+
+  componentDidMount: function () {},
+
+  render: function(){
+    var self = this;
+    var divStyles = {
+      backgroundImage: 'url(https://s3.amazonaws.com/maverickmayhem-dev' + self.props.url + '), url(../img/bkgrd_pattern_RED.svg)',
+    };
+    return (
+      React.createElement("div", {className: "matchup_photo "+self.state.className, style: divStyles}, 
+        React.createElement("div", {className: "description", style: divStyles}, 
+          React.createElement("img", {src: "../img/expand_img.svg"}), 
+          React.createElement("p", null, self.props.description)
+        )
+      )
+      )
+  }
+});
+
+var MatchupScores = React.createClass({displayName: "MatchupScores",
+  getInitialState: function() {
+    return { 
+      games: [],
+      current_game: '',
+      opponent: ''
+    }
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    console.log('componentWillMount: ' + util.inspect(self.props));
+
+    self.setState(self.props);
+  },
+
+  changeGame: function(game) {
+    var self = this;
+    console.log('game_label clicked: ' + util.inspect(game));
+    self.setState({current_game: game._id});
+  },
+
+  render: function() {
+    console.log('MatchupScores: ' + util.inspect(this.state));
+      var self = this;
+          games = self.state.games;
+      var game_toggle = games.map(function(game, index) {
+        var active = false;
+        if(game._id == self.state.current_game){ 
+           active = true;
+         }
+        return (
+          React.createElement("div", {onClick: self.changeGame.bind(null, game), key: game._id, className: active ? "game_label active" : "game_label"}, "Game ",  index +1, " | ", getSmallDate(game.date), " ")
+        )
+      });
+
+      var game_table = games.map(function(game, index) {
+        var active = false;
+        if(game._id == self.state.current_game){ 
+           active = true;
+        }
+        var periods = game.scores.map(function(object, index) {
+          return React.createElement("th", null,  getPeriod(index +1) )
+        });
+
+        var us_scores = game.scores.map(function(score) {
+          return React.createElement("td", {className: "score"},  score.us)
+        });
+
+        var them_scores = game.scores.map(function(score) {
+          return React.createElement("td", {className: "score"},  score.them)
+        });
+
+        return (
+          React.createElement("table", {className: active ? "last_matchup_table sport__scoreboard sport__scoreboard-hockey active" : "last_matchup_table sport__scoreboard sport__scoreboard-hockey"}, 
+            React.createElement("thead", null, 
+              React.createElement("tr", {className: "scoreboard__header"}, 
+                React.createElement("th", {className: "team-name"}, " "), 
+                periods, 
+                React.createElement("th", {className: "score-total"}, "Total")
+              )
+            ), 
+            React.createElement("tbody", null, 
+              React.createElement("tr", {className: "team visitor"}, 
+                React.createElement("td", {className: "team-name"}, "Omaha"), 
+                us_scores, 
+                React.createElement("td", {className: "score"}, getUsTotal(game))
+              ), 
+              React.createElement("tr", {className: "team away"}, 
+                React.createElement("td", {className: "team-name"}, self.state.opponent), 
+                them_scores, 
+                React.createElement("td", {className: "score"},  getThemTotal(game) )
+              )
+            )
+          )
+          )
+      });
+
+      return (
+        React.createElement("div", {className: "last_matchup"}, 
+          React.createElement("p", {className: "content_title"}, "Last Matchup:"), 
+          React.createElement("div", {className: "game_toggle"}, 
+            game_toggle
+          ), 
+          game_table
+
+        )
+      )
+  }
+});
+
+var PhotoGallery = React.createClass({displayName: "PhotoGallery",
+  getInitialState: function() {
+    return { 
+      current_matchup: {},
+      last_matchup: {},
+      next_matchup: {},
+      matchups: [], 
+    };
+  },
+  componentWillMount: function(){
+    var self = this;
+    var photo_gallery = {};
+
+
+    photo_gallery.matchups = self.props.matchups;
+    photo_gallery.current_matchup = self.props.last_matchup;
+
+    self.setState(photo_gallery);
+
+  },
+
+  previousMatchup: function(){
+    var self = this;
+    var current_matchup = self.state.current_matchup._id;
+    var tmp_previous_matchup;
+
+    for (i=0; i < self.state.matchups.length; i++){
+      if (self.state.matchups[i]._id == current_matchup){
+        tmp_previous_matchup = i-1;
+      }
+    }
+    if (tmp_previous_matchup >= 0) {
+      self.setState({current_matchup: self.state.matchups[tmp_previous_matchup]});
+    }
+
+  },
+
+  nextMatchup: function(){
+    var self = this;
+    var current_matchup = self.state.current_matchup._id;
+    var tmp_next_matchup;
+
+    for (i=0; i < self.state.matchups.length; i++){
+      if (self.state.matchups[i]._id == current_matchup){
+        tmp_next_matchup = i+1;
+      }
+    }
+    if (tmp_next_matchup < self.state.matchups.length) {
+      self.setState({current_matchup: self.state.matchups[tmp_next_matchup]});
+    }
+    
+
+  },
+
+  render: function() {
+    var self = this; 
+
+    var last_matchup = self.state.last_matchup;
+    var current_matchup = self.state.current_matchup;
+
+    console.log('Page.render current_matchup: ' + util.inspect(current_matchup));
+
+    if (current_matchup.photos){
+      var photos = current_matchup.photos.map(function(object) {
+        return React.createElement(Photo, {url: object.url, description: object.description, key: object._id})
+      });
+    }
+    return (
+      React.createElement("div", {className: "photo-gallery"}, 
+        React.createElement("div", {className: "sport-recap"}, 
+          React.createElement("span", {onClick: self.previousMatchup, className: "previous_matchup"}, React.createElement("img", {src: "../img/arrow_left.svg"}), React.createElement("span", {className: "label"}, "Previous")), 
+          React.createElement("div", {className: "sport__headline matchup_headline"}, 
+            React.createElement("h2", null,  current_matchup.name ? current_matchup.name : '')
+          ), 
+           current_matchup.games ? React.createElement(MatchupScores, {key: current_matchup._id, games: current_matchup.games, current_game: current_matchup.games[0]._id, opponent: current_matchup.opponent}) : '', 
+          React.createElement("span", {onClick: self.nextMatchup, className: "next_matchup"}, React.createElement("img", {src: "../img/arrow_right.svg"}), React.createElement("span", {className: "label"}, "Next"))
+        ), 
+        
+        React.createElement("div", {className: "matchup_photos"}, 
+          photos
+        )
+      )
+    )
+  }
+});
+
+var my_image, bkd_image;
+
+var Page = React.createClass({displayName: "Page",
+  mixins: [ Router.State ],
+  getInitialState: function() {
+    return { 
+      name: '', 
+      headline: '', 
+      banner: '', 
+      description: '', 
+      video: {}, 
+      icon: {}, 
+      current_matchup: {},
+      last_matchup: {},
+      next_matchup: {},
+      matchups: [], 
+      photos: [], 
+      featured_photos: [],
+      tmp_photos: [], 
+      news: [],
+      loaded: false,
+      pre_count: 0
+    };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    bkd_image = new Image();
+    bkd_image.onload = self.onLoad;
+    bkd_image.src = "/img/bkgrd_pattern_BLK.svg";
+    var slug = self.getParams().slug;
+
+    // self.setState(self.getStateFromStore());
+    // if (Content) {
+
+    //   request
+    //     .get('/api/pages/'+Content)
+    //     .end(function(res) {
+    //       if (res.text) {
+    //         var Page = JSON.parse(res.text);
+
+
+    //         var tmp_matchups = Page.matchups.sort(function(a,b){
+    //           return new Date(a.games[0].date) - new Date(b.games[0].date);
+    //         });
+
+    //         Page.matchups = tmp_matchups;
+    //         Page.current_matchup = Page.last_matchup;
+
+    //         my_image = new Image();
+    //         my_image.onload = self.onLoad;
+
+    //         if (Page.slug == 'hockey') {
+    //           console.log('hockey');
+    //           my_image.src = "http://www.maverick-mayhem.com/img/bg--video_hockey.jpg";
+
+    //         } else if (Page.slug == 'basketball') {
+    //           console.log('basketball');
+    //           my_image.src = "http://www.maverick-mayhem.com/img/bg--video_bball-mens.jpg";
+    //         } 
+
+    //         self.setState(Page);
+    //       }
+    //     }.bind(self));
+    // }
+
+    if (slug) {
+
+      request
+        .get('/api/pages/'+slug)
+        .end(function(res) {
+          if (res.text) {
+            var Page = JSON.parse(res.text);
+
+
+            var tmp_matchups = Page.matchups.sort(function(a,b){
+              return new Date(a.games[0].date) - new Date(b.games[0].date);
+            });
+
+            Page.matchups = tmp_matchups;
+            Page.current_matchup = Page.last_matchup;
+
+            my_image = new Image();
+            my_image.onload = self.onLoad;
+
+            if (Page.slug == 'hockey') {
+              console.log('hockey');
+              my_image.src = "/img/bg--video_hockey.jpg";
+
+            } else if (Page.slug == 'basketball') {
+              console.log('basketball');
+              my_image.src = "/img/bg--video_bball-mens.jpg";
+            } 
+
+            self.setState(Page);
+          }
+        }.bind(self));
+    }
+  },
+
+  componentWillReceiveProps: function () {
+    var self = this;
+
+    var slug = self.getParams().slug;
+    if (slug != self.state.slug) { 
+
+      console.log('componentWillReceiveProps[slug]: ' + slug);
+      bkd_image = new Image();
+      bkd_image.onload = self.onLoad;
+      bkd_image.src = "/img/bkgrd_pattern_BLK.svg";
+      self.setState({loaded: false, pre_count: 0});
+
+      request
+        .get('/api/pages/'+slug)
+        .end(function(res) {
+          if (res.text) {
+            var Page = JSON.parse(res.text);
+
+
+            var tmp_matchups = Page.matchups.sort(function(a,b){
+              return new Date(a.games[0].date) - new Date(b.games[0].date);
+            });
+
+            Page.matchups = tmp_matchups;
+            Page.current_matchup = Page.last_matchup;
+
+            my_image = new Image();
+            my_image.onload = self.onLoad;
+
+            if (Page.slug == 'hockey') {
+              console.log('hockey');
+              my_image.src = "/img/bg--video_hockey.jpg";
+
+            } else if (Page.slug == 'basketball') {
+              console.log('basketball');
+              my_image.src = "/img/bg--video_bball-mens.jpg";
+            } 
+
+            self.setState(Page);
+          }
+        }.bind(self));
+    }
+  },
+
+
+  componentDidMount: function(){
+    var self = this;
+  },
+
+
+  onLoad: function() {
+    var self = this;
+    var tmp_pre_count = self.state.pre_count;
+    tmp_pre_count++;
+    if (tmp_pre_count == 2) {
+      self.setState({loaded: true, pre_count: tmp_pre_count}); 
+    } else {
+      self.setState({pre_count: tmp_pre_count}); 
+    }
+  },
+
+  playVideo: function (){
+    this.setState({playVideo: true});
+  },
+
+  stopVideo: function (){
+    this.setState({playVideo: false});
+  },
+
+
+
+
+  render: function() {
+    var self = this; 
+    var slug = self.getParams().slug;
+
+    if (self.state.loaded == true) {
+      var matchups = self.state.matchups,
+          last_matchup = self.state.last_matchup;
+      var bkd_video = {},
+          youtube_video = {};
+
+      var news = self.state.news.map(function(object) {
+
+        var news_style = {
+          background: 'url('+ object.image +') no-repeat center', 
+          backgroundSize: 'cover'
+        }
+
+        return (
+            React.createElement("li", {className: "news__list-item", style: news_style}, 
+              React.createElement("a", {target: "_blank", href:  object.link}, 
+                React.createElement("h4", {className: "news__title"}, React.createElement("span", null,  object.title, React.createElement("em", {className: "news__byline"}, "by ",  object.credit)))
+              )
+            )
+        )
+      });
+
+      if (self.state.slug == 'hockey') {
+        bkd_video.poster="/img/bg--video_hockey.jpg";
+        bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_hockey.mp4"
+
+        youtube_video.src = "https://www.youtube.com/embed/JNuQxxJSGZs?list=PL7tfLy4QIaez1AtYAPyv_BO5TFR1BbRT-&autoplay=1";
+
+        ;
+
+      } else if (self.state.slug == 'basketball') {
+        bkd_video.poster="/img/bg--video_bball-mens.jpg";
+        bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_bball_mens.mp4";
+
+        youtube_video.src = "https://www.youtube.com/embed/8RiSg3ZzSsw?list=PL7tfLy4QIaez1AtYAPyv_BO5TFR1BbRT-&autoplay=1";
+      } else {
+        
+      }
+
+      return (
+        React.createElement("div", null, 
+
+          React.createElement("div", {className:  self.state.playVideo ? "page-video-wrapper show" : "page-video-wrapper"}, 
+            React.createElement("div", {className: "video-center", onClick: self.stopVideo}, 
+              React.createElement("iframe", {className: "tunnel-walk", width: "853", height: "480", src:  self.state.playVideo ? youtube_video.src : '', frameBorder: "0", allowFullScreen: true})
+            )
+          ), 
+
+
+
+          React.createElement("div", {className: "page_container", id: "main", role: "main"}, 
+            React.createElement("div", {className: "hero"}, 
+              React.createElement("div", {className: "page_content"}, 
+                React.createElement("div", {className: "page_title"}, 
+                  React.createElement("h3", null, React.createElement("img", {className: "icon--mav-mayhem", src: "/img/icon--maverick-mayhem.svg", alt: "#maverickmayhem"}), React.createElement("span", {id: "sport_icon"}, React.createElement(FlickerIcon, {icon_url: "/img/icon--flicker-"+self.state.slug+".svg"})))
+                ), 
+               self.state.next_matchup._id ?  
+              React.createElement("div", {className: "content_box next"}, 
+                  React.createElement("p", {className: "content_title"}, "NEXT MATCHUP: ",  self.state.next_matchup.date), 
+                  React.createElement("p", {className: "game_title"}, "vs ",  self.state.next_matchup.opponent, " @ ",  self.state.next_matchup.location), 
+                   self.state.next_matchup.ticket ?  
+                  React.createElement("div", {className: "ticket_button"}, 
+                    React.createElement("a", {href: "{ self.state.next_matchup.ticket }"}, "Get Tickets"), 
+
+                    React.createElement(InlineSVG, {src: "/img/icon--button_bkgd.svg", uniquifyIDs: false})
+                  )
+                  : ''
+              )
+              : '', 
+
+              React.createElement("div", {className: "content_box press"}, 
+                React.createElement("p", {className: "content_title"}, "Press"), 
+                React.createElement("div", {className: "news"}, 
+                  React.createElement("ul", {className: "news__list"}, 
+                    news
+                  )
+                )
+              )
+
+              ), 
+              React.createElement("div", {className: "play_button", onClick: self.playVideo}, 
+                React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
+
+                 self.state.name, " Tunnel Walk Video"
+              ), 
+
+              React.createElement("div", {className: "hero__overlay"}), 
+
+              React.createElement("div", {className: "hero__media"}, 
+                React.createElement("video", {id: "video-background", className: "video-wrap", poster: bkd_video.poster, autoPlay: true, muted: "muted", loop: true}, 
+                  React.createElement("source", {src: bkd_video.src, type: "video/mp4"})
+                )
+              )
+            )
+          ), 
+          React.createElement(PhotoGallery, {matchups: matchups, last_matchup: last_matchup}), 
+
+
+          React.createElement("div", {className: "play_button mobile"}, 
+            React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
+             self.state.name, " Tunnel Walk Video"
+          )
+
+
+        )
+        )
+
+    } else{
+      return (
+        React.createElement("div", {className: "preloader"}, 
+          React.createElement(FlickerIcon, {loop: true})
+        )
+      )
+    }
+  }
+});
+
+
+module.exports = Page;
+},{"../../lib/utils":16,"./flickerIcon.jsx":14,"moment":26,"react":267,"react-inlinesvg":44,"react-router":72,"superagent":268,"util":24}],16:[function(require,module,exports){
+
+module.exports = {
+
+	slugify: function (text) {
+	  return text.toString().toLowerCase()
+	    .replace(/\s+/g, '-')           // Replace spaces with -
+	    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+	    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+	    .replace(/^-+/, '')             // Trim - from start of text
+	    .replace(/-+$/, '');            // Trim - from end of text
+	},
+	
+	ordinal: function (n) {
+	   var s=["th","st","nd","rd"],
+	       v=n%100;
+	   return n+(s[(v-20)%10]||s[v]||s[0]);
+	},
+
+	uniq: function(a) {
+	    return a.reduce(function(p, c) {
+	        if (p.indexOf(c) < 0) p.push(c);
+	        return p;
+	    }, []);
+	}
+
+}
+
+
+},{}],17:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -1998,7 +6733,7 @@ function decodeUtf8Char (str) {
   }
 }
 
-},{"base64-js":4,"ieee754":5,"is-array":6}],4:[function(require,module,exports){
+},{"base64-js":18,"ieee754":19,"is-array":20}],18:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -2124,7 +6859,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],5:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -2210,7 +6945,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],6:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 
 /**
  * isArray
@@ -2245,7 +6980,7 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}],7:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -2270,7 +7005,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],8:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2329,14 +7064,14 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],9:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],10:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -2926,7 +7661,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":9,"_process":8,"inherits":7}],11:[function(require,module,exports){
+},{"./support/isBuffer":23,"_process":22,"inherits":21}],25:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.3
  * http://jquery.com/
@@ -12133,7 +16868,7406 @@ return jQuery;
 
 }));
 
-},{}],12:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
+(function (global){
+//! moment.js
+//! version : 2.9.0
+//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
+//! license : MIT
+//! momentjs.com
+
+(function (undefined) {
+    /************************************
+        Constants
+    ************************************/
+
+    var moment,
+        VERSION = '2.9.0',
+        // the global-scope this is NOT the global object in Node.js
+        globalScope = (typeof global !== 'undefined' && (typeof window === 'undefined' || window === global.window)) ? global : this,
+        oldGlobalMoment,
+        round = Math.round,
+        hasOwnProperty = Object.prototype.hasOwnProperty,
+        i,
+
+        YEAR = 0,
+        MONTH = 1,
+        DATE = 2,
+        HOUR = 3,
+        MINUTE = 4,
+        SECOND = 5,
+        MILLISECOND = 6,
+
+        // internal storage for locale config files
+        locales = {},
+
+        // extra moment internal properties (plugins register props here)
+        momentProperties = [],
+
+        // check for nodeJS
+        hasModule = (typeof module !== 'undefined' && module && module.exports),
+
+        // ASP.NET json date format regex
+        aspNetJsonRegex = /^\/?Date\((\-?\d+)/i,
+        aspNetTimeSpanJsonRegex = /(\-)?(?:(\d*)\.)?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?)?/,
+
+        // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
+        // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
+        isoDurationRegex = /^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/,
+
+        // format tokens
+        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Q|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|x|X|zz?|ZZ?|.)/g,
+        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
+
+        // parsing token regexes
+        parseTokenOneOrTwoDigits = /\d\d?/, // 0 - 99
+        parseTokenOneToThreeDigits = /\d{1,3}/, // 0 - 999
+        parseTokenOneToFourDigits = /\d{1,4}/, // 0 - 9999
+        parseTokenOneToSixDigits = /[+\-]?\d{1,6}/, // -999,999 - 999,999
+        parseTokenDigits = /\d+/, // nonzero number of digits
+        parseTokenWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i, // any word (or two) characters or numbers including two/three word month in arabic.
+        parseTokenTimezone = /Z|[\+\-]\d\d:?\d\d/gi, // +00:00 -00:00 +0000 -0000 or Z
+        parseTokenT = /T/i, // T (ISO separator)
+        parseTokenOffsetMs = /[\+\-]?\d+/, // 1234567890123
+        parseTokenTimestampMs = /[\+\-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
+
+        //strict parsing regexes
+        parseTokenOneDigit = /\d/, // 0 - 9
+        parseTokenTwoDigits = /\d\d/, // 00 - 99
+        parseTokenThreeDigits = /\d{3}/, // 000 - 999
+        parseTokenFourDigits = /\d{4}/, // 0000 - 9999
+        parseTokenSixDigits = /[+-]?\d{6}/, // -999,999 - 999,999
+        parseTokenSignedNumber = /[+-]?\d+/, // -inf - inf
+
+        // iso 8601 regex
+        // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
+        isoRegex = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
+
+        isoFormat = 'YYYY-MM-DDTHH:mm:ssZ',
+
+        isoDates = [
+            ['YYYYYY-MM-DD', /[+-]\d{6}-\d{2}-\d{2}/],
+            ['YYYY-MM-DD', /\d{4}-\d{2}-\d{2}/],
+            ['GGGG-[W]WW-E', /\d{4}-W\d{2}-\d/],
+            ['GGGG-[W]WW', /\d{4}-W\d{2}/],
+            ['YYYY-DDD', /\d{4}-\d{3}/]
+        ],
+
+        // iso time formats and regexes
+        isoTimes = [
+            ['HH:mm:ss.SSSS', /(T| )\d\d:\d\d:\d\d\.\d+/],
+            ['HH:mm:ss', /(T| )\d\d:\d\d:\d\d/],
+            ['HH:mm', /(T| )\d\d:\d\d/],
+            ['HH', /(T| )\d\d/]
+        ],
+
+        // timezone chunker '+10:00' > ['10', '00'] or '-1530' > ['-', '15', '30']
+        parseTimezoneChunker = /([\+\-]|\d\d)/gi,
+
+        // getter and setter names
+        proxyGettersAndSetters = 'Date|Hours|Minutes|Seconds|Milliseconds'.split('|'),
+        unitMillisecondFactors = {
+            'Milliseconds' : 1,
+            'Seconds' : 1e3,
+            'Minutes' : 6e4,
+            'Hours' : 36e5,
+            'Days' : 864e5,
+            'Months' : 2592e6,
+            'Years' : 31536e6
+        },
+
+        unitAliases = {
+            ms : 'millisecond',
+            s : 'second',
+            m : 'minute',
+            h : 'hour',
+            d : 'day',
+            D : 'date',
+            w : 'week',
+            W : 'isoWeek',
+            M : 'month',
+            Q : 'quarter',
+            y : 'year',
+            DDD : 'dayOfYear',
+            e : 'weekday',
+            E : 'isoWeekday',
+            gg: 'weekYear',
+            GG: 'isoWeekYear'
+        },
+
+        camelFunctions = {
+            dayofyear : 'dayOfYear',
+            isoweekday : 'isoWeekday',
+            isoweek : 'isoWeek',
+            weekyear : 'weekYear',
+            isoweekyear : 'isoWeekYear'
+        },
+
+        // format function strings
+        formatFunctions = {},
+
+        // default relative time thresholds
+        relativeTimeThresholds = {
+            s: 45,  // seconds to minute
+            m: 45,  // minutes to hour
+            h: 22,  // hours to day
+            d: 26,  // days to month
+            M: 11   // months to year
+        },
+
+        // tokens to ordinalize and pad
+        ordinalizeTokens = 'DDD w W M D d'.split(' '),
+        paddedTokens = 'M D H h m s w W'.split(' '),
+
+        formatTokenFunctions = {
+            M    : function () {
+                return this.month() + 1;
+            },
+            MMM  : function (format) {
+                return this.localeData().monthsShort(this, format);
+            },
+            MMMM : function (format) {
+                return this.localeData().months(this, format);
+            },
+            D    : function () {
+                return this.date();
+            },
+            DDD  : function () {
+                return this.dayOfYear();
+            },
+            d    : function () {
+                return this.day();
+            },
+            dd   : function (format) {
+                return this.localeData().weekdaysMin(this, format);
+            },
+            ddd  : function (format) {
+                return this.localeData().weekdaysShort(this, format);
+            },
+            dddd : function (format) {
+                return this.localeData().weekdays(this, format);
+            },
+            w    : function () {
+                return this.week();
+            },
+            W    : function () {
+                return this.isoWeek();
+            },
+            YY   : function () {
+                return leftZeroFill(this.year() % 100, 2);
+            },
+            YYYY : function () {
+                return leftZeroFill(this.year(), 4);
+            },
+            YYYYY : function () {
+                return leftZeroFill(this.year(), 5);
+            },
+            YYYYYY : function () {
+                var y = this.year(), sign = y >= 0 ? '+' : '-';
+                return sign + leftZeroFill(Math.abs(y), 6);
+            },
+            gg   : function () {
+                return leftZeroFill(this.weekYear() % 100, 2);
+            },
+            gggg : function () {
+                return leftZeroFill(this.weekYear(), 4);
+            },
+            ggggg : function () {
+                return leftZeroFill(this.weekYear(), 5);
+            },
+            GG   : function () {
+                return leftZeroFill(this.isoWeekYear() % 100, 2);
+            },
+            GGGG : function () {
+                return leftZeroFill(this.isoWeekYear(), 4);
+            },
+            GGGGG : function () {
+                return leftZeroFill(this.isoWeekYear(), 5);
+            },
+            e : function () {
+                return this.weekday();
+            },
+            E : function () {
+                return this.isoWeekday();
+            },
+            a    : function () {
+                return this.localeData().meridiem(this.hours(), this.minutes(), true);
+            },
+            A    : function () {
+                return this.localeData().meridiem(this.hours(), this.minutes(), false);
+            },
+            H    : function () {
+                return this.hours();
+            },
+            h    : function () {
+                return this.hours() % 12 || 12;
+            },
+            m    : function () {
+                return this.minutes();
+            },
+            s    : function () {
+                return this.seconds();
+            },
+            S    : function () {
+                return toInt(this.milliseconds() / 100);
+            },
+            SS   : function () {
+                return leftZeroFill(toInt(this.milliseconds() / 10), 2);
+            },
+            SSS  : function () {
+                return leftZeroFill(this.milliseconds(), 3);
+            },
+            SSSS : function () {
+                return leftZeroFill(this.milliseconds(), 3);
+            },
+            Z    : function () {
+                var a = this.utcOffset(),
+                    b = '+';
+                if (a < 0) {
+                    a = -a;
+                    b = '-';
+                }
+                return b + leftZeroFill(toInt(a / 60), 2) + ':' + leftZeroFill(toInt(a) % 60, 2);
+            },
+            ZZ   : function () {
+                var a = this.utcOffset(),
+                    b = '+';
+                if (a < 0) {
+                    a = -a;
+                    b = '-';
+                }
+                return b + leftZeroFill(toInt(a / 60), 2) + leftZeroFill(toInt(a) % 60, 2);
+            },
+            z : function () {
+                return this.zoneAbbr();
+            },
+            zz : function () {
+                return this.zoneName();
+            },
+            x    : function () {
+                return this.valueOf();
+            },
+            X    : function () {
+                return this.unix();
+            },
+            Q : function () {
+                return this.quarter();
+            }
+        },
+
+        deprecations = {},
+
+        lists = ['months', 'monthsShort', 'weekdays', 'weekdaysShort', 'weekdaysMin'],
+
+        updateInProgress = false;
+
+    // Pick the first defined of two or three arguments. dfl comes from
+    // default.
+    function dfl(a, b, c) {
+        switch (arguments.length) {
+            case 2: return a != null ? a : b;
+            case 3: return a != null ? a : b != null ? b : c;
+            default: throw new Error('Implement me');
+        }
+    }
+
+    function hasOwnProp(a, b) {
+        return hasOwnProperty.call(a, b);
+    }
+
+    function defaultParsingFlags() {
+        // We need to deep clone this object, and es5 standard is not very
+        // helpful.
+        return {
+            empty : false,
+            unusedTokens : [],
+            unusedInput : [],
+            overflow : -2,
+            charsLeftOver : 0,
+            nullInput : false,
+            invalidMonth : null,
+            invalidFormat : false,
+            userInvalidated : false,
+            iso: false
+        };
+    }
+
+    function printMsg(msg) {
+        if (moment.suppressDeprecationWarnings === false &&
+                typeof console !== 'undefined' && console.warn) {
+            console.warn('Deprecation warning: ' + msg);
+        }
+    }
+
+    function deprecate(msg, fn) {
+        var firstTime = true;
+        return extend(function () {
+            if (firstTime) {
+                printMsg(msg);
+                firstTime = false;
+            }
+            return fn.apply(this, arguments);
+        }, fn);
+    }
+
+    function deprecateSimple(name, msg) {
+        if (!deprecations[name]) {
+            printMsg(msg);
+            deprecations[name] = true;
+        }
+    }
+
+    function padToken(func, count) {
+        return function (a) {
+            return leftZeroFill(func.call(this, a), count);
+        };
+    }
+    function ordinalizeToken(func, period) {
+        return function (a) {
+            return this.localeData().ordinal(func.call(this, a), period);
+        };
+    }
+
+    function monthDiff(a, b) {
+        // difference in months
+        var wholeMonthDiff = ((b.year() - a.year()) * 12) + (b.month() - a.month()),
+            // b is in (anchor - 1 month, anchor + 1 month)
+            anchor = a.clone().add(wholeMonthDiff, 'months'),
+            anchor2, adjust;
+
+        if (b - anchor < 0) {
+            anchor2 = a.clone().add(wholeMonthDiff - 1, 'months');
+            // linear across the month
+            adjust = (b - anchor) / (anchor - anchor2);
+        } else {
+            anchor2 = a.clone().add(wholeMonthDiff + 1, 'months');
+            // linear across the month
+            adjust = (b - anchor) / (anchor2 - anchor);
+        }
+
+        return -(wholeMonthDiff + adjust);
+    }
+
+    while (ordinalizeTokens.length) {
+        i = ordinalizeTokens.pop();
+        formatTokenFunctions[i + 'o'] = ordinalizeToken(formatTokenFunctions[i], i);
+    }
+    while (paddedTokens.length) {
+        i = paddedTokens.pop();
+        formatTokenFunctions[i + i] = padToken(formatTokenFunctions[i], 2);
+    }
+    formatTokenFunctions.DDDD = padToken(formatTokenFunctions.DDD, 3);
+
+
+    function meridiemFixWrap(locale, hour, meridiem) {
+        var isPm;
+
+        if (meridiem == null) {
+            // nothing to do
+            return hour;
+        }
+        if (locale.meridiemHour != null) {
+            return locale.meridiemHour(hour, meridiem);
+        } else if (locale.isPM != null) {
+            // Fallback
+            isPm = locale.isPM(meridiem);
+            if (isPm && hour < 12) {
+                hour += 12;
+            }
+            if (!isPm && hour === 12) {
+                hour = 0;
+            }
+            return hour;
+        } else {
+            // thie is not supposed to happen
+            return hour;
+        }
+    }
+
+    /************************************
+        Constructors
+    ************************************/
+
+    function Locale() {
+    }
+
+    // Moment prototype object
+    function Moment(config, skipOverflow) {
+        if (skipOverflow !== false) {
+            checkOverflow(config);
+        }
+        copyConfig(this, config);
+        this._d = new Date(+config._d);
+        // Prevent infinite loop in case updateOffset creates new moment
+        // objects.
+        if (updateInProgress === false) {
+            updateInProgress = true;
+            moment.updateOffset(this);
+            updateInProgress = false;
+        }
+    }
+
+    // Duration Constructor
+    function Duration(duration) {
+        var normalizedInput = normalizeObjectUnits(duration),
+            years = normalizedInput.year || 0,
+            quarters = normalizedInput.quarter || 0,
+            months = normalizedInput.month || 0,
+            weeks = normalizedInput.week || 0,
+            days = normalizedInput.day || 0,
+            hours = normalizedInput.hour || 0,
+            minutes = normalizedInput.minute || 0,
+            seconds = normalizedInput.second || 0,
+            milliseconds = normalizedInput.millisecond || 0;
+
+        // representation for dateAddRemove
+        this._milliseconds = +milliseconds +
+            seconds * 1e3 + // 1000
+            minutes * 6e4 + // 1000 * 60
+            hours * 36e5; // 1000 * 60 * 60
+        // Because of dateAddRemove treats 24 hours as different from a
+        // day when working around DST, we need to store them separately
+        this._days = +days +
+            weeks * 7;
+        // It is impossible translate months into days without knowing
+        // which months you are are talking about, so we have to store
+        // it separately.
+        this._months = +months +
+            quarters * 3 +
+            years * 12;
+
+        this._data = {};
+
+        this._locale = moment.localeData();
+
+        this._bubble();
+    }
+
+    /************************************
+        Helpers
+    ************************************/
+
+
+    function extend(a, b) {
+        for (var i in b) {
+            if (hasOwnProp(b, i)) {
+                a[i] = b[i];
+            }
+        }
+
+        if (hasOwnProp(b, 'toString')) {
+            a.toString = b.toString;
+        }
+
+        if (hasOwnProp(b, 'valueOf')) {
+            a.valueOf = b.valueOf;
+        }
+
+        return a;
+    }
+
+    function copyConfig(to, from) {
+        var i, prop, val;
+
+        if (typeof from._isAMomentObject !== 'undefined') {
+            to._isAMomentObject = from._isAMomentObject;
+        }
+        if (typeof from._i !== 'undefined') {
+            to._i = from._i;
+        }
+        if (typeof from._f !== 'undefined') {
+            to._f = from._f;
+        }
+        if (typeof from._l !== 'undefined') {
+            to._l = from._l;
+        }
+        if (typeof from._strict !== 'undefined') {
+            to._strict = from._strict;
+        }
+        if (typeof from._tzm !== 'undefined') {
+            to._tzm = from._tzm;
+        }
+        if (typeof from._isUTC !== 'undefined') {
+            to._isUTC = from._isUTC;
+        }
+        if (typeof from._offset !== 'undefined') {
+            to._offset = from._offset;
+        }
+        if (typeof from._pf !== 'undefined') {
+            to._pf = from._pf;
+        }
+        if (typeof from._locale !== 'undefined') {
+            to._locale = from._locale;
+        }
+
+        if (momentProperties.length > 0) {
+            for (i in momentProperties) {
+                prop = momentProperties[i];
+                val = from[prop];
+                if (typeof val !== 'undefined') {
+                    to[prop] = val;
+                }
+            }
+        }
+
+        return to;
+    }
+
+    function absRound(number) {
+        if (number < 0) {
+            return Math.ceil(number);
+        } else {
+            return Math.floor(number);
+        }
+    }
+
+    // left zero fill a number
+    // see http://jsperf.com/left-zero-filling for performance comparison
+    function leftZeroFill(number, targetLength, forceSign) {
+        var output = '' + Math.abs(number),
+            sign = number >= 0;
+
+        while (output.length < targetLength) {
+            output = '0' + output;
+        }
+        return (sign ? (forceSign ? '+' : '') : '-') + output;
+    }
+
+    function positiveMomentsDifference(base, other) {
+        var res = {milliseconds: 0, months: 0};
+
+        res.months = other.month() - base.month() +
+            (other.year() - base.year()) * 12;
+        if (base.clone().add(res.months, 'M').isAfter(other)) {
+            --res.months;
+        }
+
+        res.milliseconds = +other - +(base.clone().add(res.months, 'M'));
+
+        return res;
+    }
+
+    function momentsDifference(base, other) {
+        var res;
+        other = makeAs(other, base);
+        if (base.isBefore(other)) {
+            res = positiveMomentsDifference(base, other);
+        } else {
+            res = positiveMomentsDifference(other, base);
+            res.milliseconds = -res.milliseconds;
+            res.months = -res.months;
+        }
+
+        return res;
+    }
+
+    // TODO: remove 'name' arg after deprecation is removed
+    function createAdder(direction, name) {
+        return function (val, period) {
+            var dur, tmp;
+            //invert the arguments, but complain about it
+            if (period !== null && !isNaN(+period)) {
+                deprecateSimple(name, 'moment().' + name  + '(period, number) is deprecated. Please use moment().' + name + '(number, period).');
+                tmp = val; val = period; period = tmp;
+            }
+
+            val = typeof val === 'string' ? +val : val;
+            dur = moment.duration(val, period);
+            addOrSubtractDurationFromMoment(this, dur, direction);
+            return this;
+        };
+    }
+
+    function addOrSubtractDurationFromMoment(mom, duration, isAdding, updateOffset) {
+        var milliseconds = duration._milliseconds,
+            days = duration._days,
+            months = duration._months;
+        updateOffset = updateOffset == null ? true : updateOffset;
+
+        if (milliseconds) {
+            mom._d.setTime(+mom._d + milliseconds * isAdding);
+        }
+        if (days) {
+            rawSetter(mom, 'Date', rawGetter(mom, 'Date') + days * isAdding);
+        }
+        if (months) {
+            rawMonthSetter(mom, rawGetter(mom, 'Month') + months * isAdding);
+        }
+        if (updateOffset) {
+            moment.updateOffset(mom, days || months);
+        }
+    }
+
+    // check if is an array
+    function isArray(input) {
+        return Object.prototype.toString.call(input) === '[object Array]';
+    }
+
+    function isDate(input) {
+        return Object.prototype.toString.call(input) === '[object Date]' ||
+            input instanceof Date;
+    }
+
+    // compare two arrays, return the number of differences
+    function compareArrays(array1, array2, dontConvert) {
+        var len = Math.min(array1.length, array2.length),
+            lengthDiff = Math.abs(array1.length - array2.length),
+            diffs = 0,
+            i;
+        for (i = 0; i < len; i++) {
+            if ((dontConvert && array1[i] !== array2[i]) ||
+                (!dontConvert && toInt(array1[i]) !== toInt(array2[i]))) {
+                diffs++;
+            }
+        }
+        return diffs + lengthDiff;
+    }
+
+    function normalizeUnits(units) {
+        if (units) {
+            var lowered = units.toLowerCase().replace(/(.)s$/, '$1');
+            units = unitAliases[units] || camelFunctions[lowered] || lowered;
+        }
+        return units;
+    }
+
+    function normalizeObjectUnits(inputObject) {
+        var normalizedInput = {},
+            normalizedProp,
+            prop;
+
+        for (prop in inputObject) {
+            if (hasOwnProp(inputObject, prop)) {
+                normalizedProp = normalizeUnits(prop);
+                if (normalizedProp) {
+                    normalizedInput[normalizedProp] = inputObject[prop];
+                }
+            }
+        }
+
+        return normalizedInput;
+    }
+
+    function makeList(field) {
+        var count, setter;
+
+        if (field.indexOf('week') === 0) {
+            count = 7;
+            setter = 'day';
+        }
+        else if (field.indexOf('month') === 0) {
+            count = 12;
+            setter = 'month';
+        }
+        else {
+            return;
+        }
+
+        moment[field] = function (format, index) {
+            var i, getter,
+                method = moment._locale[field],
+                results = [];
+
+            if (typeof format === 'number') {
+                index = format;
+                format = undefined;
+            }
+
+            getter = function (i) {
+                var m = moment().utc().set(setter, i);
+                return method.call(moment._locale, m, format || '');
+            };
+
+            if (index != null) {
+                return getter(index);
+            }
+            else {
+                for (i = 0; i < count; i++) {
+                    results.push(getter(i));
+                }
+                return results;
+            }
+        };
+    }
+
+    function toInt(argumentForCoercion) {
+        var coercedNumber = +argumentForCoercion,
+            value = 0;
+
+        if (coercedNumber !== 0 && isFinite(coercedNumber)) {
+            if (coercedNumber >= 0) {
+                value = Math.floor(coercedNumber);
+            } else {
+                value = Math.ceil(coercedNumber);
+            }
+        }
+
+        return value;
+    }
+
+    function daysInMonth(year, month) {
+        return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    }
+
+    function weeksInYear(year, dow, doy) {
+        return weekOfYear(moment([year, 11, 31 + dow - doy]), dow, doy).week;
+    }
+
+    function daysInYear(year) {
+        return isLeapYear(year) ? 366 : 365;
+    }
+
+    function isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    }
+
+    function checkOverflow(m) {
+        var overflow;
+        if (m._a && m._pf.overflow === -2) {
+            overflow =
+                m._a[MONTH] < 0 || m._a[MONTH] > 11 ? MONTH :
+                m._a[DATE] < 1 || m._a[DATE] > daysInMonth(m._a[YEAR], m._a[MONTH]) ? DATE :
+                m._a[HOUR] < 0 || m._a[HOUR] > 24 ||
+                    (m._a[HOUR] === 24 && (m._a[MINUTE] !== 0 ||
+                                           m._a[SECOND] !== 0 ||
+                                           m._a[MILLISECOND] !== 0)) ? HOUR :
+                m._a[MINUTE] < 0 || m._a[MINUTE] > 59 ? MINUTE :
+                m._a[SECOND] < 0 || m._a[SECOND] > 59 ? SECOND :
+                m._a[MILLISECOND] < 0 || m._a[MILLISECOND] > 999 ? MILLISECOND :
+                -1;
+
+            if (m._pf._overflowDayOfYear && (overflow < YEAR || overflow > DATE)) {
+                overflow = DATE;
+            }
+
+            m._pf.overflow = overflow;
+        }
+    }
+
+    function isValid(m) {
+        if (m._isValid == null) {
+            m._isValid = !isNaN(m._d.getTime()) &&
+                m._pf.overflow < 0 &&
+                !m._pf.empty &&
+                !m._pf.invalidMonth &&
+                !m._pf.nullInput &&
+                !m._pf.invalidFormat &&
+                !m._pf.userInvalidated;
+
+            if (m._strict) {
+                m._isValid = m._isValid &&
+                    m._pf.charsLeftOver === 0 &&
+                    m._pf.unusedTokens.length === 0 &&
+                    m._pf.bigHour === undefined;
+            }
+        }
+        return m._isValid;
+    }
+
+    function normalizeLocale(key) {
+        return key ? key.toLowerCase().replace('_', '-') : key;
+    }
+
+    // pick the locale from the array
+    // try ['en-au', 'en-gb'] as 'en-au', 'en-gb', 'en', as in move through the list trying each
+    // substring from most specific to least, but move to the next array item if it's a more specific variant than the current root
+    function chooseLocale(names) {
+        var i = 0, j, next, locale, split;
+
+        while (i < names.length) {
+            split = normalizeLocale(names[i]).split('-');
+            j = split.length;
+            next = normalizeLocale(names[i + 1]);
+            next = next ? next.split('-') : null;
+            while (j > 0) {
+                locale = loadLocale(split.slice(0, j).join('-'));
+                if (locale) {
+                    return locale;
+                }
+                if (next && next.length >= j && compareArrays(split, next, true) >= j - 1) {
+                    //the next array item is better than a shallower substring of this one
+                    break;
+                }
+                j--;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    function loadLocale(name) {
+        var oldLocale = null;
+        if (!locales[name] && hasModule) {
+            try {
+                oldLocale = moment.locale();
+                require('./locale/' + name);
+                // because defineLocale currently also sets the global locale, we want to undo that for lazy loaded locales
+                moment.locale(oldLocale);
+            } catch (e) { }
+        }
+        return locales[name];
+    }
+
+    // Return a moment from input, that is local/utc/utcOffset equivalent to
+    // model.
+    function makeAs(input, model) {
+        var res, diff;
+        if (model._isUTC) {
+            res = model.clone();
+            diff = (moment.isMoment(input) || isDate(input) ?
+                    +input : +moment(input)) - (+res);
+            // Use low-level api, because this fn is low-level api.
+            res._d.setTime(+res._d + diff);
+            moment.updateOffset(res, false);
+            return res;
+        } else {
+            return moment(input).local();
+        }
+    }
+
+    /************************************
+        Locale
+    ************************************/
+
+
+    extend(Locale.prototype, {
+
+        set : function (config) {
+            var prop, i;
+            for (i in config) {
+                prop = config[i];
+                if (typeof prop === 'function') {
+                    this[i] = prop;
+                } else {
+                    this['_' + i] = prop;
+                }
+            }
+            // Lenient ordinal parsing accepts just a number in addition to
+            // number + (possibly) stuff coming from _ordinalParseLenient.
+            this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + /\d{1,2}/.source);
+        },
+
+        _months : 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
+        months : function (m) {
+            return this._months[m.month()];
+        },
+
+        _monthsShort : 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+        monthsShort : function (m) {
+            return this._monthsShort[m.month()];
+        },
+
+        monthsParse : function (monthName, format, strict) {
+            var i, mom, regex;
+
+            if (!this._monthsParse) {
+                this._monthsParse = [];
+                this._longMonthsParse = [];
+                this._shortMonthsParse = [];
+            }
+
+            for (i = 0; i < 12; i++) {
+                // make the regex if we don't have it already
+                mom = moment.utc([2000, i]);
+                if (strict && !this._longMonthsParse[i]) {
+                    this._longMonthsParse[i] = new RegExp('^' + this.months(mom, '').replace('.', '') + '$', 'i');
+                    this._shortMonthsParse[i] = new RegExp('^' + this.monthsShort(mom, '').replace('.', '') + '$', 'i');
+                }
+                if (!strict && !this._monthsParse[i]) {
+                    regex = '^' + this.months(mom, '') + '|^' + this.monthsShort(mom, '');
+                    this._monthsParse[i] = new RegExp(regex.replace('.', ''), 'i');
+                }
+                // test the regex
+                if (strict && format === 'MMMM' && this._longMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (strict && format === 'MMM' && this._shortMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (!strict && this._monthsParse[i].test(monthName)) {
+                    return i;
+                }
+            }
+        },
+
+        _weekdays : 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+        weekdays : function (m) {
+            return this._weekdays[m.day()];
+        },
+
+        _weekdaysShort : 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+        weekdaysShort : function (m) {
+            return this._weekdaysShort[m.day()];
+        },
+
+        _weekdaysMin : 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
+        weekdaysMin : function (m) {
+            return this._weekdaysMin[m.day()];
+        },
+
+        weekdaysParse : function (weekdayName) {
+            var i, mom, regex;
+
+            if (!this._weekdaysParse) {
+                this._weekdaysParse = [];
+            }
+
+            for (i = 0; i < 7; i++) {
+                // make the regex if we don't have it already
+                if (!this._weekdaysParse[i]) {
+                    mom = moment([2000, 1]).day(i);
+                    regex = '^' + this.weekdays(mom, '') + '|^' + this.weekdaysShort(mom, '') + '|^' + this.weekdaysMin(mom, '');
+                    this._weekdaysParse[i] = new RegExp(regex.replace('.', ''), 'i');
+                }
+                // test the regex
+                if (this._weekdaysParse[i].test(weekdayName)) {
+                    return i;
+                }
+            }
+        },
+
+        _longDateFormat : {
+            LTS : 'h:mm:ss A',
+            LT : 'h:mm A',
+            L : 'MM/DD/YYYY',
+            LL : 'MMMM D, YYYY',
+            LLL : 'MMMM D, YYYY LT',
+            LLLL : 'dddd, MMMM D, YYYY LT'
+        },
+        longDateFormat : function (key) {
+            var output = this._longDateFormat[key];
+            if (!output && this._longDateFormat[key.toUpperCase()]) {
+                output = this._longDateFormat[key.toUpperCase()].replace(/MMMM|MM|DD|dddd/g, function (val) {
+                    return val.slice(1);
+                });
+                this._longDateFormat[key] = output;
+            }
+            return output;
+        },
+
+        isPM : function (input) {
+            // IE8 Quirks Mode & IE7 Standards Mode do not allow accessing strings like arrays
+            // Using charAt should be more compatible.
+            return ((input + '').toLowerCase().charAt(0) === 'p');
+        },
+
+        _meridiemParse : /[ap]\.?m?\.?/i,
+        meridiem : function (hours, minutes, isLower) {
+            if (hours > 11) {
+                return isLower ? 'pm' : 'PM';
+            } else {
+                return isLower ? 'am' : 'AM';
+            }
+        },
+
+
+        _calendar : {
+            sameDay : '[Today at] LT',
+            nextDay : '[Tomorrow at] LT',
+            nextWeek : 'dddd [at] LT',
+            lastDay : '[Yesterday at] LT',
+            lastWeek : '[Last] dddd [at] LT',
+            sameElse : 'L'
+        },
+        calendar : function (key, mom, now) {
+            var output = this._calendar[key];
+            return typeof output === 'function' ? output.apply(mom, [now]) : output;
+        },
+
+        _relativeTime : {
+            future : 'in %s',
+            past : '%s ago',
+            s : 'a few seconds',
+            m : 'a minute',
+            mm : '%d minutes',
+            h : 'an hour',
+            hh : '%d hours',
+            d : 'a day',
+            dd : '%d days',
+            M : 'a month',
+            MM : '%d months',
+            y : 'a year',
+            yy : '%d years'
+        },
+
+        relativeTime : function (number, withoutSuffix, string, isFuture) {
+            var output = this._relativeTime[string];
+            return (typeof output === 'function') ?
+                output(number, withoutSuffix, string, isFuture) :
+                output.replace(/%d/i, number);
+        },
+
+        pastFuture : function (diff, output) {
+            var format = this._relativeTime[diff > 0 ? 'future' : 'past'];
+            return typeof format === 'function' ? format(output) : format.replace(/%s/i, output);
+        },
+
+        ordinal : function (number) {
+            return this._ordinal.replace('%d', number);
+        },
+        _ordinal : '%d',
+        _ordinalParse : /\d{1,2}/,
+
+        preparse : function (string) {
+            return string;
+        },
+
+        postformat : function (string) {
+            return string;
+        },
+
+        week : function (mom) {
+            return weekOfYear(mom, this._week.dow, this._week.doy).week;
+        },
+
+        _week : {
+            dow : 0, // Sunday is the first day of the week.
+            doy : 6  // The week that contains Jan 1st is the first week of the year.
+        },
+
+        firstDayOfWeek : function () {
+            return this._week.dow;
+        },
+
+        firstDayOfYear : function () {
+            return this._week.doy;
+        },
+
+        _invalidDate: 'Invalid date',
+        invalidDate: function () {
+            return this._invalidDate;
+        }
+    });
+
+    /************************************
+        Formatting
+    ************************************/
+
+
+    function removeFormattingTokens(input) {
+        if (input.match(/\[[\s\S]/)) {
+            return input.replace(/^\[|\]$/g, '');
+        }
+        return input.replace(/\\/g, '');
+    }
+
+    function makeFormatFunction(format) {
+        var array = format.match(formattingTokens), i, length;
+
+        for (i = 0, length = array.length; i < length; i++) {
+            if (formatTokenFunctions[array[i]]) {
+                array[i] = formatTokenFunctions[array[i]];
+            } else {
+                array[i] = removeFormattingTokens(array[i]);
+            }
+        }
+
+        return function (mom) {
+            var output = '';
+            for (i = 0; i < length; i++) {
+                output += array[i] instanceof Function ? array[i].call(mom, format) : array[i];
+            }
+            return output;
+        };
+    }
+
+    // format date using native date object
+    function formatMoment(m, format) {
+        if (!m.isValid()) {
+            return m.localeData().invalidDate();
+        }
+
+        format = expandFormat(format, m.localeData());
+
+        if (!formatFunctions[format]) {
+            formatFunctions[format] = makeFormatFunction(format);
+        }
+
+        return formatFunctions[format](m);
+    }
+
+    function expandFormat(format, locale) {
+        var i = 5;
+
+        function replaceLongDateFormatTokens(input) {
+            return locale.longDateFormat(input) || input;
+        }
+
+        localFormattingTokens.lastIndex = 0;
+        while (i >= 0 && localFormattingTokens.test(format)) {
+            format = format.replace(localFormattingTokens, replaceLongDateFormatTokens);
+            localFormattingTokens.lastIndex = 0;
+            i -= 1;
+        }
+
+        return format;
+    }
+
+
+    /************************************
+        Parsing
+    ************************************/
+
+
+    // get the regex to find the next token
+    function getParseRegexForToken(token, config) {
+        var a, strict = config._strict;
+        switch (token) {
+        case 'Q':
+            return parseTokenOneDigit;
+        case 'DDDD':
+            return parseTokenThreeDigits;
+        case 'YYYY':
+        case 'GGGG':
+        case 'gggg':
+            return strict ? parseTokenFourDigits : parseTokenOneToFourDigits;
+        case 'Y':
+        case 'G':
+        case 'g':
+            return parseTokenSignedNumber;
+        case 'YYYYYY':
+        case 'YYYYY':
+        case 'GGGGG':
+        case 'ggggg':
+            return strict ? parseTokenSixDigits : parseTokenOneToSixDigits;
+        case 'S':
+            if (strict) {
+                return parseTokenOneDigit;
+            }
+            /* falls through */
+        case 'SS':
+            if (strict) {
+                return parseTokenTwoDigits;
+            }
+            /* falls through */
+        case 'SSS':
+            if (strict) {
+                return parseTokenThreeDigits;
+            }
+            /* falls through */
+        case 'DDD':
+            return parseTokenOneToThreeDigits;
+        case 'MMM':
+        case 'MMMM':
+        case 'dd':
+        case 'ddd':
+        case 'dddd':
+            return parseTokenWord;
+        case 'a':
+        case 'A':
+            return config._locale._meridiemParse;
+        case 'x':
+            return parseTokenOffsetMs;
+        case 'X':
+            return parseTokenTimestampMs;
+        case 'Z':
+        case 'ZZ':
+            return parseTokenTimezone;
+        case 'T':
+            return parseTokenT;
+        case 'SSSS':
+            return parseTokenDigits;
+        case 'MM':
+        case 'DD':
+        case 'YY':
+        case 'GG':
+        case 'gg':
+        case 'HH':
+        case 'hh':
+        case 'mm':
+        case 'ss':
+        case 'ww':
+        case 'WW':
+            return strict ? parseTokenTwoDigits : parseTokenOneOrTwoDigits;
+        case 'M':
+        case 'D':
+        case 'd':
+        case 'H':
+        case 'h':
+        case 'm':
+        case 's':
+        case 'w':
+        case 'W':
+        case 'e':
+        case 'E':
+            return parseTokenOneOrTwoDigits;
+        case 'Do':
+            return strict ? config._locale._ordinalParse : config._locale._ordinalParseLenient;
+        default :
+            a = new RegExp(regexpEscape(unescapeFormat(token.replace('\\', '')), 'i'));
+            return a;
+        }
+    }
+
+    function utcOffsetFromString(string) {
+        string = string || '';
+        var possibleTzMatches = (string.match(parseTokenTimezone) || []),
+            tzChunk = possibleTzMatches[possibleTzMatches.length - 1] || [],
+            parts = (tzChunk + '').match(parseTimezoneChunker) || ['-', 0, 0],
+            minutes = +(parts[1] * 60) + toInt(parts[2]);
+
+        return parts[0] === '+' ? minutes : -minutes;
+    }
+
+    // function to convert string input to date
+    function addTimeToArrayFromToken(token, input, config) {
+        var a, datePartArray = config._a;
+
+        switch (token) {
+        // QUARTER
+        case 'Q':
+            if (input != null) {
+                datePartArray[MONTH] = (toInt(input) - 1) * 3;
+            }
+            break;
+        // MONTH
+        case 'M' : // fall through to MM
+        case 'MM' :
+            if (input != null) {
+                datePartArray[MONTH] = toInt(input) - 1;
+            }
+            break;
+        case 'MMM' : // fall through to MMMM
+        case 'MMMM' :
+            a = config._locale.monthsParse(input, token, config._strict);
+            // if we didn't find a month name, mark the date as invalid.
+            if (a != null) {
+                datePartArray[MONTH] = a;
+            } else {
+                config._pf.invalidMonth = input;
+            }
+            break;
+        // DAY OF MONTH
+        case 'D' : // fall through to DD
+        case 'DD' :
+            if (input != null) {
+                datePartArray[DATE] = toInt(input);
+            }
+            break;
+        case 'Do' :
+            if (input != null) {
+                datePartArray[DATE] = toInt(parseInt(
+                            input.match(/\d{1,2}/)[0], 10));
+            }
+            break;
+        // DAY OF YEAR
+        case 'DDD' : // fall through to DDDD
+        case 'DDDD' :
+            if (input != null) {
+                config._dayOfYear = toInt(input);
+            }
+
+            break;
+        // YEAR
+        case 'YY' :
+            datePartArray[YEAR] = moment.parseTwoDigitYear(input);
+            break;
+        case 'YYYY' :
+        case 'YYYYY' :
+        case 'YYYYYY' :
+            datePartArray[YEAR] = toInt(input);
+            break;
+        // AM / PM
+        case 'a' : // fall through to A
+        case 'A' :
+            config._meridiem = input;
+            // config._isPm = config._locale.isPM(input);
+            break;
+        // HOUR
+        case 'h' : // fall through to hh
+        case 'hh' :
+            config._pf.bigHour = true;
+            /* falls through */
+        case 'H' : // fall through to HH
+        case 'HH' :
+            datePartArray[HOUR] = toInt(input);
+            break;
+        // MINUTE
+        case 'm' : // fall through to mm
+        case 'mm' :
+            datePartArray[MINUTE] = toInt(input);
+            break;
+        // SECOND
+        case 's' : // fall through to ss
+        case 'ss' :
+            datePartArray[SECOND] = toInt(input);
+            break;
+        // MILLISECOND
+        case 'S' :
+        case 'SS' :
+        case 'SSS' :
+        case 'SSSS' :
+            datePartArray[MILLISECOND] = toInt(('0.' + input) * 1000);
+            break;
+        // UNIX OFFSET (MILLISECONDS)
+        case 'x':
+            config._d = new Date(toInt(input));
+            break;
+        // UNIX TIMESTAMP WITH MS
+        case 'X':
+            config._d = new Date(parseFloat(input) * 1000);
+            break;
+        // TIMEZONE
+        case 'Z' : // fall through to ZZ
+        case 'ZZ' :
+            config._useUTC = true;
+            config._tzm = utcOffsetFromString(input);
+            break;
+        // WEEKDAY - human
+        case 'dd':
+        case 'ddd':
+        case 'dddd':
+            a = config._locale.weekdaysParse(input);
+            // if we didn't get a weekday name, mark the date as invalid
+            if (a != null) {
+                config._w = config._w || {};
+                config._w['d'] = a;
+            } else {
+                config._pf.invalidWeekday = input;
+            }
+            break;
+        // WEEK, WEEK DAY - numeric
+        case 'w':
+        case 'ww':
+        case 'W':
+        case 'WW':
+        case 'd':
+        case 'e':
+        case 'E':
+            token = token.substr(0, 1);
+            /* falls through */
+        case 'gggg':
+        case 'GGGG':
+        case 'GGGGG':
+            token = token.substr(0, 2);
+            if (input) {
+                config._w = config._w || {};
+                config._w[token] = toInt(input);
+            }
+            break;
+        case 'gg':
+        case 'GG':
+            config._w = config._w || {};
+            config._w[token] = moment.parseTwoDigitYear(input);
+        }
+    }
+
+    function dayOfYearFromWeekInfo(config) {
+        var w, weekYear, week, weekday, dow, doy, temp;
+
+        w = config._w;
+        if (w.GG != null || w.W != null || w.E != null) {
+            dow = 1;
+            doy = 4;
+
+            // TODO: We need to take the current isoWeekYear, but that depends on
+            // how we interpret now (local, utc, fixed offset). So create
+            // a now version of current config (take local/utc/offset flags, and
+            // create now).
+            weekYear = dfl(w.GG, config._a[YEAR], weekOfYear(moment(), 1, 4).year);
+            week = dfl(w.W, 1);
+            weekday = dfl(w.E, 1);
+        } else {
+            dow = config._locale._week.dow;
+            doy = config._locale._week.doy;
+
+            weekYear = dfl(w.gg, config._a[YEAR], weekOfYear(moment(), dow, doy).year);
+            week = dfl(w.w, 1);
+
+            if (w.d != null) {
+                // weekday -- low day numbers are considered next week
+                weekday = w.d;
+                if (weekday < dow) {
+                    ++week;
+                }
+            } else if (w.e != null) {
+                // local weekday -- counting starts from begining of week
+                weekday = w.e + dow;
+            } else {
+                // default to begining of week
+                weekday = dow;
+            }
+        }
+        temp = dayOfYearFromWeeks(weekYear, week, weekday, doy, dow);
+
+        config._a[YEAR] = temp.year;
+        config._dayOfYear = temp.dayOfYear;
+    }
+
+    // convert an array to a date.
+    // the array should mirror the parameters below
+    // note: all values past the year are optional and will default to the lowest possible value.
+    // [year, month, day , hour, minute, second, millisecond]
+    function dateFromConfig(config) {
+        var i, date, input = [], currentDate, yearToUse;
+
+        if (config._d) {
+            return;
+        }
+
+        currentDate = currentDateArray(config);
+
+        //compute day of the year from weeks and weekdays
+        if (config._w && config._a[DATE] == null && config._a[MONTH] == null) {
+            dayOfYearFromWeekInfo(config);
+        }
+
+        //if the day of the year is set, figure out what it is
+        if (config._dayOfYear) {
+            yearToUse = dfl(config._a[YEAR], currentDate[YEAR]);
+
+            if (config._dayOfYear > daysInYear(yearToUse)) {
+                config._pf._overflowDayOfYear = true;
+            }
+
+            date = makeUTCDate(yearToUse, 0, config._dayOfYear);
+            config._a[MONTH] = date.getUTCMonth();
+            config._a[DATE] = date.getUTCDate();
+        }
+
+        // Default to current date.
+        // * if no year, month, day of month are given, default to today
+        // * if day of month is given, default month and year
+        // * if month is given, default only year
+        // * if year is given, don't default anything
+        for (i = 0; i < 3 && config._a[i] == null; ++i) {
+            config._a[i] = input[i] = currentDate[i];
+        }
+
+        // Zero out whatever was not defaulted, including time
+        for (; i < 7; i++) {
+            config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
+        }
+
+        // Check for 24:00:00.000
+        if (config._a[HOUR] === 24 &&
+                config._a[MINUTE] === 0 &&
+                config._a[SECOND] === 0 &&
+                config._a[MILLISECOND] === 0) {
+            config._nextDay = true;
+            config._a[HOUR] = 0;
+        }
+
+        config._d = (config._useUTC ? makeUTCDate : makeDate).apply(null, input);
+        // Apply timezone offset from input. The actual utcOffset can be changed
+        // with parseZone.
+        if (config._tzm != null) {
+            config._d.setUTCMinutes(config._d.getUTCMinutes() - config._tzm);
+        }
+
+        if (config._nextDay) {
+            config._a[HOUR] = 24;
+        }
+    }
+
+    function dateFromObject(config) {
+        var normalizedInput;
+
+        if (config._d) {
+            return;
+        }
+
+        normalizedInput = normalizeObjectUnits(config._i);
+        config._a = [
+            normalizedInput.year,
+            normalizedInput.month,
+            normalizedInput.day || normalizedInput.date,
+            normalizedInput.hour,
+            normalizedInput.minute,
+            normalizedInput.second,
+            normalizedInput.millisecond
+        ];
+
+        dateFromConfig(config);
+    }
+
+    function currentDateArray(config) {
+        var now = new Date();
+        if (config._useUTC) {
+            return [
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate()
+            ];
+        } else {
+            return [now.getFullYear(), now.getMonth(), now.getDate()];
+        }
+    }
+
+    // date from string and format string
+    function makeDateFromStringAndFormat(config) {
+        if (config._f === moment.ISO_8601) {
+            parseISO(config);
+            return;
+        }
+
+        config._a = [];
+        config._pf.empty = true;
+
+        // This array is used to make a Date, either with `new Date` or `Date.UTC`
+        var string = '' + config._i,
+            i, parsedInput, tokens, token, skipped,
+            stringLength = string.length,
+            totalParsedInputLength = 0;
+
+        tokens = expandFormat(config._f, config._locale).match(formattingTokens) || [];
+
+        for (i = 0; i < tokens.length; i++) {
+            token = tokens[i];
+            parsedInput = (string.match(getParseRegexForToken(token, config)) || [])[0];
+            if (parsedInput) {
+                skipped = string.substr(0, string.indexOf(parsedInput));
+                if (skipped.length > 0) {
+                    config._pf.unusedInput.push(skipped);
+                }
+                string = string.slice(string.indexOf(parsedInput) + parsedInput.length);
+                totalParsedInputLength += parsedInput.length;
+            }
+            // don't parse if it's not a known token
+            if (formatTokenFunctions[token]) {
+                if (parsedInput) {
+                    config._pf.empty = false;
+                }
+                else {
+                    config._pf.unusedTokens.push(token);
+                }
+                addTimeToArrayFromToken(token, parsedInput, config);
+            }
+            else if (config._strict && !parsedInput) {
+                config._pf.unusedTokens.push(token);
+            }
+        }
+
+        // add remaining unparsed input length to the string
+        config._pf.charsLeftOver = stringLength - totalParsedInputLength;
+        if (string.length > 0) {
+            config._pf.unusedInput.push(string);
+        }
+
+        // clear _12h flag if hour is <= 12
+        if (config._pf.bigHour === true && config._a[HOUR] <= 12) {
+            config._pf.bigHour = undefined;
+        }
+        // handle meridiem
+        config._a[HOUR] = meridiemFixWrap(config._locale, config._a[HOUR],
+                config._meridiem);
+        dateFromConfig(config);
+        checkOverflow(config);
+    }
+
+    function unescapeFormat(s) {
+        return s.replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (matched, p1, p2, p3, p4) {
+            return p1 || p2 || p3 || p4;
+        });
+    }
+
+    // Code from http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+    function regexpEscape(s) {
+        return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    }
+
+    // date from string and array of format strings
+    function makeDateFromStringAndArray(config) {
+        var tempConfig,
+            bestMoment,
+
+            scoreToBeat,
+            i,
+            currentScore;
+
+        if (config._f.length === 0) {
+            config._pf.invalidFormat = true;
+            config._d = new Date(NaN);
+            return;
+        }
+
+        for (i = 0; i < config._f.length; i++) {
+            currentScore = 0;
+            tempConfig = copyConfig({}, config);
+            if (config._useUTC != null) {
+                tempConfig._useUTC = config._useUTC;
+            }
+            tempConfig._pf = defaultParsingFlags();
+            tempConfig._f = config._f[i];
+            makeDateFromStringAndFormat(tempConfig);
+
+            if (!isValid(tempConfig)) {
+                continue;
+            }
+
+            // if there is any input that was not parsed add a penalty for that format
+            currentScore += tempConfig._pf.charsLeftOver;
+
+            //or tokens
+            currentScore += tempConfig._pf.unusedTokens.length * 10;
+
+            tempConfig._pf.score = currentScore;
+
+            if (scoreToBeat == null || currentScore < scoreToBeat) {
+                scoreToBeat = currentScore;
+                bestMoment = tempConfig;
+            }
+        }
+
+        extend(config, bestMoment || tempConfig);
+    }
+
+    // date from iso format
+    function parseISO(config) {
+        var i, l,
+            string = config._i,
+            match = isoRegex.exec(string);
+
+        if (match) {
+            config._pf.iso = true;
+            for (i = 0, l = isoDates.length; i < l; i++) {
+                if (isoDates[i][1].exec(string)) {
+                    // match[5] should be 'T' or undefined
+                    config._f = isoDates[i][0] + (match[6] || ' ');
+                    break;
+                }
+            }
+            for (i = 0, l = isoTimes.length; i < l; i++) {
+                if (isoTimes[i][1].exec(string)) {
+                    config._f += isoTimes[i][0];
+                    break;
+                }
+            }
+            if (string.match(parseTokenTimezone)) {
+                config._f += 'Z';
+            }
+            makeDateFromStringAndFormat(config);
+        } else {
+            config._isValid = false;
+        }
+    }
+
+    // date from iso format or fallback
+    function makeDateFromString(config) {
+        parseISO(config);
+        if (config._isValid === false) {
+            delete config._isValid;
+            moment.createFromInputFallback(config);
+        }
+    }
+
+    function map(arr, fn) {
+        var res = [], i;
+        for (i = 0; i < arr.length; ++i) {
+            res.push(fn(arr[i], i));
+        }
+        return res;
+    }
+
+    function makeDateFromInput(config) {
+        var input = config._i, matched;
+        if (input === undefined) {
+            config._d = new Date();
+        } else if (isDate(input)) {
+            config._d = new Date(+input);
+        } else if ((matched = aspNetJsonRegex.exec(input)) !== null) {
+            config._d = new Date(+matched[1]);
+        } else if (typeof input === 'string') {
+            makeDateFromString(config);
+        } else if (isArray(input)) {
+            config._a = map(input.slice(0), function (obj) {
+                return parseInt(obj, 10);
+            });
+            dateFromConfig(config);
+        } else if (typeof(input) === 'object') {
+            dateFromObject(config);
+        } else if (typeof(input) === 'number') {
+            // from milliseconds
+            config._d = new Date(input);
+        } else {
+            moment.createFromInputFallback(config);
+        }
+    }
+
+    function makeDate(y, m, d, h, M, s, ms) {
+        //can't just apply() to create a date:
+        //http://stackoverflow.com/questions/181348/instantiating-a-javascript-object-by-calling-prototype-constructor-apply
+        var date = new Date(y, m, d, h, M, s, ms);
+
+        //the date constructor doesn't accept years < 1970
+        if (y < 1970) {
+            date.setFullYear(y);
+        }
+        return date;
+    }
+
+    function makeUTCDate(y) {
+        var date = new Date(Date.UTC.apply(null, arguments));
+        if (y < 1970) {
+            date.setUTCFullYear(y);
+        }
+        return date;
+    }
+
+    function parseWeekday(input, locale) {
+        if (typeof input === 'string') {
+            if (!isNaN(input)) {
+                input = parseInt(input, 10);
+            }
+            else {
+                input = locale.weekdaysParse(input);
+                if (typeof input !== 'number') {
+                    return null;
+                }
+            }
+        }
+        return input;
+    }
+
+    /************************************
+        Relative Time
+    ************************************/
+
+
+    // helper function for moment.fn.from, moment.fn.fromNow, and moment.duration.fn.humanize
+    function substituteTimeAgo(string, number, withoutSuffix, isFuture, locale) {
+        return locale.relativeTime(number || 1, !!withoutSuffix, string, isFuture);
+    }
+
+    function relativeTime(posNegDuration, withoutSuffix, locale) {
+        var duration = moment.duration(posNegDuration).abs(),
+            seconds = round(duration.as('s')),
+            minutes = round(duration.as('m')),
+            hours = round(duration.as('h')),
+            days = round(duration.as('d')),
+            months = round(duration.as('M')),
+            years = round(duration.as('y')),
+
+            args = seconds < relativeTimeThresholds.s && ['s', seconds] ||
+                minutes === 1 && ['m'] ||
+                minutes < relativeTimeThresholds.m && ['mm', minutes] ||
+                hours === 1 && ['h'] ||
+                hours < relativeTimeThresholds.h && ['hh', hours] ||
+                days === 1 && ['d'] ||
+                days < relativeTimeThresholds.d && ['dd', days] ||
+                months === 1 && ['M'] ||
+                months < relativeTimeThresholds.M && ['MM', months] ||
+                years === 1 && ['y'] || ['yy', years];
+
+        args[2] = withoutSuffix;
+        args[3] = +posNegDuration > 0;
+        args[4] = locale;
+        return substituteTimeAgo.apply({}, args);
+    }
+
+
+    /************************************
+        Week of Year
+    ************************************/
+
+
+    // firstDayOfWeek       0 = sun, 6 = sat
+    //                      the day of the week that starts the week
+    //                      (usually sunday or monday)
+    // firstDayOfWeekOfYear 0 = sun, 6 = sat
+    //                      the first week is the week that contains the first
+    //                      of this day of the week
+    //                      (eg. ISO weeks use thursday (4))
+    function weekOfYear(mom, firstDayOfWeek, firstDayOfWeekOfYear) {
+        var end = firstDayOfWeekOfYear - firstDayOfWeek,
+            daysToDayOfWeek = firstDayOfWeekOfYear - mom.day(),
+            adjustedMoment;
+
+
+        if (daysToDayOfWeek > end) {
+            daysToDayOfWeek -= 7;
+        }
+
+        if (daysToDayOfWeek < end - 7) {
+            daysToDayOfWeek += 7;
+        }
+
+        adjustedMoment = moment(mom).add(daysToDayOfWeek, 'd');
+        return {
+            week: Math.ceil(adjustedMoment.dayOfYear() / 7),
+            year: adjustedMoment.year()
+        };
+    }
+
+    //http://en.wikipedia.org/wiki/ISO_week_date#Calculating_a_date_given_the_year.2C_week_number_and_weekday
+    function dayOfYearFromWeeks(year, week, weekday, firstDayOfWeekOfYear, firstDayOfWeek) {
+        var d = makeUTCDate(year, 0, 1).getUTCDay(), daysToAdd, dayOfYear;
+
+        d = d === 0 ? 7 : d;
+        weekday = weekday != null ? weekday : firstDayOfWeek;
+        daysToAdd = firstDayOfWeek - d + (d > firstDayOfWeekOfYear ? 7 : 0) - (d < firstDayOfWeek ? 7 : 0);
+        dayOfYear = 7 * (week - 1) + (weekday - firstDayOfWeek) + daysToAdd + 1;
+
+        return {
+            year: dayOfYear > 0 ? year : year - 1,
+            dayOfYear: dayOfYear > 0 ?  dayOfYear : daysInYear(year - 1) + dayOfYear
+        };
+    }
+
+    /************************************
+        Top Level Functions
+    ************************************/
+
+    function makeMoment(config) {
+        var input = config._i,
+            format = config._f,
+            res;
+
+        config._locale = config._locale || moment.localeData(config._l);
+
+        if (input === null || (format === undefined && input === '')) {
+            return moment.invalid({nullInput: true});
+        }
+
+        if (typeof input === 'string') {
+            config._i = input = config._locale.preparse(input);
+        }
+
+        if (moment.isMoment(input)) {
+            return new Moment(input, true);
+        } else if (format) {
+            if (isArray(format)) {
+                makeDateFromStringAndArray(config);
+            } else {
+                makeDateFromStringAndFormat(config);
+            }
+        } else {
+            makeDateFromInput(config);
+        }
+
+        res = new Moment(config);
+        if (res._nextDay) {
+            // Adding is smart enough around DST
+            res.add(1, 'd');
+            res._nextDay = undefined;
+        }
+
+        return res;
+    }
+
+    moment = function (input, format, locale, strict) {
+        var c;
+
+        if (typeof(locale) === 'boolean') {
+            strict = locale;
+            locale = undefined;
+        }
+        // object construction must be done this way.
+        // https://github.com/moment/moment/issues/1423
+        c = {};
+        c._isAMomentObject = true;
+        c._i = input;
+        c._f = format;
+        c._l = locale;
+        c._strict = strict;
+        c._isUTC = false;
+        c._pf = defaultParsingFlags();
+
+        return makeMoment(c);
+    };
+
+    moment.suppressDeprecationWarnings = false;
+
+    moment.createFromInputFallback = deprecate(
+        'moment construction falls back to js Date. This is ' +
+        'discouraged and will be removed in upcoming major ' +
+        'release. Please refer to ' +
+        'https://github.com/moment/moment/issues/1407 for more info.',
+        function (config) {
+            config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
+        }
+    );
+
+    // Pick a moment m from moments so that m[fn](other) is true for all
+    // other. This relies on the function fn to be transitive.
+    //
+    // moments should either be an array of moment objects or an array, whose
+    // first element is an array of moment objects.
+    function pickBy(fn, moments) {
+        var res, i;
+        if (moments.length === 1 && isArray(moments[0])) {
+            moments = moments[0];
+        }
+        if (!moments.length) {
+            return moment();
+        }
+        res = moments[0];
+        for (i = 1; i < moments.length; ++i) {
+            if (moments[i][fn](res)) {
+                res = moments[i];
+            }
+        }
+        return res;
+    }
+
+    moment.min = function () {
+        var args = [].slice.call(arguments, 0);
+
+        return pickBy('isBefore', args);
+    };
+
+    moment.max = function () {
+        var args = [].slice.call(arguments, 0);
+
+        return pickBy('isAfter', args);
+    };
+
+    // creating with utc
+    moment.utc = function (input, format, locale, strict) {
+        var c;
+
+        if (typeof(locale) === 'boolean') {
+            strict = locale;
+            locale = undefined;
+        }
+        // object construction must be done this way.
+        // https://github.com/moment/moment/issues/1423
+        c = {};
+        c._isAMomentObject = true;
+        c._useUTC = true;
+        c._isUTC = true;
+        c._l = locale;
+        c._i = input;
+        c._f = format;
+        c._strict = strict;
+        c._pf = defaultParsingFlags();
+
+        return makeMoment(c).utc();
+    };
+
+    // creating with unix timestamp (in seconds)
+    moment.unix = function (input) {
+        return moment(input * 1000);
+    };
+
+    // duration
+    moment.duration = function (input, key) {
+        var duration = input,
+            // matching against regexp is expensive, do it on demand
+            match = null,
+            sign,
+            ret,
+            parseIso,
+            diffRes;
+
+        if (moment.isDuration(input)) {
+            duration = {
+                ms: input._milliseconds,
+                d: input._days,
+                M: input._months
+            };
+        } else if (typeof input === 'number') {
+            duration = {};
+            if (key) {
+                duration[key] = input;
+            } else {
+                duration.milliseconds = input;
+            }
+        } else if (!!(match = aspNetTimeSpanJsonRegex.exec(input))) {
+            sign = (match[1] === '-') ? -1 : 1;
+            duration = {
+                y: 0,
+                d: toInt(match[DATE]) * sign,
+                h: toInt(match[HOUR]) * sign,
+                m: toInt(match[MINUTE]) * sign,
+                s: toInt(match[SECOND]) * sign,
+                ms: toInt(match[MILLISECOND]) * sign
+            };
+        } else if (!!(match = isoDurationRegex.exec(input))) {
+            sign = (match[1] === '-') ? -1 : 1;
+            parseIso = function (inp) {
+                // We'd normally use ~~inp for this, but unfortunately it also
+                // converts floats to ints.
+                // inp may be undefined, so careful calling replace on it.
+                var res = inp && parseFloat(inp.replace(',', '.'));
+                // apply sign while we're at it
+                return (isNaN(res) ? 0 : res) * sign;
+            };
+            duration = {
+                y: parseIso(match[2]),
+                M: parseIso(match[3]),
+                d: parseIso(match[4]),
+                h: parseIso(match[5]),
+                m: parseIso(match[6]),
+                s: parseIso(match[7]),
+                w: parseIso(match[8])
+            };
+        } else if (duration == null) {// checks for null or undefined
+            duration = {};
+        } else if (typeof duration === 'object' &&
+                ('from' in duration || 'to' in duration)) {
+            diffRes = momentsDifference(moment(duration.from), moment(duration.to));
+
+            duration = {};
+            duration.ms = diffRes.milliseconds;
+            duration.M = diffRes.months;
+        }
+
+        ret = new Duration(duration);
+
+        if (moment.isDuration(input) && hasOwnProp(input, '_locale')) {
+            ret._locale = input._locale;
+        }
+
+        return ret;
+    };
+
+    // version number
+    moment.version = VERSION;
+
+    // default format
+    moment.defaultFormat = isoFormat;
+
+    // constant that refers to the ISO standard
+    moment.ISO_8601 = function () {};
+
+    // Plugins that add properties should also add the key here (null value),
+    // so we can properly clone ourselves.
+    moment.momentProperties = momentProperties;
+
+    // This function will be called whenever a moment is mutated.
+    // It is intended to keep the offset in sync with the timezone.
+    moment.updateOffset = function () {};
+
+    // This function allows you to set a threshold for relative time strings
+    moment.relativeTimeThreshold = function (threshold, limit) {
+        if (relativeTimeThresholds[threshold] === undefined) {
+            return false;
+        }
+        if (limit === undefined) {
+            return relativeTimeThresholds[threshold];
+        }
+        relativeTimeThresholds[threshold] = limit;
+        return true;
+    };
+
+    moment.lang = deprecate(
+        'moment.lang is deprecated. Use moment.locale instead.',
+        function (key, value) {
+            return moment.locale(key, value);
+        }
+    );
+
+    // This function will load locale and then set the global locale.  If
+    // no arguments are passed in, it will simply return the current global
+    // locale key.
+    moment.locale = function (key, values) {
+        var data;
+        if (key) {
+            if (typeof(values) !== 'undefined') {
+                data = moment.defineLocale(key, values);
+            }
+            else {
+                data = moment.localeData(key);
+            }
+
+            if (data) {
+                moment.duration._locale = moment._locale = data;
+            }
+        }
+
+        return moment._locale._abbr;
+    };
+
+    moment.defineLocale = function (name, values) {
+        if (values !== null) {
+            values.abbr = name;
+            if (!locales[name]) {
+                locales[name] = new Locale();
+            }
+            locales[name].set(values);
+
+            // backwards compat for now: also set the locale
+            moment.locale(name);
+
+            return locales[name];
+        } else {
+            // useful for testing
+            delete locales[name];
+            return null;
+        }
+    };
+
+    moment.langData = deprecate(
+        'moment.langData is deprecated. Use moment.localeData instead.',
+        function (key) {
+            return moment.localeData(key);
+        }
+    );
+
+    // returns locale data
+    moment.localeData = function (key) {
+        var locale;
+
+        if (key && key._locale && key._locale._abbr) {
+            key = key._locale._abbr;
+        }
+
+        if (!key) {
+            return moment._locale;
+        }
+
+        if (!isArray(key)) {
+            //short-circuit everything else
+            locale = loadLocale(key);
+            if (locale) {
+                return locale;
+            }
+            key = [key];
+        }
+
+        return chooseLocale(key);
+    };
+
+    // compare moment object
+    moment.isMoment = function (obj) {
+        return obj instanceof Moment ||
+            (obj != null && hasOwnProp(obj, '_isAMomentObject'));
+    };
+
+    // for typechecking Duration objects
+    moment.isDuration = function (obj) {
+        return obj instanceof Duration;
+    };
+
+    for (i = lists.length - 1; i >= 0; --i) {
+        makeList(lists[i]);
+    }
+
+    moment.normalizeUnits = function (units) {
+        return normalizeUnits(units);
+    };
+
+    moment.invalid = function (flags) {
+        var m = moment.utc(NaN);
+        if (flags != null) {
+            extend(m._pf, flags);
+        }
+        else {
+            m._pf.userInvalidated = true;
+        }
+
+        return m;
+    };
+
+    moment.parseZone = function () {
+        return moment.apply(null, arguments).parseZone();
+    };
+
+    moment.parseTwoDigitYear = function (input) {
+        return toInt(input) + (toInt(input) > 68 ? 1900 : 2000);
+    };
+
+    moment.isDate = isDate;
+
+    /************************************
+        Moment Prototype
+    ************************************/
+
+
+    extend(moment.fn = Moment.prototype, {
+
+        clone : function () {
+            return moment(this);
+        },
+
+        valueOf : function () {
+            return +this._d - ((this._offset || 0) * 60000);
+        },
+
+        unix : function () {
+            return Math.floor(+this / 1000);
+        },
+
+        toString : function () {
+            return this.clone().locale('en').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+        },
+
+        toDate : function () {
+            return this._offset ? new Date(+this) : this._d;
+        },
+
+        toISOString : function () {
+            var m = moment(this).utc();
+            if (0 < m.year() && m.year() <= 9999) {
+                if ('function' === typeof Date.prototype.toISOString) {
+                    // native implementation is ~50x faster, use it when we can
+                    return this.toDate().toISOString();
+                } else {
+                    return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+                }
+            } else {
+                return formatMoment(m, 'YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+            }
+        },
+
+        toArray : function () {
+            var m = this;
+            return [
+                m.year(),
+                m.month(),
+                m.date(),
+                m.hours(),
+                m.minutes(),
+                m.seconds(),
+                m.milliseconds()
+            ];
+        },
+
+        isValid : function () {
+            return isValid(this);
+        },
+
+        isDSTShifted : function () {
+            if (this._a) {
+                return this.isValid() && compareArrays(this._a, (this._isUTC ? moment.utc(this._a) : moment(this._a)).toArray()) > 0;
+            }
+
+            return false;
+        },
+
+        parsingFlags : function () {
+            return extend({}, this._pf);
+        },
+
+        invalidAt: function () {
+            return this._pf.overflow;
+        },
+
+        utc : function (keepLocalTime) {
+            return this.utcOffset(0, keepLocalTime);
+        },
+
+        local : function (keepLocalTime) {
+            if (this._isUTC) {
+                this.utcOffset(0, keepLocalTime);
+                this._isUTC = false;
+
+                if (keepLocalTime) {
+                    this.subtract(this._dateUtcOffset(), 'm');
+                }
+            }
+            return this;
+        },
+
+        format : function (inputString) {
+            var output = formatMoment(this, inputString || moment.defaultFormat);
+            return this.localeData().postformat(output);
+        },
+
+        add : createAdder(1, 'add'),
+
+        subtract : createAdder(-1, 'subtract'),
+
+        diff : function (input, units, asFloat) {
+            var that = makeAs(input, this),
+                zoneDiff = (that.utcOffset() - this.utcOffset()) * 6e4,
+                anchor, diff, output, daysAdjust;
+
+            units = normalizeUnits(units);
+
+            if (units === 'year' || units === 'month' || units === 'quarter') {
+                output = monthDiff(this, that);
+                if (units === 'quarter') {
+                    output = output / 3;
+                } else if (units === 'year') {
+                    output = output / 12;
+                }
+            } else {
+                diff = this - that;
+                output = units === 'second' ? diff / 1e3 : // 1000
+                    units === 'minute' ? diff / 6e4 : // 1000 * 60
+                    units === 'hour' ? diff / 36e5 : // 1000 * 60 * 60
+                    units === 'day' ? (diff - zoneDiff) / 864e5 : // 1000 * 60 * 60 * 24, negate dst
+                    units === 'week' ? (diff - zoneDiff) / 6048e5 : // 1000 * 60 * 60 * 24 * 7, negate dst
+                    diff;
+            }
+            return asFloat ? output : absRound(output);
+        },
+
+        from : function (time, withoutSuffix) {
+            return moment.duration({to: this, from: time}).locale(this.locale()).humanize(!withoutSuffix);
+        },
+
+        fromNow : function (withoutSuffix) {
+            return this.from(moment(), withoutSuffix);
+        },
+
+        calendar : function (time) {
+            // We want to compare the start of today, vs this.
+            // Getting start-of-today depends on whether we're locat/utc/offset
+            // or not.
+            var now = time || moment(),
+                sod = makeAs(now, this).startOf('day'),
+                diff = this.diff(sod, 'days', true),
+                format = diff < -6 ? 'sameElse' :
+                    diff < -1 ? 'lastWeek' :
+                    diff < 0 ? 'lastDay' :
+                    diff < 1 ? 'sameDay' :
+                    diff < 2 ? 'nextDay' :
+                    diff < 7 ? 'nextWeek' : 'sameElse';
+            return this.format(this.localeData().calendar(format, this, moment(now)));
+        },
+
+        isLeapYear : function () {
+            return isLeapYear(this.year());
+        },
+
+        isDST : function () {
+            return (this.utcOffset() > this.clone().month(0).utcOffset() ||
+                this.utcOffset() > this.clone().month(5).utcOffset());
+        },
+
+        day : function (input) {
+            var day = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
+            if (input != null) {
+                input = parseWeekday(input, this.localeData());
+                return this.add(input - day, 'd');
+            } else {
+                return day;
+            }
+        },
+
+        month : makeAccessor('Month', true),
+
+        startOf : function (units) {
+            units = normalizeUnits(units);
+            // the following switch intentionally omits break keywords
+            // to utilize falling through the cases.
+            switch (units) {
+            case 'year':
+                this.month(0);
+                /* falls through */
+            case 'quarter':
+            case 'month':
+                this.date(1);
+                /* falls through */
+            case 'week':
+            case 'isoWeek':
+            case 'day':
+                this.hours(0);
+                /* falls through */
+            case 'hour':
+                this.minutes(0);
+                /* falls through */
+            case 'minute':
+                this.seconds(0);
+                /* falls through */
+            case 'second':
+                this.milliseconds(0);
+                /* falls through */
+            }
+
+            // weeks are a special case
+            if (units === 'week') {
+                this.weekday(0);
+            } else if (units === 'isoWeek') {
+                this.isoWeekday(1);
+            }
+
+            // quarters are also special
+            if (units === 'quarter') {
+                this.month(Math.floor(this.month() / 3) * 3);
+            }
+
+            return this;
+        },
+
+        endOf: function (units) {
+            units = normalizeUnits(units);
+            if (units === undefined || units === 'millisecond') {
+                return this;
+            }
+            return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
+        },
+
+        isAfter: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this > +input;
+            } else {
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return inputMs < +this.clone().startOf(units);
+            }
+        },
+
+        isBefore: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this < +input;
+            } else {
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return +this.clone().endOf(units) < inputMs;
+            }
+        },
+
+        isBetween: function (from, to, units) {
+            return this.isAfter(from, units) && this.isBefore(to, units);
+        },
+
+        isSame: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(units || 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this === +input;
+            } else {
+                inputMs = +moment(input);
+                return +(this.clone().startOf(units)) <= inputMs && inputMs <= +(this.clone().endOf(units));
+            }
+        },
+
+        min: deprecate(
+                 'moment().min is deprecated, use moment.min instead. https://github.com/moment/moment/issues/1548',
+                 function (other) {
+                     other = moment.apply(null, arguments);
+                     return other < this ? this : other;
+                 }
+         ),
+
+        max: deprecate(
+                'moment().max is deprecated, use moment.max instead. https://github.com/moment/moment/issues/1548',
+                function (other) {
+                    other = moment.apply(null, arguments);
+                    return other > this ? this : other;
+                }
+        ),
+
+        zone : deprecate(
+                'moment().zone is deprecated, use moment().utcOffset instead. ' +
+                'https://github.com/moment/moment/issues/1779',
+                function (input, keepLocalTime) {
+                    if (input != null) {
+                        if (typeof input !== 'string') {
+                            input = -input;
+                        }
+
+                        this.utcOffset(input, keepLocalTime);
+
+                        return this;
+                    } else {
+                        return -this.utcOffset();
+                    }
+                }
+        ),
+
+        // keepLocalTime = true means only change the timezone, without
+        // affecting the local hour. So 5:31:26 +0300 --[utcOffset(2, true)]-->
+        // 5:31:26 +0200 It is possible that 5:31:26 doesn't exist with offset
+        // +0200, so we adjust the time as needed, to be valid.
+        //
+        // Keeping the time actually adds/subtracts (one hour)
+        // from the actual represented time. That is why we call updateOffset
+        // a second time. In case it wants us to change the offset again
+        // _changeInProgress == true case, then we have to adjust, because
+        // there is no such time in the given timezone.
+        utcOffset : function (input, keepLocalTime) {
+            var offset = this._offset || 0,
+                localAdjust;
+            if (input != null) {
+                if (typeof input === 'string') {
+                    input = utcOffsetFromString(input);
+                }
+                if (Math.abs(input) < 16) {
+                    input = input * 60;
+                }
+                if (!this._isUTC && keepLocalTime) {
+                    localAdjust = this._dateUtcOffset();
+                }
+                this._offset = input;
+                this._isUTC = true;
+                if (localAdjust != null) {
+                    this.add(localAdjust, 'm');
+                }
+                if (offset !== input) {
+                    if (!keepLocalTime || this._changeInProgress) {
+                        addOrSubtractDurationFromMoment(this,
+                                moment.duration(input - offset, 'm'), 1, false);
+                    } else if (!this._changeInProgress) {
+                        this._changeInProgress = true;
+                        moment.updateOffset(this, true);
+                        this._changeInProgress = null;
+                    }
+                }
+
+                return this;
+            } else {
+                return this._isUTC ? offset : this._dateUtcOffset();
+            }
+        },
+
+        isLocal : function () {
+            return !this._isUTC;
+        },
+
+        isUtcOffset : function () {
+            return this._isUTC;
+        },
+
+        isUtc : function () {
+            return this._isUTC && this._offset === 0;
+        },
+
+        zoneAbbr : function () {
+            return this._isUTC ? 'UTC' : '';
+        },
+
+        zoneName : function () {
+            return this._isUTC ? 'Coordinated Universal Time' : '';
+        },
+
+        parseZone : function () {
+            if (this._tzm) {
+                this.utcOffset(this._tzm);
+            } else if (typeof this._i === 'string') {
+                this.utcOffset(utcOffsetFromString(this._i));
+            }
+            return this;
+        },
+
+        hasAlignedHourOffset : function (input) {
+            if (!input) {
+                input = 0;
+            }
+            else {
+                input = moment(input).utcOffset();
+            }
+
+            return (this.utcOffset() - input) % 60 === 0;
+        },
+
+        daysInMonth : function () {
+            return daysInMonth(this.year(), this.month());
+        },
+
+        dayOfYear : function (input) {
+            var dayOfYear = round((moment(this).startOf('day') - moment(this).startOf('year')) / 864e5) + 1;
+            return input == null ? dayOfYear : this.add((input - dayOfYear), 'd');
+        },
+
+        quarter : function (input) {
+            return input == null ? Math.ceil((this.month() + 1) / 3) : this.month((input - 1) * 3 + this.month() % 3);
+        },
+
+        weekYear : function (input) {
+            var year = weekOfYear(this, this.localeData()._week.dow, this.localeData()._week.doy).year;
+            return input == null ? year : this.add((input - year), 'y');
+        },
+
+        isoWeekYear : function (input) {
+            var year = weekOfYear(this, 1, 4).year;
+            return input == null ? year : this.add((input - year), 'y');
+        },
+
+        week : function (input) {
+            var week = this.localeData().week(this);
+            return input == null ? week : this.add((input - week) * 7, 'd');
+        },
+
+        isoWeek : function (input) {
+            var week = weekOfYear(this, 1, 4).week;
+            return input == null ? week : this.add((input - week) * 7, 'd');
+        },
+
+        weekday : function (input) {
+            var weekday = (this.day() + 7 - this.localeData()._week.dow) % 7;
+            return input == null ? weekday : this.add(input - weekday, 'd');
+        },
+
+        isoWeekday : function (input) {
+            // behaves the same as moment#day except
+            // as a getter, returns 7 instead of 0 (1-7 range instead of 0-6)
+            // as a setter, sunday should belong to the previous week.
+            return input == null ? this.day() || 7 : this.day(this.day() % 7 ? input : input - 7);
+        },
+
+        isoWeeksInYear : function () {
+            return weeksInYear(this.year(), 1, 4);
+        },
+
+        weeksInYear : function () {
+            var weekInfo = this.localeData()._week;
+            return weeksInYear(this.year(), weekInfo.dow, weekInfo.doy);
+        },
+
+        get : function (units) {
+            units = normalizeUnits(units);
+            return this[units]();
+        },
+
+        set : function (units, value) {
+            var unit;
+            if (typeof units === 'object') {
+                for (unit in units) {
+                    this.set(unit, units[unit]);
+                }
+            }
+            else {
+                units = normalizeUnits(units);
+                if (typeof this[units] === 'function') {
+                    this[units](value);
+                }
+            }
+            return this;
+        },
+
+        // If passed a locale key, it will set the locale for this
+        // instance.  Otherwise, it will return the locale configuration
+        // variables for this instance.
+        locale : function (key) {
+            var newLocaleData;
+
+            if (key === undefined) {
+                return this._locale._abbr;
+            } else {
+                newLocaleData = moment.localeData(key);
+                if (newLocaleData != null) {
+                    this._locale = newLocaleData;
+                }
+                return this;
+            }
+        },
+
+        lang : deprecate(
+            'moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.',
+            function (key) {
+                if (key === undefined) {
+                    return this.localeData();
+                } else {
+                    return this.locale(key);
+                }
+            }
+        ),
+
+        localeData : function () {
+            return this._locale;
+        },
+
+        _dateUtcOffset : function () {
+            // On Firefox.24 Date#getTimezoneOffset returns a floating point.
+            // https://github.com/moment/moment/pull/1871
+            return -Math.round(this._d.getTimezoneOffset() / 15) * 15;
+        }
+
+    });
+
+    function rawMonthSetter(mom, value) {
+        var dayOfMonth;
+
+        // TODO: Move this out of here!
+        if (typeof value === 'string') {
+            value = mom.localeData().monthsParse(value);
+            // TODO: Another silent failure?
+            if (typeof value !== 'number') {
+                return mom;
+            }
+        }
+
+        dayOfMonth = Math.min(mom.date(),
+                daysInMonth(mom.year(), value));
+        mom._d['set' + (mom._isUTC ? 'UTC' : '') + 'Month'](value, dayOfMonth);
+        return mom;
+    }
+
+    function rawGetter(mom, unit) {
+        return mom._d['get' + (mom._isUTC ? 'UTC' : '') + unit]();
+    }
+
+    function rawSetter(mom, unit, value) {
+        if (unit === 'Month') {
+            return rawMonthSetter(mom, value);
+        } else {
+            return mom._d['set' + (mom._isUTC ? 'UTC' : '') + unit](value);
+        }
+    }
+
+    function makeAccessor(unit, keepTime) {
+        return function (value) {
+            if (value != null) {
+                rawSetter(this, unit, value);
+                moment.updateOffset(this, keepTime);
+                return this;
+            } else {
+                return rawGetter(this, unit);
+            }
+        };
+    }
+
+    moment.fn.millisecond = moment.fn.milliseconds = makeAccessor('Milliseconds', false);
+    moment.fn.second = moment.fn.seconds = makeAccessor('Seconds', false);
+    moment.fn.minute = moment.fn.minutes = makeAccessor('Minutes', false);
+    // Setting the hour should keep the time, because the user explicitly
+    // specified which hour he wants. So trying to maintain the same hour (in
+    // a new timezone) makes sense. Adding/subtracting hours does not follow
+    // this rule.
+    moment.fn.hour = moment.fn.hours = makeAccessor('Hours', true);
+    // moment.fn.month is defined separately
+    moment.fn.date = makeAccessor('Date', true);
+    moment.fn.dates = deprecate('dates accessor is deprecated. Use date instead.', makeAccessor('Date', true));
+    moment.fn.year = makeAccessor('FullYear', true);
+    moment.fn.years = deprecate('years accessor is deprecated. Use year instead.', makeAccessor('FullYear', true));
+
+    // add plural methods
+    moment.fn.days = moment.fn.day;
+    moment.fn.months = moment.fn.month;
+    moment.fn.weeks = moment.fn.week;
+    moment.fn.isoWeeks = moment.fn.isoWeek;
+    moment.fn.quarters = moment.fn.quarter;
+
+    // add aliased format methods
+    moment.fn.toJSON = moment.fn.toISOString;
+
+    // alias isUtc for dev-friendliness
+    moment.fn.isUTC = moment.fn.isUtc;
+
+    /************************************
+        Duration Prototype
+    ************************************/
+
+
+    function daysToYears (days) {
+        // 400 years have 146097 days (taking into account leap year rules)
+        return days * 400 / 146097;
+    }
+
+    function yearsToDays (years) {
+        // years * 365 + absRound(years / 4) -
+        //     absRound(years / 100) + absRound(years / 400);
+        return years * 146097 / 400;
+    }
+
+    extend(moment.duration.fn = Duration.prototype, {
+
+        _bubble : function () {
+            var milliseconds = this._milliseconds,
+                days = this._days,
+                months = this._months,
+                data = this._data,
+                seconds, minutes, hours, years = 0;
+
+            // The following code bubbles up values, see the tests for
+            // examples of what that means.
+            data.milliseconds = milliseconds % 1000;
+
+            seconds = absRound(milliseconds / 1000);
+            data.seconds = seconds % 60;
+
+            minutes = absRound(seconds / 60);
+            data.minutes = minutes % 60;
+
+            hours = absRound(minutes / 60);
+            data.hours = hours % 24;
+
+            days += absRound(hours / 24);
+
+            // Accurately convert days to years, assume start from year 0.
+            years = absRound(daysToYears(days));
+            days -= absRound(yearsToDays(years));
+
+            // 30 days to a month
+            // TODO (iskren): Use anchor date (like 1st Jan) to compute this.
+            months += absRound(days / 30);
+            days %= 30;
+
+            // 12 months -> 1 year
+            years += absRound(months / 12);
+            months %= 12;
+
+            data.days = days;
+            data.months = months;
+            data.years = years;
+        },
+
+        abs : function () {
+            this._milliseconds = Math.abs(this._milliseconds);
+            this._days = Math.abs(this._days);
+            this._months = Math.abs(this._months);
+
+            this._data.milliseconds = Math.abs(this._data.milliseconds);
+            this._data.seconds = Math.abs(this._data.seconds);
+            this._data.minutes = Math.abs(this._data.minutes);
+            this._data.hours = Math.abs(this._data.hours);
+            this._data.months = Math.abs(this._data.months);
+            this._data.years = Math.abs(this._data.years);
+
+            return this;
+        },
+
+        weeks : function () {
+            return absRound(this.days() / 7);
+        },
+
+        valueOf : function () {
+            return this._milliseconds +
+              this._days * 864e5 +
+              (this._months % 12) * 2592e6 +
+              toInt(this._months / 12) * 31536e6;
+        },
+
+        humanize : function (withSuffix) {
+            var output = relativeTime(this, !withSuffix, this.localeData());
+
+            if (withSuffix) {
+                output = this.localeData().pastFuture(+this, output);
+            }
+
+            return this.localeData().postformat(output);
+        },
+
+        add : function (input, val) {
+            // supports only 2.0-style add(1, 's') or add(moment)
+            var dur = moment.duration(input, val);
+
+            this._milliseconds += dur._milliseconds;
+            this._days += dur._days;
+            this._months += dur._months;
+
+            this._bubble();
+
+            return this;
+        },
+
+        subtract : function (input, val) {
+            var dur = moment.duration(input, val);
+
+            this._milliseconds -= dur._milliseconds;
+            this._days -= dur._days;
+            this._months -= dur._months;
+
+            this._bubble();
+
+            return this;
+        },
+
+        get : function (units) {
+            units = normalizeUnits(units);
+            return this[units.toLowerCase() + 's']();
+        },
+
+        as : function (units) {
+            var days, months;
+            units = normalizeUnits(units);
+
+            if (units === 'month' || units === 'year') {
+                days = this._days + this._milliseconds / 864e5;
+                months = this._months + daysToYears(days) * 12;
+                return units === 'month' ? months : months / 12;
+            } else {
+                // handle milliseconds separately because of floating point math errors (issue #1867)
+                days = this._days + Math.round(yearsToDays(this._months / 12));
+                switch (units) {
+                    case 'week': return days / 7 + this._milliseconds / 6048e5;
+                    case 'day': return days + this._milliseconds / 864e5;
+                    case 'hour': return days * 24 + this._milliseconds / 36e5;
+                    case 'minute': return days * 24 * 60 + this._milliseconds / 6e4;
+                    case 'second': return days * 24 * 60 * 60 + this._milliseconds / 1000;
+                    // Math.floor prevents floating point math errors here
+                    case 'millisecond': return Math.floor(days * 24 * 60 * 60 * 1000) + this._milliseconds;
+                    default: throw new Error('Unknown unit ' + units);
+                }
+            }
+        },
+
+        lang : moment.fn.lang,
+        locale : moment.fn.locale,
+
+        toIsoString : deprecate(
+            'toIsoString() is deprecated. Please use toISOString() instead ' +
+            '(notice the capitals)',
+            function () {
+                return this.toISOString();
+            }
+        ),
+
+        toISOString : function () {
+            // inspired by https://github.com/dordille/moment-isoduration/blob/master/moment.isoduration.js
+            var years = Math.abs(this.years()),
+                months = Math.abs(this.months()),
+                days = Math.abs(this.days()),
+                hours = Math.abs(this.hours()),
+                minutes = Math.abs(this.minutes()),
+                seconds = Math.abs(this.seconds() + this.milliseconds() / 1000);
+
+            if (!this.asSeconds()) {
+                // this is the same as C#'s (Noda) and python (isodate)...
+                // but not other JS (goog.date)
+                return 'P0D';
+            }
+
+            return (this.asSeconds() < 0 ? '-' : '') +
+                'P' +
+                (years ? years + 'Y' : '') +
+                (months ? months + 'M' : '') +
+                (days ? days + 'D' : '') +
+                ((hours || minutes || seconds) ? 'T' : '') +
+                (hours ? hours + 'H' : '') +
+                (minutes ? minutes + 'M' : '') +
+                (seconds ? seconds + 'S' : '');
+        },
+
+        localeData : function () {
+            return this._locale;
+        },
+
+        toJSON : function () {
+            return this.toISOString();
+        }
+    });
+
+    moment.duration.fn.toString = moment.duration.fn.toISOString;
+
+    function makeDurationGetter(name) {
+        moment.duration.fn[name] = function () {
+            return this._data[name];
+        };
+    }
+
+    for (i in unitMillisecondFactors) {
+        if (hasOwnProp(unitMillisecondFactors, i)) {
+            makeDurationGetter(i.toLowerCase());
+        }
+    }
+
+    moment.duration.fn.asMilliseconds = function () {
+        return this.as('ms');
+    };
+    moment.duration.fn.asSeconds = function () {
+        return this.as('s');
+    };
+    moment.duration.fn.asMinutes = function () {
+        return this.as('m');
+    };
+    moment.duration.fn.asHours = function () {
+        return this.as('h');
+    };
+    moment.duration.fn.asDays = function () {
+        return this.as('d');
+    };
+    moment.duration.fn.asWeeks = function () {
+        return this.as('weeks');
+    };
+    moment.duration.fn.asMonths = function () {
+        return this.as('M');
+    };
+    moment.duration.fn.asYears = function () {
+        return this.as('y');
+    };
+
+    /************************************
+        Default Locale
+    ************************************/
+
+
+    // Set default locale, other locale will inherit from English.
+    moment.locale('en', {
+        ordinalParse: /\d{1,2}(th|st|nd|rd)/,
+        ordinal : function (number) {
+            var b = number % 10,
+                output = (toInt(number % 100 / 10) === 1) ? 'th' :
+                (b === 1) ? 'st' :
+                (b === 2) ? 'nd' :
+                (b === 3) ? 'rd' : 'th';
+            return number + output;
+        }
+    });
+
+    /* EMBED_LOCALES */
+
+    /************************************
+        Exposing Moment
+    ************************************/
+
+    function makeGlobal(shouldDeprecate) {
+        /*global ender:false */
+        if (typeof ender !== 'undefined') {
+            return;
+        }
+        oldGlobalMoment = globalScope.moment;
+        if (shouldDeprecate) {
+            globalScope.moment = deprecate(
+                    'Accessing Moment through the global scope is ' +
+                    'deprecated, and will be removed in an upcoming ' +
+                    'release.',
+                    moment);
+        } else {
+            globalScope.moment = moment;
+        }
+    }
+
+    // CommonJS module is defined
+    if (hasModule) {
+        module.exports = moment;
+    } else if (typeof define === 'function' && define.amd) {
+        define(function (require, exports, module) {
+            if (module.config && module.config() && module.config().noGlobal === true) {
+                // release the global variable
+                globalScope.moment = oldGlobalMoment;
+            }
+
+            return moment;
+        });
+        makeGlobal(true);
+    } else {
+        makeGlobal();
+    }
+}).call(this);
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],27:[function(require,module,exports){
+'use strict'
+
+var React  = require('react')
+var moment = require('moment')
+var copy   = require('copy-utils').copy
+
+var FORMAT   = require('./utils/format')
+var asConfig = require('./utils/asConfig')
+var toMoment = require('./toMoment')
+
+var TODAY
+
+function emptyFn(){}
+
+var DecadeView = React.createClass({
+
+    displayName: 'DecadeView',
+
+    getDefaultProps: function() {
+        return asConfig()
+    },
+
+    /**
+     * Returns all the years in the decade of the given value
+     *
+     * @param  {Moment/Date/Number} value
+     * @return {Moment[]}
+     */
+    getYearsInDecade: function(value){
+        var year = moment(value).get('year')
+        var offset = year % 10
+
+        year = year - offset - 1
+
+        var result = []
+        var i = 0
+
+        var start = moment(year, 'YYYY').startOf('year')
+
+        for (; i < 12; i++){
+            result.push(moment(start))
+            start.add(1, 'year')
+        }
+
+        return result
+    },
+
+    render: function() {
+
+        TODAY = +moment().startOf('day')
+
+        var viewMoment = this.props.viewMoment = moment(this.props.viewDate)
+
+        if (this.props.date){
+            this.props.moment = moment(this.props.date).startOf('year')
+        }
+
+        var yearsInView = this.getYearsInDecade(viewMoment)
+
+        return (
+            React.createElement("table", {className: "dp-table dp-decade-view"}, 
+                React.createElement("tbody", null, 
+                    this.renderYears(yearsInView)
+
+                )
+            )
+        )
+    },
+
+    /**
+     * Render the given array of days
+     * @param  {Moment[]} days
+     * @return {React.DOM}
+     */
+    renderYears: function(days) {
+        var nodes      = days.map(this.renderYear, this)
+        var len        = days.length
+        var buckets    = []
+        var bucketsLen = Math.ceil(len / 4)
+
+        var i = 0
+
+        for ( ; i < bucketsLen; i++){
+            buckets.push(nodes.slice(i * 4, (i + 1) * 4))
+        }
+
+        return buckets.map(function(bucket, i){
+            return React.createElement("tr", {key: "row" + i}, bucket)
+        })
+    },
+
+    renderYear: function(date, index, arr) {
+        var yearText = FORMAT.year(date)
+        var classes = ["dp-cell dp-year"]
+
+        var dateTimestamp = +date
+
+        if (dateTimestamp == this.props.moment){
+            classes.push('dp-value')
+        }
+
+        if (!index){
+            classes.push('dp-prev')
+        }
+
+        if (index == arr.length - 1){
+            classes.push('dp-next')
+        }
+
+        return (
+            React.createElement("td", {key: yearText, className: classes.join(' '), onClick: this.handleClick.bind(this, date)}, 
+                yearText
+            )
+        )
+    },
+
+    handleClick: function(date, event) {
+        event.target.value = date
+        ;(this.props.onSelect || emptyFn)(date, event)
+    }
+})
+
+copy({
+    getHeaderText: function(value) {
+        var year = moment(value).get('year')
+        var offset = year % 10
+
+        year = year - offset - 1
+
+        return year + ' - ' + (year + 11)
+    }
+}, DecadeView)
+
+module.exports = DecadeView
+},{"./toMoment":32,"./utils/asConfig":33,"./utils/format":34,"copy-utils":42,"moment":43,"react":267}],28:[function(require,module,exports){
+'use strict'
+
+var React  = require('react')
+var moment = require('moment')
+var copy   = require('copy-utils').copy
+
+var FORMAT   = require('./utils/format')
+var asConfig = require('./utils/asConfig')
+var toMoment = require('./toMoment')
+
+var TODAY
+
+function emptyFn(){}
+
+var MonthView = React.createClass({
+
+    displayName: 'MonthView',
+
+    /**
+     * Formats the given date in the specified format.
+     * @method format
+     *
+     * @param  {Date/String/Moment} value
+     * @param  {String} [format] If none specified, #dateFormat will be used
+     *
+     * @return {String}
+     */
+
+    formatAsDay: function(moment, dayDisplayFormat){
+        return moment.format(dayDisplayFormat || 'D')
+    },
+
+    getDefaultProps: function() {
+
+        return asConfig()
+    },
+
+    getWeekStartMoment: function(value){
+        var clone = moment(value).startOf('week')
+
+        // if (DEFAULT_WEEK_START_DAY != this.weekStartDay){
+        //     clone.add('days', this.weekStartDay - DEFAULT_WEEK_START_DAY)
+        // }
+
+        return clone
+    },
+
+    /**
+     * Returns all the days in the specified month.
+     *
+     * @param  {Moment/Date/Number} value
+     * @return {Moment[]}
+     */
+    getDaysInMonth: function(value){
+        var first = moment(value).startOf('month')
+        var start = this.getWeekStartMoment(first)
+        var result = []
+        var i = 0
+
+        if (first.add(-1, 'days').isBefore(start)){
+            //make sure the last day of prev month is included
+            start.add(-1, 'weeks')
+        }
+
+        for (; i < 42; i++){
+            result.push(moment(start))
+            start.add(1, 'days')
+        }
+
+        return result
+    },
+
+    render: function() {
+
+        TODAY = +moment().startOf('day')
+
+        var viewMoment = this.props.viewMoment = toMoment(this.props.viewDate, this.props.dateFormat)
+
+        this.props.minDate && (this.props.minDate = +toMoment(this.props.minDate, this.props.dateFormat))
+        this.props.maxDate && (this.props.maxDate = +toMoment(this.props.maxDate, this.props.dateFormat))
+
+        if (this.props.minDate){
+            // debugger
+        }
+
+        this.monthFirst = moment(viewMoment).startOf('month')
+        this.monthLast  = moment(viewMoment).endOf('month')
+
+        if (this.props.date){
+            this.props.moment = moment(this.props.date).startOf('day')
+        }
+
+        var daysInView = this.getDaysInMonth(viewMoment)
+
+        return (
+            React.createElement("table", {className: "dp-table dp-month-view"}, 
+                React.createElement("tbody", null, 
+                    this.renderWeekDayNames(), 
+
+                    this.renderDays(daysInView)
+
+                )
+            )
+        )
+    },
+
+    /**
+     * Render the given array of days
+     * @param  {Moment[]} days
+     * @return {React.DOM}
+     */
+    renderDays: function(days) {
+        var nodes      = days.map(this.renderDay, this)
+        var len        = days.length
+        var buckets    = []
+        var bucketsLen = Math.ceil(len / 7)
+
+        var i = 0
+
+        for ( ; i < bucketsLen; i++){
+            buckets.push(nodes.slice(i * 7, (i + 1) * 7))
+        }
+
+        return buckets.map(function(bucket, i){
+            return React.createElement("tr", {key: "row" + i, className: "dp-week dp-row"}, bucket)
+        })
+    },
+
+    renderDay: function(date) {
+        var dayText = FORMAT.day(date)
+        var classes = ["dp-cell dp-day"]
+
+        var dateTimestamp = +date
+
+        if (dateTimestamp == TODAY){
+            classes.push('dp-current')
+        } else if (dateTimestamp < this.monthFirst){
+            classes.push('dp-prev')
+        } else if (dateTimestamp > this.monthLast){
+            classes.push('dp-next')
+        }
+
+        if (this.props.minDate && date < this.props.minDate){
+            classes.push('dp-disabled dp-before-min')
+        }
+        if (this.props.maxDate && date > this.props.maxDate){
+            classes.push('dp-disabled dp-after-max')
+        }
+
+        if (dateTimestamp == this.props.moment){
+            classes.push('dp-value')
+        }
+
+        var renderDayProps = {
+            key      : dayText,
+            text     : dayText,
+            date     : date,
+            className: classes.join(' '),
+            style    : {},
+            onClick  : this.handleClick.bind(this, date, dateTimestamp),
+            children : dayText
+        }
+
+        if (typeof this.props.onRenderDay === 'function'){
+            renderDayProps = this.props.onRenderDay(renderDayProps)
+        }
+
+        var defaultRenderFunction = React.DOM.td
+        var renderFunction = this.props.renderDay || defaultRenderFunction
+
+        var result = renderFunction(renderDayProps)
+
+        if (result === undefined){
+            result = defaultRenderFunction(renderDayProps)
+        }
+
+        return result
+    },
+
+    renderWeekDayNames: function(){
+        var names = this.props.weekDayNames
+
+        return (
+            React.createElement("tr", {className: "dp-row dp-week-day-names"}, 
+                names.map(function(name)  {return React.createElement("td", {key: name, className: "dp-cell dp-week-day-name"}, name);})
+            )
+        )
+    },
+
+    handleClick: function(date, timestamp, event) {
+        if (this.props.minDate && timestamp < this.props.minDate){
+            return
+        }
+        if (this.props.maxDate && timestamp > this.props.maxDate){
+            return
+        }
+
+        event.target.value = date
+
+        ;(this.props.onChange || emptyFn)(date, event)
+    }
+})
+
+copy({
+    getHeaderText: function(moment) {
+        return toMoment(moment).format('MMMM YYYY')
+    }
+}, MonthView)
+
+module.exports = MonthView
+},{"./toMoment":32,"./utils/asConfig":33,"./utils/format":34,"copy-utils":42,"moment":43,"react":267}],29:[function(require,module,exports){
+'use strict'
+
+var React  = require('react')
+var moment = require('moment')
+var copy   = require('copy-utils').copy
+
+var FORMAT   = require('./utils/format')
+var asConfig = require('./utils/asConfig')
+var toMoment = require('./toMoment')
+
+var TODAY
+
+function emptyFn(){}
+
+var YearView = React.createClass({
+
+    displayName: 'YearView',
+
+    getDefaultProps: function() {
+
+        return asConfig()
+    },
+
+    /**
+     * Returns all the days in the specified month.
+     *
+     * @param  {Moment/Date/Number} value
+     * @return {Moment[]}
+     */
+    getMonthsInYear: function(value){
+        var start = moment(value).startOf('year')
+        var result = []
+        var i = 0
+
+        for (; i < 12; i++){
+            result.push(moment(start))
+            start.add(1, 'month')
+        }
+
+        return result
+    },
+
+    render: function() {
+
+        TODAY = +moment().startOf('day')
+
+        var viewMoment = this.props.viewMoment = moment(this.props.viewDate)
+
+        if (this.props.date){
+            this.props.moment = moment(this.props.date).startOf('month')
+        }
+
+        var monthsInView = this.getMonthsInYear(viewMoment)
+
+        return (
+            React.createElement("table", {className: "dp-table dp-year-view"}, 
+                React.createElement("tbody", null, 
+                    this.renderMonths(monthsInView)
+
+                )
+            )
+        )
+    },
+
+    /**
+     * Render the given array of days
+     * @param  {Moment[]} days
+     * @return {React.DOM}
+     */
+    renderMonths: function(days) {
+        var nodes      = days.map(this.renderMonth, this)
+        var len        = days.length
+        var buckets    = []
+        var bucketsLen = Math.ceil(len / 4)
+
+        var i = 0
+
+        for ( ; i < bucketsLen; i++){
+            buckets.push(nodes.slice(i * 4, (i + 1) * 4))
+        }
+
+        return buckets.map(function(bucket, i){
+            return React.createElement("tr", {key: "row" + i}, bucket)
+        })
+    },
+
+    renderMonth: function(date) {
+        var monthText = FORMAT.month(date)
+        var classes = ["dp-cell dp-month"]
+
+        var dateTimestamp = +date
+
+        if (dateTimestamp == this.props.moment){
+            classes.push('dp-value')
+        }
+
+        return (
+            React.createElement("td", {key: monthText, className: classes.join(' '), onClick: this.handleClick.bind(this, date)}, 
+                monthText
+            )
+        )
+    },
+
+    handleClick: function(date, event) {
+        event.target.value = date
+        ;(this.props.onSelect || emptyFn)(date, event)
+    }
+})
+
+copy({
+    getHeaderText: function(moment) {
+        return toMoment(moment).format('YYYY')
+    }
+}, YearView)
+
+module.exports = YearView
+},{"./toMoment":32,"./utils/asConfig":33,"./utils/format":34,"copy-utils":42,"moment":43,"react":267}],30:[function(require,module,exports){
+'use strict'
+
+var getWeekDayNames = require('./utils/getWeekDayNames')
+
+module.exports = {
+
+    //the names of week days to be displayed in month view - first should be sunday
+    weekDayNames: getWeekDayNames(),
+
+    //the day to display as first day of week. defaults to 0, which is sunday
+    weekStartDay: 0,
+
+    //the format in which days should be displayed in month view
+    dayFormat: 'D',
+
+    //the format in which months should be displayed in year view
+    monthFormat: 'MMMM',
+
+    //the format in which years should be displayed in decade view
+    yearFormat: 'YYYY',
+
+    //text for navigating to prev period
+    navPrev      : '‹',
+
+    //text for navigating to next period
+    navNext      : '›',
+
+    //the view to render initially. Possible values are: 'month', 'year', 'decade'
+    view: 'month',
+
+    //the date to mark as selected in the date picker.
+    //Can be a Date object, a moment object or a string.
+    //If it's a string, it will be parsed using dateFormat
+    date: null,
+
+    minDate: null,
+
+    maxDate: null,
+
+    //the date where to open the picker. defaults to today if no date and no viewDate specified
+    viewDate: null,
+
+    //if the date property is given as string, it will be parsed using this format
+    dateFormat: 'YYYY-MM-DD'
+}
+},{"./utils/getWeekDayNames":35}],31:[function(require,module,exports){
+'use strict'
+
+var React  = require('react')
+
+var moment    = require('moment')
+var copyUtils = require('copy-utils')
+var copy     = copyUtils.copy
+var copyList = copyUtils.copyList
+
+var asConfig = require('./utils/asConfig')
+
+var MonthView  = require('./MonthView')
+var YearView   = require('./YearView')
+var DecadeView = require('./DecadeView')
+
+// if (React.createFactory){
+//     MonthView  = React.createFactory(MonthView)
+//     YearView   = React.createFactory(YearView)
+//     DecadeView = React.createFactory(DecadeView)
+// }
+
+var Views = {
+    month : MonthView,
+    year  : YearView,
+    decade: DecadeView
+}
+
+var getWeekDayNames = require('./utils/getWeekDayNames')
+
+function emptyFn(){}
+
+var DatePicker = React.createClass({
+
+    displayName: 'DatePicker',
+
+    propTypes: {
+        todayText: React.PropTypes.string,
+        gotoSelectedText: React.PropTypes.string,
+
+        renderFooter: React.PropTypes.func,
+        onChange: React.PropTypes.func,
+
+        date: React.PropTypes.any,
+        viewDate: React.PropTypes.any
+    },
+
+    getInitialState: function() {
+        return {
+        }
+    },
+
+    getDefaultProps: function() {
+        return asConfig()
+    },
+
+    getViewName: function() {
+        return this.state.view || this.props.view || 'month'
+    },
+
+    getViewOrder: function() {
+        return ['month', 'year', 'decade']
+    },
+
+    addViewIndex: function(amount) {
+        var viewName = this.getViewName()
+
+        var order = this.getViewOrder()
+        var index = order.indexOf(viewName)
+
+        index += amount
+
+        return index % order.length
+    },
+
+    getNextViewName: function() {
+        return this.getViewOrder()[this.addViewIndex(1)]
+    },
+
+    getPrevViewName: function() {
+        return this.getViewOrder()[this.addViewIndex(-1)]
+    },
+
+    getView: function() {
+        return Views[this.getViewName()] || Views.month
+    },
+
+    getViewFactory: function() {
+        var view = this.getView()
+
+        if (React.createFactory){
+            view.__factory = view.__factory || React.createFactory(view)
+            view = view.__factory
+        }
+
+        return view
+    },
+
+    getViewDate: function() {
+        return this.state.viewMoment || this.props.viewDate || this.props.date || this.now
+    },
+
+    render: function() {
+
+        this.now = +new Date()
+
+        var view     = this.getViewFactory()
+        var props    = asConfig(this.props)
+
+        props.viewDate  = this.getViewDate()
+
+        props.renderDay = this.props.renderDay
+        props.onRenderDay = this.props.onRenderDay
+
+        props.onChange  = this.handleChange
+        props.onSelect  = this.handleSelect
+
+        var className = (this.props.className || '') + ' date-picker'
+
+        return (
+            React.createElement("div", React.__spread({className: className},  this.props), 
+                React.createElement("div", {className: "dp-inner"}, 
+                    this.renderHeader(view), 
+
+                    React.createElement("div", {className: "dp-body"}, 
+                        React.createElement("div", {className: "dp-anim-target"}, 
+                        view(props)
+                        )
+                    ), 
+
+                    this.renderFooter(props)
+                )
+            )
+        )
+    },
+
+    renderFooter: function(props) {
+        if (this.props.hideFooter){
+            return
+        }
+
+        if (this.props.today){
+            console.warn('Please use "todayText" prop instead of "today"!')
+        }
+        if (this.props.gotoSelected){
+            console.warn('Please use "gotoSelectedText" prop instead of "gotoSelected"!')
+        }
+
+        var todayText    = this.props.todayText || 'Today'
+        var gotoSelectedText = this.props.gotoSelectedText || 'Go to selected'
+
+        var footerProps = {
+            todayText          : todayText,
+            gotoSelectedText   : gotoSelectedText,
+            onTodayClick       : this.gotoNow,
+            onGotoSelectedClick: this.gotoSelected,
+            date               : props.date,
+            viewDate           : props.viewDate
+        }
+
+        var result
+        if (typeof this.props.renderFooter == 'function'){
+            result = this.props.renderFooter(footerProps)
+        }
+
+        if (result !== undefined){
+            return result
+        }
+
+        return (
+            React.createElement("div", {className: "dp-footer"}, 
+                React.createElement("div", {className: "dp-footer-today", onClick: this.gotoNow}, 
+                    todayText
+                ), 
+                React.createElement("div", {className: "dp-footer-selected", onClick: this.gotoSelected}, 
+                    gotoSelectedText
+                )
+            )
+        )
+    },
+
+    gotoNow: function() {
+        this.gotoDate(+new Date())
+    },
+
+    gotoSelected: function() {
+        this.gotoDate(this.props.date || +new Date())
+    },
+
+    gotoDate: function(value) {
+        this.setState({
+            view: 'month',
+            viewMoment: moment(value)
+        })
+    },
+
+    getViewColspan: function(){
+        var map = {
+            month : 5,
+            year  : 2,
+            decade: 2
+        }
+
+        return map[this.getViewName()]
+    },
+
+    renderHeader: function(view) {
+
+        var viewDate   = this.getViewDate()
+        var headerText = this.getView().getHeaderText(viewDate)
+
+        var colspan = this.getViewColspan()
+        var prev    = this.props.navPrev
+        var next    = this.props.navNext
+
+        return (
+            React.createElement("div", {className: "dp-header"}, 
+                React.createElement("table", {className: "dp-nav-table"}, React.createElement("tbody", null, 
+                    React.createElement("tr", {className: "dp-row"}, 
+                        React.createElement("td", {className: "dp-prev-nav dp-nav-cell dp-cell", onClick: this.handlePrevNav}, prev), 
+
+                        React.createElement("td", {className: "dp-nav-view dp-cell ", colSpan: colspan, onClick: this.handleViewChange}, headerText), 
+
+                        React.createElement("td", {className: "dp-next-nav dp-nav-cell dp-cell", onClick: this.handleNextNav}, next)
+                    )
+                ))
+            )
+        )
+    },
+
+    handleRenderDay: function (date) {
+        return (this.props.renderDay || emptyFn)(date) || []
+    },
+
+    handleViewChange: function() {
+        this.setState({
+            view: this.getNextViewName()
+        })
+    },
+
+    getNext: function() {
+        var current = this.getViewDate()
+
+        return ({
+            month: function() {
+                return moment(current).add(1, 'month')
+            },
+            year: function() {
+                return moment(current).add(1, 'year')
+            },
+            decade: function() {
+                return moment(current).add(10, 'year')
+            }
+        })[this.getViewName()]()
+    },
+
+    getPrev: function() {
+        var current = this.getViewDate()
+
+        return ({
+            month: function() {
+                return moment(current).add(-1, 'month')
+            },
+            year: function() {
+                return moment(current).add(-1, 'year')
+            },
+            decade: function() {
+                return moment(current).add(-10, 'year')
+            }
+        })[this.getViewName()]()
+    },
+
+    handlePrevNav: function(event) {
+        var viewMoment = this.getPrev()
+
+        this.setState({
+            viewMoment: viewMoment
+        })
+
+        if (typeof this.props.onNav === 'function'){
+            var text = viewMoment.format(this.props.dateFormat)
+            var view = this.getViewName()
+
+            this.props.onNav(viewMoment, text, view, -1, event)
+        }
+    },
+
+    handleNextNav: function(event) {
+        var viewMoment = this.getNext()
+
+        this.setState({
+            viewMoment: viewMoment
+        })
+
+        if (typeof this.props.onNav === 'function'){
+            var text = viewMoment.format(this.props.dateFormat)
+            var view = this.getViewName()
+
+            this.props.onNav(viewMoment, text, view, 1, event)
+        }
+    },
+
+    handleChange: function(date, event) {
+        date = moment(date)
+
+        var text = date.format(this.props.dateFormat)
+
+        ;(this.props.onChange || emptyFn)(date, text, event)
+    },
+
+    handleSelect: function(date, event) {
+        var viewName = this.getViewName()
+        var property = ({
+            decade: 'year',
+            year  : 'month'
+        })[viewName]
+
+        var value = date.get(property)
+        var viewMoment = moment(this.getViewDate()).set(property, value)
+        var view = this.getPrevViewName()
+
+        this.setState({
+            viewMoment: viewMoment,
+            view: view
+        })
+
+        if (typeof this.props.onSelect === 'function'){
+            var text = viewMoment.format(this.props.dateFormat)
+            this.props.onSelect(viewMoment, text, view, event)
+        }
+    }
+
+})
+
+DatePicker.locale = function(locale){
+    console.log(locale,'!')
+    require('moment/locale/' + locale)
+}
+
+module.exports = DatePicker
+},{"./DecadeView":27,"./MonthView":28,"./YearView":29,"./utils/asConfig":33,"./utils/getWeekDayNames":35,"copy-utils":42,"moment":43,"react":267}],32:[function(require,module,exports){
+'use strict'
+
+var moment = require('moment')
+var CONFIG = require('./config')
+
+/**
+ * This function will be used to convert a date to a moment.
+ *
+ * It accepts input as sring, date or moment
+ *
+ * @param  {String/Date/Moment} value
+ * @param  {String} [dateFormat] if value is string, it will be parsed to a moment using this format
+ * @param  {Object} [config]
+ * @param  {Boolean} [config.strict] whether to perform strict parsing on strings
+ * @return {Moment}
+ */
+module.exports = function(value, dateFormat, config){
+    var strict = !!(config && config.strict)
+
+    dateFormat = dateFormat || CONFIG.dateFormat
+
+    if (typeof value == 'string'){
+        return moment(value, dateFormat, strict)
+    }
+
+    return moment(value == null? new Date(): value)
+}
+},{"./config":30,"moment":43}],33:[function(require,module,exports){
+'use strict'
+
+var copyUtils = require('copy-utils')
+var copy      = copyUtils.copy
+var copyList  = copyUtils.copyList
+
+var CONFIG = require('../config')
+var KEYS   = Object.keys(CONFIG)
+
+/**
+ * Returns an object that copies from given source object
+ * on the resulting object only the properties also found in cfg.
+ *
+ * If no cfg specified, CONFIG is assumed
+ *
+ * @param  {object} source
+ * @param  {Object} [cfg] If not specied, CONFIG will be used
+ *
+ * @return {Object}
+ */
+module.exports = function asConfig(source, cfg){
+
+    var keys = KEYS
+
+    if (cfg){
+        keys = Object.keys(cfg)
+    }
+
+    cfg = cfg || CONFIG
+
+    if (!source){
+        return copy(cfg)
+    }
+
+    return copyList(source, copy(cfg), keys)
+}
+
+},{"../config":30,"copy-utils":42}],34:[function(require,module,exports){
+'use strict'
+
+var CONFIG   = require('../config')
+var toMoment = require('../toMoment')
+
+function f(mom, format){
+    return toMoment(mom).format(format)
+}
+
+module.exports = {
+    day: function(mom, format) {
+        return f(mom, format || CONFIG.dayFormat)
+    },
+
+    month: function(mom, format) {
+        return f(mom, format || CONFIG.monthFormat)
+    },
+
+    year: function(mom, format) {
+        return f(mom, format || CONFIG.yearFormat)
+    }
+}
+},{"../config":30,"../toMoment":32}],35:[function(require,module,exports){
+'use strict'
+
+var moment = require('moment')
+
+var DEFAULT_WEEK_START_DAY = moment().startOf('week').format('d') * 1
+
+module.exports = function getWeekDayNames(startDay){
+
+    var names = moment.weekdaysShort()
+    var index = startDay || DEFAULT_WEEK_START_DAY
+
+    while (index > 0){
+        names.push(names.shift())
+        index--
+    }
+
+    return names
+}
+},{"moment":43}],36:[function(require,module,exports){
+'use strict'
+
+var HAS_OWN       = Object.prototype.hasOwnProperty
+var STR_OBJECT    = 'object'
+
+/**
+ * Copies all properties from source to destination
+ *
+ *      copy({name: 'jon',age:5}, this);
+ *      // => this will have the 'name' and 'age' properties set to 'jon' and 5 respectively
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination){
+
+    destination = destination || {}
+
+    if (source != null && typeof source === STR_OBJECT ){
+
+        for (var i in source) if ( HAS_OWN.call(source, i) ) {
+            destination[i] = source[i]
+        }
+
+    }
+
+    return destination
+}
+},{}],37:[function(require,module,exports){
+'use strict'
+
+var HAS_OWN       = Object.prototype.hasOwnProperty
+var STR_OBJECT    = 'object'
+var STR_UNDEFINED = 'undefined'
+
+/**
+ * Copies all properties from source to destination, if the property does not exist into the destination
+ *
+ *      copyIf({name: 'jon',age:5}, {age:7})
+ *      // => { name: 'jon', age: 7}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination){
+    destination = destination || {}
+
+    if (source != null && typeof source === STR_OBJECT){
+
+        for (var i in source) if ( HAS_OWN.call(source, i) && (typeof destination[i] === STR_UNDEFINED) ) {
+
+            destination[i] = source[i]
+
+        }
+    }
+
+    return destination
+}
+},{}],38:[function(require,module,exports){
+'use strict'
+
+var STR_UNDEFINED = 'undefined'
+var STR_OBJECT    = 'object'
+var HAS_OWN       = Object.prototype.hasOwnProperty
+
+var copyList = require('./copyList')
+
+/**
+ * Copies all properties named in the namedKeys, from source to destination
+ *
+ *      copyKeys({name: 'jon',age:5, year: 2006, date: '2010/05/12'}, {}, {name:1 ,age: true, year: 'theYear'})
+ *      // => {name: 'jon', age: 5, theYear: 2006}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ * @param {Object} namedKeys an object with keys denoting the properties to be copied
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination, namedKeys){
+    if (arguments.length < 3 ){
+        namedKeys = destination
+        destination = null
+    }
+
+    destination = destination || {}
+
+    if (!namedKeys || Array.isArray(namedKeys)){
+        return copyList(source, destination, namedKeys)
+    }
+
+    if (
+           source != null && typeof source    === STR_OBJECT &&
+        namedKeys != null && typeof namedKeys === STR_OBJECT
+    ) {
+        var typeOfNamedProperty
+        var namedPropertyValue
+
+        for  (var propName in namedKeys) if ( HAS_OWN.call(namedKeys, propName) ) {
+            namedPropertyValue  = namedKeys[propName]
+            typeOfNamedProperty = typeof namedPropertyValue
+
+            if (typeof source[propName] !== STR_UNDEFINED){
+                destination[typeOfNamedProperty == 'string'? namedPropertyValue : propName] = source[propName]
+            }
+        }
+    }
+
+    return destination
+}
+},{"./copyList":40}],39:[function(require,module,exports){
+'use strict'
+
+var STR_UNDEFINED = 'undefined'
+var STR_OBJECT    = 'object'
+var HAS_OWN       = Object.prototype.hasOwnProperty
+
+var copyListIf = require('./copyListIf')
+
+/**
+ * Copies all properties named in the namedKeys, from source to destination,
+ * but only if the property does not already exist in the destination object
+ *
+ *      copyKeysIf({name: 'jon',age:5, year: 2006}, {aname: 'test'}, {name:'aname' ,age: true})
+ *      // => {aname: 'test', age: 5}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ * @param {Object} namedKeys an object with keys denoting the properties to be copied
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination, namedKeys){
+    if (arguments.length < 3 ){
+        namedKeys = destination
+        destination = null
+    }
+
+    destination = destination || {}
+
+    if (!namedKeys || Array.isArray(namedKeys)){
+        return copyListIf(source, destination, namedKeys)
+    }
+
+    if (
+               source != null && typeof source    === STR_OBJECT &&
+            namedKeys != null && typeof namedKeys === STR_OBJECT
+        ) {
+
+            var typeOfNamedProperty
+            var namedPropertyValue
+            var newPropertyName
+
+            for (var propName in namedKeys) if ( HAS_OWN.call(namedKeys, propName) ) {
+
+                namedPropertyValue  = namedKeys[propName]
+                typeOfNamedProperty = typeof namedPropertyValue
+                newPropertyName     = typeOfNamedProperty == 'string'? namedPropertyValue : propName
+
+                if (
+                        typeof      source[propName]        !== STR_UNDEFINED &&
+                        typeof destination[newPropertyName] === STR_UNDEFINED
+                    ) {
+                    destination[newPropertyName] = source[propName]
+                }
+
+            }
+        }
+
+    return destination
+}
+},{"./copyListIf":41}],40:[function(require,module,exports){
+'use strict'
+
+var STR_UNDEFINED = 'undefined'
+
+/**
+ * Copies all properties named in the list, from source to destination
+ *
+ *      copyList({name: 'jon',age:5, year: 2006}, {}, ['name','age'])
+ *      // => {name: 'jon', age: 5}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ * @param {Array} list the array with the names of the properties to copy
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination, list){
+    if (arguments.length < 3){
+        list = destination
+        destination = null
+    }
+
+    destination = destination || {}
+    list        = list || Object.keys(source)
+
+    var i   = 0
+    var len = list.length
+    var propName
+
+    for ( ; i < len; i++ ){
+        propName = list[i]
+
+        if ( typeof source[propName] !== STR_UNDEFINED ) {
+            destination[list[i]] = source[list[i]]
+        }
+    }
+
+    return destination
+}
+},{}],41:[function(require,module,exports){
+'use strict'
+
+var STR_UNDEFINED = 'undefined'
+
+/**
+ * Copies all properties named in the list, from source to destination, if the property does not exist into the destination
+ *
+ *      copyListIf({name: 'jon',age:5, year: 2006}, {age: 10}, ['name','age'])
+ *      // => {name: 'jon', age: 10}
+ *
+ * @param {Object} source
+ * @param {Object} destination
+ * @param {Array} list the array with the names of the properties to copy
+ *
+ * @return {Object} destination
+ */
+module.exports = function(source, destination, list){
+    if (arguments.length < 3){
+        list = destination
+        destination = null
+    }
+
+    destination = destination || {}
+    list        = list || Object.keys(source)
+
+    var i   = 0
+    var len = list.length
+    var propName
+
+    for ( ; i < len ; i++ ){
+        propName = list[i]
+        if (
+                (typeof source[propName]      !== STR_UNDEFINED) &&
+                (typeof destination[propName] === STR_UNDEFINED)
+            ){
+            destination[propName] = source[propName]
+        }
+    }
+
+    return destination
+}
+},{}],42:[function(require,module,exports){
+module.exports = function(){
+
+    'use strict'
+
+    var HAS_OWN       = Object.prototype.hasOwnProperty,
+        STR_OBJECT    = 'object',
+        STR_UNDEFINED = 'undefined'
+
+    return {
+
+        /**
+         * Copies all properties from source to destination
+         *
+         *      copy({name: 'jon',age:5}, this);
+         *      // => this will have the 'name' and 'age' properties set to 'jon' and 5 respectively
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         *
+         * @return {Object} destination
+         */
+        copy: require('./copy'),
+
+        /**
+         * Copies all properties from source to destination, if the property does not exist into the destination
+         *
+         *      copyIf({name: 'jon',age:5}, {age:7})
+         *      // => { name: 'jon', age: 7}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         *
+         * @return {Object} destination
+         */
+        copyIf: require('./copyIf'),
+
+        /**
+         * Copies all properties from source to a new object, with the given value. This object is returned
+         *
+         *      copyAs({name: 'jon',age:5})
+         *      // => the resulting object will have the 'name' and 'age' properties set to 1
+         *
+         * @param {Object} source
+         * @param {Object/Number/String} [value=1]
+         *
+         * @return {Object} destination
+         */
+        copyAs: function(source, value){
+
+            var destination = {}
+
+            value = value || 1
+
+            if (source != null && typeof source === STR_OBJECT ){
+
+                for (var i in source) if ( HAS_OWN.call(source, i) ) {
+                    destination[i] = value
+                }
+
+            }
+
+            return destination
+        },
+
+        /**
+         * Copies all properties named in the list, from source to destination
+         *
+         *      copyList({name: 'jon',age:5, year: 2006}, {}, ['name','age'])
+         *      // => {name: 'jon', age: 5}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         * @param {Array} list the array with the names of the properties to copy
+         *
+         * @return {Object} destination
+         */
+        copyList: require('./copyList'),
+
+        /**
+         * Copies all properties named in the list, from source to destination, if the property does not exist into the destination
+         *
+         *      copyListIf({name: 'jon',age:5, year: 2006}, {age: 10}, ['name','age'])
+         *      // => {name: 'jon', age: 10}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         * @param {Array} list the array with the names of the properties to copy
+         *
+         * @return {Object} destination
+         */
+        copyListIf: require('./copyListIf'),
+
+        /**
+         * Copies all properties named in the namedKeys, from source to destination
+         *
+         *      copyKeys({name: 'jon',age:5, year: 2006, date: '2010/05/12'}, {}, {name:1 ,age: true, year: 'theYear'})
+         *      // => {name: 'jon', age: 5, theYear: 2006}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         * @param {Object} namedKeys an object with keys denoting the properties to be copied
+         *
+         * @return {Object} destination
+         */
+        copyKeys: require('./copyKeys'),
+
+        /**
+         * Copies all properties named in the namedKeys, from source to destination,
+         * but only if the property does not already exist in the destination object
+         *
+         *      copyKeysIf({name: 'jon',age:5, year: 2006}, {aname: 'test'}, {name:'aname' ,age: true})
+         *      // => {aname: 'test', age: 5}
+         *
+         * @param {Object} source
+         * @param {Object} destination
+         * @param {Object} namedKeys an object with keys denoting the properties to be copied
+         *
+         * @return {Object} destination
+         */
+        copyKeysIf: require('./copyKeysIf'),
+
+        copyExceptKeys: function(source, destination, exceptKeys){
+            destination = destination || {}
+            exceptKeys  = exceptKeys  || {}
+
+            if (source != null && typeof source === STR_OBJECT ){
+
+                for (var i in source) if ( HAS_OWN.call(source, i) && !HAS_OWN.call(exceptKeys, i) ) {
+
+                    destination[i] = source[i]
+                }
+
+            }
+
+            return destination
+        },
+
+        /**
+         * Copies the named keys from source to destination.
+         * For the keys that are functions, copies the functions bound to the source
+         *
+         * @param  {Object} source      The source object
+         * @param  {Object} destination The target object
+         * @param  {Object} namedKeys   An object with the names of the keys to copy The values from the keys in this object
+         *                              need to be either numbers or booleans if you want to copy the property under the same name,
+         *                              or a string if you want to copy the property under a different name
+         * @return {Object}             Returns the destination object
+         */
+        bindCopyKeys: function(source, destination, namedKeys){
+            if (arguments.length == 2){
+                namedKeys = destination
+                destination = null
+            }
+
+            destination = destination || {}
+
+            if (
+                       source != null && typeof source    === STR_OBJECT &&
+                    namedKeys != null && typeof namedKeys === STR_OBJECT
+                ) {
+
+
+                var typeOfNamedProperty,
+                    namedPropertyValue,
+
+                    typeOfSourceProperty,
+                    propValue
+
+
+                for(var propName in namedKeys) if (HAS_OWN.call(namedKeys, propName)) {
+
+                    namedPropertyValue = namedKeys[propName]
+                    typeOfNamedProperty = typeof namedPropertyValue
+
+                    propValue = source[propName]
+                    typeOfSourceProperty = typeof propValue
+
+
+                    if ( typeOfSourceProperty !== STR_UNDEFINED ) {
+
+                        destination[
+                            typeOfNamedProperty == 'string'?
+                                            namedPropertyValue :
+                                            propName
+                            ] = typeOfSourceProperty == 'function' ?
+                                            propValue.bind(source):
+                                            propValue
+                    }
+                }
+            }
+
+            return destination
+        }
+    }
+
+}()
+},{"./copy":36,"./copyIf":37,"./copyKeys":38,"./copyKeysIf":39,"./copyList":40,"./copyListIf":41}],43:[function(require,module,exports){
+(function (global){
+//! moment.js
+//! version : 2.8.4
+//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
+//! license : MIT
+//! momentjs.com
+
+(function (undefined) {
+    /************************************
+        Constants
+    ************************************/
+
+    var moment,
+        VERSION = '2.8.4',
+        // the global-scope this is NOT the global object in Node.js
+        globalScope = typeof global !== 'undefined' ? global : this,
+        oldGlobalMoment,
+        round = Math.round,
+        hasOwnProperty = Object.prototype.hasOwnProperty,
+        i,
+
+        YEAR = 0,
+        MONTH = 1,
+        DATE = 2,
+        HOUR = 3,
+        MINUTE = 4,
+        SECOND = 5,
+        MILLISECOND = 6,
+
+        // internal storage for locale config files
+        locales = {},
+
+        // extra moment internal properties (plugins register props here)
+        momentProperties = [],
+
+        // check for nodeJS
+        hasModule = (typeof module !== 'undefined' && module && module.exports),
+
+        // ASP.NET json date format regex
+        aspNetJsonRegex = /^\/?Date\((\-?\d+)/i,
+        aspNetTimeSpanJsonRegex = /(\-)?(?:(\d*)\.)?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?)?/,
+
+        // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
+        // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
+        isoDurationRegex = /^(-)?P(?:(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?|([0-9,.]*)W)$/,
+
+        // format tokens
+        formattingTokens = /(\[[^\[]*\])|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Q|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|S{1,4}|x|X|zz?|ZZ?|.)/g,
+        localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
+
+        // parsing token regexes
+        parseTokenOneOrTwoDigits = /\d\d?/, // 0 - 99
+        parseTokenOneToThreeDigits = /\d{1,3}/, // 0 - 999
+        parseTokenOneToFourDigits = /\d{1,4}/, // 0 - 9999
+        parseTokenOneToSixDigits = /[+\-]?\d{1,6}/, // -999,999 - 999,999
+        parseTokenDigits = /\d+/, // nonzero number of digits
+        parseTokenWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i, // any word (or two) characters or numbers including two/three word month in arabic.
+        parseTokenTimezone = /Z|[\+\-]\d\d:?\d\d/gi, // +00:00 -00:00 +0000 -0000 or Z
+        parseTokenT = /T/i, // T (ISO separator)
+        parseTokenOffsetMs = /[\+\-]?\d+/, // 1234567890123
+        parseTokenTimestampMs = /[\+\-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
+
+        //strict parsing regexes
+        parseTokenOneDigit = /\d/, // 0 - 9
+        parseTokenTwoDigits = /\d\d/, // 00 - 99
+        parseTokenThreeDigits = /\d{3}/, // 000 - 999
+        parseTokenFourDigits = /\d{4}/, // 0000 - 9999
+        parseTokenSixDigits = /[+-]?\d{6}/, // -999,999 - 999,999
+        parseTokenSignedNumber = /[+-]?\d+/, // -inf - inf
+
+        // iso 8601 regex
+        // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
+        isoRegex = /^\s*(?:[+-]\d{6}|\d{4})-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
+
+        isoFormat = 'YYYY-MM-DDTHH:mm:ssZ',
+
+        isoDates = [
+            ['YYYYYY-MM-DD', /[+-]\d{6}-\d{2}-\d{2}/],
+            ['YYYY-MM-DD', /\d{4}-\d{2}-\d{2}/],
+            ['GGGG-[W]WW-E', /\d{4}-W\d{2}-\d/],
+            ['GGGG-[W]WW', /\d{4}-W\d{2}/],
+            ['YYYY-DDD', /\d{4}-\d{3}/]
+        ],
+
+        // iso time formats and regexes
+        isoTimes = [
+            ['HH:mm:ss.SSSS', /(T| )\d\d:\d\d:\d\d\.\d+/],
+            ['HH:mm:ss', /(T| )\d\d:\d\d:\d\d/],
+            ['HH:mm', /(T| )\d\d:\d\d/],
+            ['HH', /(T| )\d\d/]
+        ],
+
+        // timezone chunker '+10:00' > ['10', '00'] or '-1530' > ['-15', '30']
+        parseTimezoneChunker = /([\+\-]|\d\d)/gi,
+
+        // getter and setter names
+        proxyGettersAndSetters = 'Date|Hours|Minutes|Seconds|Milliseconds'.split('|'),
+        unitMillisecondFactors = {
+            'Milliseconds' : 1,
+            'Seconds' : 1e3,
+            'Minutes' : 6e4,
+            'Hours' : 36e5,
+            'Days' : 864e5,
+            'Months' : 2592e6,
+            'Years' : 31536e6
+        },
+
+        unitAliases = {
+            ms : 'millisecond',
+            s : 'second',
+            m : 'minute',
+            h : 'hour',
+            d : 'day',
+            D : 'date',
+            w : 'week',
+            W : 'isoWeek',
+            M : 'month',
+            Q : 'quarter',
+            y : 'year',
+            DDD : 'dayOfYear',
+            e : 'weekday',
+            E : 'isoWeekday',
+            gg: 'weekYear',
+            GG: 'isoWeekYear'
+        },
+
+        camelFunctions = {
+            dayofyear : 'dayOfYear',
+            isoweekday : 'isoWeekday',
+            isoweek : 'isoWeek',
+            weekyear : 'weekYear',
+            isoweekyear : 'isoWeekYear'
+        },
+
+        // format function strings
+        formatFunctions = {},
+
+        // default relative time thresholds
+        relativeTimeThresholds = {
+            s: 45,  // seconds to minute
+            m: 45,  // minutes to hour
+            h: 22,  // hours to day
+            d: 26,  // days to month
+            M: 11   // months to year
+        },
+
+        // tokens to ordinalize and pad
+        ordinalizeTokens = 'DDD w W M D d'.split(' '),
+        paddedTokens = 'M D H h m s w W'.split(' '),
+
+        formatTokenFunctions = {
+            M    : function () {
+                return this.month() + 1;
+            },
+            MMM  : function (format) {
+                return this.localeData().monthsShort(this, format);
+            },
+            MMMM : function (format) {
+                return this.localeData().months(this, format);
+            },
+            D    : function () {
+                return this.date();
+            },
+            DDD  : function () {
+                return this.dayOfYear();
+            },
+            d    : function () {
+                return this.day();
+            },
+            dd   : function (format) {
+                return this.localeData().weekdaysMin(this, format);
+            },
+            ddd  : function (format) {
+                return this.localeData().weekdaysShort(this, format);
+            },
+            dddd : function (format) {
+                return this.localeData().weekdays(this, format);
+            },
+            w    : function () {
+                return this.week();
+            },
+            W    : function () {
+                return this.isoWeek();
+            },
+            YY   : function () {
+                return leftZeroFill(this.year() % 100, 2);
+            },
+            YYYY : function () {
+                return leftZeroFill(this.year(), 4);
+            },
+            YYYYY : function () {
+                return leftZeroFill(this.year(), 5);
+            },
+            YYYYYY : function () {
+                var y = this.year(), sign = y >= 0 ? '+' : '-';
+                return sign + leftZeroFill(Math.abs(y), 6);
+            },
+            gg   : function () {
+                return leftZeroFill(this.weekYear() % 100, 2);
+            },
+            gggg : function () {
+                return leftZeroFill(this.weekYear(), 4);
+            },
+            ggggg : function () {
+                return leftZeroFill(this.weekYear(), 5);
+            },
+            GG   : function () {
+                return leftZeroFill(this.isoWeekYear() % 100, 2);
+            },
+            GGGG : function () {
+                return leftZeroFill(this.isoWeekYear(), 4);
+            },
+            GGGGG : function () {
+                return leftZeroFill(this.isoWeekYear(), 5);
+            },
+            e : function () {
+                return this.weekday();
+            },
+            E : function () {
+                return this.isoWeekday();
+            },
+            a    : function () {
+                return this.localeData().meridiem(this.hours(), this.minutes(), true);
+            },
+            A    : function () {
+                return this.localeData().meridiem(this.hours(), this.minutes(), false);
+            },
+            H    : function () {
+                return this.hours();
+            },
+            h    : function () {
+                return this.hours() % 12 || 12;
+            },
+            m    : function () {
+                return this.minutes();
+            },
+            s    : function () {
+                return this.seconds();
+            },
+            S    : function () {
+                return toInt(this.milliseconds() / 100);
+            },
+            SS   : function () {
+                return leftZeroFill(toInt(this.milliseconds() / 10), 2);
+            },
+            SSS  : function () {
+                return leftZeroFill(this.milliseconds(), 3);
+            },
+            SSSS : function () {
+                return leftZeroFill(this.milliseconds(), 3);
+            },
+            Z    : function () {
+                var a = -this.zone(),
+                    b = '+';
+                if (a < 0) {
+                    a = -a;
+                    b = '-';
+                }
+                return b + leftZeroFill(toInt(a / 60), 2) + ':' + leftZeroFill(toInt(a) % 60, 2);
+            },
+            ZZ   : function () {
+                var a = -this.zone(),
+                    b = '+';
+                if (a < 0) {
+                    a = -a;
+                    b = '-';
+                }
+                return b + leftZeroFill(toInt(a / 60), 2) + leftZeroFill(toInt(a) % 60, 2);
+            },
+            z : function () {
+                return this.zoneAbbr();
+            },
+            zz : function () {
+                return this.zoneName();
+            },
+            x    : function () {
+                return this.valueOf();
+            },
+            X    : function () {
+                return this.unix();
+            },
+            Q : function () {
+                return this.quarter();
+            }
+        },
+
+        deprecations = {},
+
+        lists = ['months', 'monthsShort', 'weekdays', 'weekdaysShort', 'weekdaysMin'];
+
+    // Pick the first defined of two or three arguments. dfl comes from
+    // default.
+    function dfl(a, b, c) {
+        switch (arguments.length) {
+            case 2: return a != null ? a : b;
+            case 3: return a != null ? a : b != null ? b : c;
+            default: throw new Error('Implement me');
+        }
+    }
+
+    function hasOwnProp(a, b) {
+        return hasOwnProperty.call(a, b);
+    }
+
+    function defaultParsingFlags() {
+        // We need to deep clone this object, and es5 standard is not very
+        // helpful.
+        return {
+            empty : false,
+            unusedTokens : [],
+            unusedInput : [],
+            overflow : -2,
+            charsLeftOver : 0,
+            nullInput : false,
+            invalidMonth : null,
+            invalidFormat : false,
+            userInvalidated : false,
+            iso: false
+        };
+    }
+
+    function printMsg(msg) {
+        if (moment.suppressDeprecationWarnings === false &&
+                typeof console !== 'undefined' && console.warn) {
+            console.warn('Deprecation warning: ' + msg);
+        }
+    }
+
+    function deprecate(msg, fn) {
+        var firstTime = true;
+        return extend(function () {
+            if (firstTime) {
+                printMsg(msg);
+                firstTime = false;
+            }
+            return fn.apply(this, arguments);
+        }, fn);
+    }
+
+    function deprecateSimple(name, msg) {
+        if (!deprecations[name]) {
+            printMsg(msg);
+            deprecations[name] = true;
+        }
+    }
+
+    function padToken(func, count) {
+        return function (a) {
+            return leftZeroFill(func.call(this, a), count);
+        };
+    }
+    function ordinalizeToken(func, period) {
+        return function (a) {
+            return this.localeData().ordinal(func.call(this, a), period);
+        };
+    }
+
+    while (ordinalizeTokens.length) {
+        i = ordinalizeTokens.pop();
+        formatTokenFunctions[i + 'o'] = ordinalizeToken(formatTokenFunctions[i], i);
+    }
+    while (paddedTokens.length) {
+        i = paddedTokens.pop();
+        formatTokenFunctions[i + i] = padToken(formatTokenFunctions[i], 2);
+    }
+    formatTokenFunctions.DDDD = padToken(formatTokenFunctions.DDD, 3);
+
+
+    /************************************
+        Constructors
+    ************************************/
+
+    function Locale() {
+    }
+
+    // Moment prototype object
+    function Moment(config, skipOverflow) {
+        if (skipOverflow !== false) {
+            checkOverflow(config);
+        }
+        copyConfig(this, config);
+        this._d = new Date(+config._d);
+    }
+
+    // Duration Constructor
+    function Duration(duration) {
+        var normalizedInput = normalizeObjectUnits(duration),
+            years = normalizedInput.year || 0,
+            quarters = normalizedInput.quarter || 0,
+            months = normalizedInput.month || 0,
+            weeks = normalizedInput.week || 0,
+            days = normalizedInput.day || 0,
+            hours = normalizedInput.hour || 0,
+            minutes = normalizedInput.minute || 0,
+            seconds = normalizedInput.second || 0,
+            milliseconds = normalizedInput.millisecond || 0;
+
+        // representation for dateAddRemove
+        this._milliseconds = +milliseconds +
+            seconds * 1e3 + // 1000
+            minutes * 6e4 + // 1000 * 60
+            hours * 36e5; // 1000 * 60 * 60
+        // Because of dateAddRemove treats 24 hours as different from a
+        // day when working around DST, we need to store them separately
+        this._days = +days +
+            weeks * 7;
+        // It is impossible translate months into days without knowing
+        // which months you are are talking about, so we have to store
+        // it separately.
+        this._months = +months +
+            quarters * 3 +
+            years * 12;
+
+        this._data = {};
+
+        this._locale = moment.localeData();
+
+        this._bubble();
+    }
+
+    /************************************
+        Helpers
+    ************************************/
+
+
+    function extend(a, b) {
+        for (var i in b) {
+            if (hasOwnProp(b, i)) {
+                a[i] = b[i];
+            }
+        }
+
+        if (hasOwnProp(b, 'toString')) {
+            a.toString = b.toString;
+        }
+
+        if (hasOwnProp(b, 'valueOf')) {
+            a.valueOf = b.valueOf;
+        }
+
+        return a;
+    }
+
+    function copyConfig(to, from) {
+        var i, prop, val;
+
+        if (typeof from._isAMomentObject !== 'undefined') {
+            to._isAMomentObject = from._isAMomentObject;
+        }
+        if (typeof from._i !== 'undefined') {
+            to._i = from._i;
+        }
+        if (typeof from._f !== 'undefined') {
+            to._f = from._f;
+        }
+        if (typeof from._l !== 'undefined') {
+            to._l = from._l;
+        }
+        if (typeof from._strict !== 'undefined') {
+            to._strict = from._strict;
+        }
+        if (typeof from._tzm !== 'undefined') {
+            to._tzm = from._tzm;
+        }
+        if (typeof from._isUTC !== 'undefined') {
+            to._isUTC = from._isUTC;
+        }
+        if (typeof from._offset !== 'undefined') {
+            to._offset = from._offset;
+        }
+        if (typeof from._pf !== 'undefined') {
+            to._pf = from._pf;
+        }
+        if (typeof from._locale !== 'undefined') {
+            to._locale = from._locale;
+        }
+
+        if (momentProperties.length > 0) {
+            for (i in momentProperties) {
+                prop = momentProperties[i];
+                val = from[prop];
+                if (typeof val !== 'undefined') {
+                    to[prop] = val;
+                }
+            }
+        }
+
+        return to;
+    }
+
+    function absRound(number) {
+        if (number < 0) {
+            return Math.ceil(number);
+        } else {
+            return Math.floor(number);
+        }
+    }
+
+    // left zero fill a number
+    // see http://jsperf.com/left-zero-filling for performance comparison
+    function leftZeroFill(number, targetLength, forceSign) {
+        var output = '' + Math.abs(number),
+            sign = number >= 0;
+
+        while (output.length < targetLength) {
+            output = '0' + output;
+        }
+        return (sign ? (forceSign ? '+' : '') : '-') + output;
+    }
+
+    function positiveMomentsDifference(base, other) {
+        var res = {milliseconds: 0, months: 0};
+
+        res.months = other.month() - base.month() +
+            (other.year() - base.year()) * 12;
+        if (base.clone().add(res.months, 'M').isAfter(other)) {
+            --res.months;
+        }
+
+        res.milliseconds = +other - +(base.clone().add(res.months, 'M'));
+
+        return res;
+    }
+
+    function momentsDifference(base, other) {
+        var res;
+        other = makeAs(other, base);
+        if (base.isBefore(other)) {
+            res = positiveMomentsDifference(base, other);
+        } else {
+            res = positiveMomentsDifference(other, base);
+            res.milliseconds = -res.milliseconds;
+            res.months = -res.months;
+        }
+
+        return res;
+    }
+
+    // TODO: remove 'name' arg after deprecation is removed
+    function createAdder(direction, name) {
+        return function (val, period) {
+            var dur, tmp;
+            //invert the arguments, but complain about it
+            if (period !== null && !isNaN(+period)) {
+                deprecateSimple(name, 'moment().' + name  + '(period, number) is deprecated. Please use moment().' + name + '(number, period).');
+                tmp = val; val = period; period = tmp;
+            }
+
+            val = typeof val === 'string' ? +val : val;
+            dur = moment.duration(val, period);
+            addOrSubtractDurationFromMoment(this, dur, direction);
+            return this;
+        };
+    }
+
+    function addOrSubtractDurationFromMoment(mom, duration, isAdding, updateOffset) {
+        var milliseconds = duration._milliseconds,
+            days = duration._days,
+            months = duration._months;
+        updateOffset = updateOffset == null ? true : updateOffset;
+
+        if (milliseconds) {
+            mom._d.setTime(+mom._d + milliseconds * isAdding);
+        }
+        if (days) {
+            rawSetter(mom, 'Date', rawGetter(mom, 'Date') + days * isAdding);
+        }
+        if (months) {
+            rawMonthSetter(mom, rawGetter(mom, 'Month') + months * isAdding);
+        }
+        if (updateOffset) {
+            moment.updateOffset(mom, days || months);
+        }
+    }
+
+    // check if is an array
+    function isArray(input) {
+        return Object.prototype.toString.call(input) === '[object Array]';
+    }
+
+    function isDate(input) {
+        return Object.prototype.toString.call(input) === '[object Date]' ||
+            input instanceof Date;
+    }
+
+    // compare two arrays, return the number of differences
+    function compareArrays(array1, array2, dontConvert) {
+        var len = Math.min(array1.length, array2.length),
+            lengthDiff = Math.abs(array1.length - array2.length),
+            diffs = 0,
+            i;
+        for (i = 0; i < len; i++) {
+            if ((dontConvert && array1[i] !== array2[i]) ||
+                (!dontConvert && toInt(array1[i]) !== toInt(array2[i]))) {
+                diffs++;
+            }
+        }
+        return diffs + lengthDiff;
+    }
+
+    function normalizeUnits(units) {
+        if (units) {
+            var lowered = units.toLowerCase().replace(/(.)s$/, '$1');
+            units = unitAliases[units] || camelFunctions[lowered] || lowered;
+        }
+        return units;
+    }
+
+    function normalizeObjectUnits(inputObject) {
+        var normalizedInput = {},
+            normalizedProp,
+            prop;
+
+        for (prop in inputObject) {
+            if (hasOwnProp(inputObject, prop)) {
+                normalizedProp = normalizeUnits(prop);
+                if (normalizedProp) {
+                    normalizedInput[normalizedProp] = inputObject[prop];
+                }
+            }
+        }
+
+        return normalizedInput;
+    }
+
+    function makeList(field) {
+        var count, setter;
+
+        if (field.indexOf('week') === 0) {
+            count = 7;
+            setter = 'day';
+        }
+        else if (field.indexOf('month') === 0) {
+            count = 12;
+            setter = 'month';
+        }
+        else {
+            return;
+        }
+
+        moment[field] = function (format, index) {
+            var i, getter,
+                method = moment._locale[field],
+                results = [];
+
+            if (typeof format === 'number') {
+                index = format;
+                format = undefined;
+            }
+
+            getter = function (i) {
+                var m = moment().utc().set(setter, i);
+                return method.call(moment._locale, m, format || '');
+            };
+
+            if (index != null) {
+                return getter(index);
+            }
+            else {
+                for (i = 0; i < count; i++) {
+                    results.push(getter(i));
+                }
+                return results;
+            }
+        };
+    }
+
+    function toInt(argumentForCoercion) {
+        var coercedNumber = +argumentForCoercion,
+            value = 0;
+
+        if (coercedNumber !== 0 && isFinite(coercedNumber)) {
+            if (coercedNumber >= 0) {
+                value = Math.floor(coercedNumber);
+            } else {
+                value = Math.ceil(coercedNumber);
+            }
+        }
+
+        return value;
+    }
+
+    function daysInMonth(year, month) {
+        return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    }
+
+    function weeksInYear(year, dow, doy) {
+        return weekOfYear(moment([year, 11, 31 + dow - doy]), dow, doy).week;
+    }
+
+    function daysInYear(year) {
+        return isLeapYear(year) ? 366 : 365;
+    }
+
+    function isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    }
+
+    function checkOverflow(m) {
+        var overflow;
+        if (m._a && m._pf.overflow === -2) {
+            overflow =
+                m._a[MONTH] < 0 || m._a[MONTH] > 11 ? MONTH :
+                m._a[DATE] < 1 || m._a[DATE] > daysInMonth(m._a[YEAR], m._a[MONTH]) ? DATE :
+                m._a[HOUR] < 0 || m._a[HOUR] > 24 ||
+                    (m._a[HOUR] === 24 && (m._a[MINUTE] !== 0 ||
+                                           m._a[SECOND] !== 0 ||
+                                           m._a[MILLISECOND] !== 0)) ? HOUR :
+                m._a[MINUTE] < 0 || m._a[MINUTE] > 59 ? MINUTE :
+                m._a[SECOND] < 0 || m._a[SECOND] > 59 ? SECOND :
+                m._a[MILLISECOND] < 0 || m._a[MILLISECOND] > 999 ? MILLISECOND :
+                -1;
+
+            if (m._pf._overflowDayOfYear && (overflow < YEAR || overflow > DATE)) {
+                overflow = DATE;
+            }
+
+            m._pf.overflow = overflow;
+        }
+    }
+
+    function isValid(m) {
+        if (m._isValid == null) {
+            m._isValid = !isNaN(m._d.getTime()) &&
+                m._pf.overflow < 0 &&
+                !m._pf.empty &&
+                !m._pf.invalidMonth &&
+                !m._pf.nullInput &&
+                !m._pf.invalidFormat &&
+                !m._pf.userInvalidated;
+
+            if (m._strict) {
+                m._isValid = m._isValid &&
+                    m._pf.charsLeftOver === 0 &&
+                    m._pf.unusedTokens.length === 0 &&
+                    m._pf.bigHour === undefined;
+            }
+        }
+        return m._isValid;
+    }
+
+    function normalizeLocale(key) {
+        return key ? key.toLowerCase().replace('_', '-') : key;
+    }
+
+    // pick the locale from the array
+    // try ['en-au', 'en-gb'] as 'en-au', 'en-gb', 'en', as in move through the list trying each
+    // substring from most specific to least, but move to the next array item if it's a more specific variant than the current root
+    function chooseLocale(names) {
+        var i = 0, j, next, locale, split;
+
+        while (i < names.length) {
+            split = normalizeLocale(names[i]).split('-');
+            j = split.length;
+            next = normalizeLocale(names[i + 1]);
+            next = next ? next.split('-') : null;
+            while (j > 0) {
+                locale = loadLocale(split.slice(0, j).join('-'));
+                if (locale) {
+                    return locale;
+                }
+                if (next && next.length >= j && compareArrays(split, next, true) >= j - 1) {
+                    //the next array item is better than a shallower substring of this one
+                    break;
+                }
+                j--;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    function loadLocale(name) {
+        var oldLocale = null;
+        if (!locales[name] && hasModule) {
+            try {
+                oldLocale = moment.locale();
+                require('./locale/' + name);
+                // because defineLocale currently also sets the global locale, we want to undo that for lazy loaded locales
+                moment.locale(oldLocale);
+            } catch (e) { }
+        }
+        return locales[name];
+    }
+
+    // Return a moment from input, that is local/utc/zone equivalent to model.
+    function makeAs(input, model) {
+        var res, diff;
+        if (model._isUTC) {
+            res = model.clone();
+            diff = (moment.isMoment(input) || isDate(input) ?
+                    +input : +moment(input)) - (+res);
+            // Use low-level api, because this fn is low-level api.
+            res._d.setTime(+res._d + diff);
+            moment.updateOffset(res, false);
+            return res;
+        } else {
+            return moment(input).local();
+        }
+    }
+
+    /************************************
+        Locale
+    ************************************/
+
+
+    extend(Locale.prototype, {
+
+        set : function (config) {
+            var prop, i;
+            for (i in config) {
+                prop = config[i];
+                if (typeof prop === 'function') {
+                    this[i] = prop;
+                } else {
+                    this['_' + i] = prop;
+                }
+            }
+            // Lenient ordinal parsing accepts just a number in addition to
+            // number + (possibly) stuff coming from _ordinalParseLenient.
+            this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + /\d{1,2}/.source);
+        },
+
+        _months : 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_'),
+        months : function (m) {
+            return this._months[m.month()];
+        },
+
+        _monthsShort : 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+        monthsShort : function (m) {
+            return this._monthsShort[m.month()];
+        },
+
+        monthsParse : function (monthName, format, strict) {
+            var i, mom, regex;
+
+            if (!this._monthsParse) {
+                this._monthsParse = [];
+                this._longMonthsParse = [];
+                this._shortMonthsParse = [];
+            }
+
+            for (i = 0; i < 12; i++) {
+                // make the regex if we don't have it already
+                mom = moment.utc([2000, i]);
+                if (strict && !this._longMonthsParse[i]) {
+                    this._longMonthsParse[i] = new RegExp('^' + this.months(mom, '').replace('.', '') + '$', 'i');
+                    this._shortMonthsParse[i] = new RegExp('^' + this.monthsShort(mom, '').replace('.', '') + '$', 'i');
+                }
+                if (!strict && !this._monthsParse[i]) {
+                    regex = '^' + this.months(mom, '') + '|^' + this.monthsShort(mom, '');
+                    this._monthsParse[i] = new RegExp(regex.replace('.', ''), 'i');
+                }
+                // test the regex
+                if (strict && format === 'MMMM' && this._longMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (strict && format === 'MMM' && this._shortMonthsParse[i].test(monthName)) {
+                    return i;
+                } else if (!strict && this._monthsParse[i].test(monthName)) {
+                    return i;
+                }
+            }
+        },
+
+        _weekdays : 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+        weekdays : function (m) {
+            return this._weekdays[m.day()];
+        },
+
+        _weekdaysShort : 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+        weekdaysShort : function (m) {
+            return this._weekdaysShort[m.day()];
+        },
+
+        _weekdaysMin : 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
+        weekdaysMin : function (m) {
+            return this._weekdaysMin[m.day()];
+        },
+
+        weekdaysParse : function (weekdayName) {
+            var i, mom, regex;
+
+            if (!this._weekdaysParse) {
+                this._weekdaysParse = [];
+            }
+
+            for (i = 0; i < 7; i++) {
+                // make the regex if we don't have it already
+                if (!this._weekdaysParse[i]) {
+                    mom = moment([2000, 1]).day(i);
+                    regex = '^' + this.weekdays(mom, '') + '|^' + this.weekdaysShort(mom, '') + '|^' + this.weekdaysMin(mom, '');
+                    this._weekdaysParse[i] = new RegExp(regex.replace('.', ''), 'i');
+                }
+                // test the regex
+                if (this._weekdaysParse[i].test(weekdayName)) {
+                    return i;
+                }
+            }
+        },
+
+        _longDateFormat : {
+            LTS : 'h:mm:ss A',
+            LT : 'h:mm A',
+            L : 'MM/DD/YYYY',
+            LL : 'MMMM D, YYYY',
+            LLL : 'MMMM D, YYYY LT',
+            LLLL : 'dddd, MMMM D, YYYY LT'
+        },
+        longDateFormat : function (key) {
+            var output = this._longDateFormat[key];
+            if (!output && this._longDateFormat[key.toUpperCase()]) {
+                output = this._longDateFormat[key.toUpperCase()].replace(/MMMM|MM|DD|dddd/g, function (val) {
+                    return val.slice(1);
+                });
+                this._longDateFormat[key] = output;
+            }
+            return output;
+        },
+
+        isPM : function (input) {
+            // IE8 Quirks Mode & IE7 Standards Mode do not allow accessing strings like arrays
+            // Using charAt should be more compatible.
+            return ((input + '').toLowerCase().charAt(0) === 'p');
+        },
+
+        _meridiemParse : /[ap]\.?m?\.?/i,
+        meridiem : function (hours, minutes, isLower) {
+            if (hours > 11) {
+                return isLower ? 'pm' : 'PM';
+            } else {
+                return isLower ? 'am' : 'AM';
+            }
+        },
+
+        _calendar : {
+            sameDay : '[Today at] LT',
+            nextDay : '[Tomorrow at] LT',
+            nextWeek : 'dddd [at] LT',
+            lastDay : '[Yesterday at] LT',
+            lastWeek : '[Last] dddd [at] LT',
+            sameElse : 'L'
+        },
+        calendar : function (key, mom, now) {
+            var output = this._calendar[key];
+            return typeof output === 'function' ? output.apply(mom, [now]) : output;
+        },
+
+        _relativeTime : {
+            future : 'in %s',
+            past : '%s ago',
+            s : 'a few seconds',
+            m : 'a minute',
+            mm : '%d minutes',
+            h : 'an hour',
+            hh : '%d hours',
+            d : 'a day',
+            dd : '%d days',
+            M : 'a month',
+            MM : '%d months',
+            y : 'a year',
+            yy : '%d years'
+        },
+
+        relativeTime : function (number, withoutSuffix, string, isFuture) {
+            var output = this._relativeTime[string];
+            return (typeof output === 'function') ?
+                output(number, withoutSuffix, string, isFuture) :
+                output.replace(/%d/i, number);
+        },
+
+        pastFuture : function (diff, output) {
+            var format = this._relativeTime[diff > 0 ? 'future' : 'past'];
+            return typeof format === 'function' ? format(output) : format.replace(/%s/i, output);
+        },
+
+        ordinal : function (number) {
+            return this._ordinal.replace('%d', number);
+        },
+        _ordinal : '%d',
+        _ordinalParse : /\d{1,2}/,
+
+        preparse : function (string) {
+            return string;
+        },
+
+        postformat : function (string) {
+            return string;
+        },
+
+        week : function (mom) {
+            return weekOfYear(mom, this._week.dow, this._week.doy).week;
+        },
+
+        _week : {
+            dow : 0, // Sunday is the first day of the week.
+            doy : 6  // The week that contains Jan 1st is the first week of the year.
+        },
+
+        _invalidDate: 'Invalid date',
+        invalidDate: function () {
+            return this._invalidDate;
+        }
+    });
+
+    /************************************
+        Formatting
+    ************************************/
+
+
+    function removeFormattingTokens(input) {
+        if (input.match(/\[[\s\S]/)) {
+            return input.replace(/^\[|\]$/g, '');
+        }
+        return input.replace(/\\/g, '');
+    }
+
+    function makeFormatFunction(format) {
+        var array = format.match(formattingTokens), i, length;
+
+        for (i = 0, length = array.length; i < length; i++) {
+            if (formatTokenFunctions[array[i]]) {
+                array[i] = formatTokenFunctions[array[i]];
+            } else {
+                array[i] = removeFormattingTokens(array[i]);
+            }
+        }
+
+        return function (mom) {
+            var output = '';
+            for (i = 0; i < length; i++) {
+                output += array[i] instanceof Function ? array[i].call(mom, format) : array[i];
+            }
+            return output;
+        };
+    }
+
+    // format date using native date object
+    function formatMoment(m, format) {
+        if (!m.isValid()) {
+            return m.localeData().invalidDate();
+        }
+
+        format = expandFormat(format, m.localeData());
+
+        if (!formatFunctions[format]) {
+            formatFunctions[format] = makeFormatFunction(format);
+        }
+
+        return formatFunctions[format](m);
+    }
+
+    function expandFormat(format, locale) {
+        var i = 5;
+
+        function replaceLongDateFormatTokens(input) {
+            return locale.longDateFormat(input) || input;
+        }
+
+        localFormattingTokens.lastIndex = 0;
+        while (i >= 0 && localFormattingTokens.test(format)) {
+            format = format.replace(localFormattingTokens, replaceLongDateFormatTokens);
+            localFormattingTokens.lastIndex = 0;
+            i -= 1;
+        }
+
+        return format;
+    }
+
+
+    /************************************
+        Parsing
+    ************************************/
+
+
+    // get the regex to find the next token
+    function getParseRegexForToken(token, config) {
+        var a, strict = config._strict;
+        switch (token) {
+        case 'Q':
+            return parseTokenOneDigit;
+        case 'DDDD':
+            return parseTokenThreeDigits;
+        case 'YYYY':
+        case 'GGGG':
+        case 'gggg':
+            return strict ? parseTokenFourDigits : parseTokenOneToFourDigits;
+        case 'Y':
+        case 'G':
+        case 'g':
+            return parseTokenSignedNumber;
+        case 'YYYYYY':
+        case 'YYYYY':
+        case 'GGGGG':
+        case 'ggggg':
+            return strict ? parseTokenSixDigits : parseTokenOneToSixDigits;
+        case 'S':
+            if (strict) {
+                return parseTokenOneDigit;
+            }
+            /* falls through */
+        case 'SS':
+            if (strict) {
+                return parseTokenTwoDigits;
+            }
+            /* falls through */
+        case 'SSS':
+            if (strict) {
+                return parseTokenThreeDigits;
+            }
+            /* falls through */
+        case 'DDD':
+            return parseTokenOneToThreeDigits;
+        case 'MMM':
+        case 'MMMM':
+        case 'dd':
+        case 'ddd':
+        case 'dddd':
+            return parseTokenWord;
+        case 'a':
+        case 'A':
+            return config._locale._meridiemParse;
+        case 'x':
+            return parseTokenOffsetMs;
+        case 'X':
+            return parseTokenTimestampMs;
+        case 'Z':
+        case 'ZZ':
+            return parseTokenTimezone;
+        case 'T':
+            return parseTokenT;
+        case 'SSSS':
+            return parseTokenDigits;
+        case 'MM':
+        case 'DD':
+        case 'YY':
+        case 'GG':
+        case 'gg':
+        case 'HH':
+        case 'hh':
+        case 'mm':
+        case 'ss':
+        case 'ww':
+        case 'WW':
+            return strict ? parseTokenTwoDigits : parseTokenOneOrTwoDigits;
+        case 'M':
+        case 'D':
+        case 'd':
+        case 'H':
+        case 'h':
+        case 'm':
+        case 's':
+        case 'w':
+        case 'W':
+        case 'e':
+        case 'E':
+            return parseTokenOneOrTwoDigits;
+        case 'Do':
+            return strict ? config._locale._ordinalParse : config._locale._ordinalParseLenient;
+        default :
+            a = new RegExp(regexpEscape(unescapeFormat(token.replace('\\', '')), 'i'));
+            return a;
+        }
+    }
+
+    function timezoneMinutesFromString(string) {
+        string = string || '';
+        var possibleTzMatches = (string.match(parseTokenTimezone) || []),
+            tzChunk = possibleTzMatches[possibleTzMatches.length - 1] || [],
+            parts = (tzChunk + '').match(parseTimezoneChunker) || ['-', 0, 0],
+            minutes = +(parts[1] * 60) + toInt(parts[2]);
+
+        return parts[0] === '+' ? -minutes : minutes;
+    }
+
+    // function to convert string input to date
+    function addTimeToArrayFromToken(token, input, config) {
+        var a, datePartArray = config._a;
+
+        switch (token) {
+        // QUARTER
+        case 'Q':
+            if (input != null) {
+                datePartArray[MONTH] = (toInt(input) - 1) * 3;
+            }
+            break;
+        // MONTH
+        case 'M' : // fall through to MM
+        case 'MM' :
+            if (input != null) {
+                datePartArray[MONTH] = toInt(input) - 1;
+            }
+            break;
+        case 'MMM' : // fall through to MMMM
+        case 'MMMM' :
+            a = config._locale.monthsParse(input, token, config._strict);
+            // if we didn't find a month name, mark the date as invalid.
+            if (a != null) {
+                datePartArray[MONTH] = a;
+            } else {
+                config._pf.invalidMonth = input;
+            }
+            break;
+        // DAY OF MONTH
+        case 'D' : // fall through to DD
+        case 'DD' :
+            if (input != null) {
+                datePartArray[DATE] = toInt(input);
+            }
+            break;
+        case 'Do' :
+            if (input != null) {
+                datePartArray[DATE] = toInt(parseInt(
+                            input.match(/\d{1,2}/)[0], 10));
+            }
+            break;
+        // DAY OF YEAR
+        case 'DDD' : // fall through to DDDD
+        case 'DDDD' :
+            if (input != null) {
+                config._dayOfYear = toInt(input);
+            }
+
+            break;
+        // YEAR
+        case 'YY' :
+            datePartArray[YEAR] = moment.parseTwoDigitYear(input);
+            break;
+        case 'YYYY' :
+        case 'YYYYY' :
+        case 'YYYYYY' :
+            datePartArray[YEAR] = toInt(input);
+            break;
+        // AM / PM
+        case 'a' : // fall through to A
+        case 'A' :
+            config._isPm = config._locale.isPM(input);
+            break;
+        // HOUR
+        case 'h' : // fall through to hh
+        case 'hh' :
+            config._pf.bigHour = true;
+            /* falls through */
+        case 'H' : // fall through to HH
+        case 'HH' :
+            datePartArray[HOUR] = toInt(input);
+            break;
+        // MINUTE
+        case 'm' : // fall through to mm
+        case 'mm' :
+            datePartArray[MINUTE] = toInt(input);
+            break;
+        // SECOND
+        case 's' : // fall through to ss
+        case 'ss' :
+            datePartArray[SECOND] = toInt(input);
+            break;
+        // MILLISECOND
+        case 'S' :
+        case 'SS' :
+        case 'SSS' :
+        case 'SSSS' :
+            datePartArray[MILLISECOND] = toInt(('0.' + input) * 1000);
+            break;
+        // UNIX OFFSET (MILLISECONDS)
+        case 'x':
+            config._d = new Date(toInt(input));
+            break;
+        // UNIX TIMESTAMP WITH MS
+        case 'X':
+            config._d = new Date(parseFloat(input) * 1000);
+            break;
+        // TIMEZONE
+        case 'Z' : // fall through to ZZ
+        case 'ZZ' :
+            config._useUTC = true;
+            config._tzm = timezoneMinutesFromString(input);
+            break;
+        // WEEKDAY - human
+        case 'dd':
+        case 'ddd':
+        case 'dddd':
+            a = config._locale.weekdaysParse(input);
+            // if we didn't get a weekday name, mark the date as invalid
+            if (a != null) {
+                config._w = config._w || {};
+                config._w['d'] = a;
+            } else {
+                config._pf.invalidWeekday = input;
+            }
+            break;
+        // WEEK, WEEK DAY - numeric
+        case 'w':
+        case 'ww':
+        case 'W':
+        case 'WW':
+        case 'd':
+        case 'e':
+        case 'E':
+            token = token.substr(0, 1);
+            /* falls through */
+        case 'gggg':
+        case 'GGGG':
+        case 'GGGGG':
+            token = token.substr(0, 2);
+            if (input) {
+                config._w = config._w || {};
+                config._w[token] = toInt(input);
+            }
+            break;
+        case 'gg':
+        case 'GG':
+            config._w = config._w || {};
+            config._w[token] = moment.parseTwoDigitYear(input);
+        }
+    }
+
+    function dayOfYearFromWeekInfo(config) {
+        var w, weekYear, week, weekday, dow, doy, temp;
+
+        w = config._w;
+        if (w.GG != null || w.W != null || w.E != null) {
+            dow = 1;
+            doy = 4;
+
+            // TODO: We need to take the current isoWeekYear, but that depends on
+            // how we interpret now (local, utc, fixed offset). So create
+            // a now version of current config (take local/utc/offset flags, and
+            // create now).
+            weekYear = dfl(w.GG, config._a[YEAR], weekOfYear(moment(), 1, 4).year);
+            week = dfl(w.W, 1);
+            weekday = dfl(w.E, 1);
+        } else {
+            dow = config._locale._week.dow;
+            doy = config._locale._week.doy;
+
+            weekYear = dfl(w.gg, config._a[YEAR], weekOfYear(moment(), dow, doy).year);
+            week = dfl(w.w, 1);
+
+            if (w.d != null) {
+                // weekday -- low day numbers are considered next week
+                weekday = w.d;
+                if (weekday < dow) {
+                    ++week;
+                }
+            } else if (w.e != null) {
+                // local weekday -- counting starts from begining of week
+                weekday = w.e + dow;
+            } else {
+                // default to begining of week
+                weekday = dow;
+            }
+        }
+        temp = dayOfYearFromWeeks(weekYear, week, weekday, doy, dow);
+
+        config._a[YEAR] = temp.year;
+        config._dayOfYear = temp.dayOfYear;
+    }
+
+    // convert an array to a date.
+    // the array should mirror the parameters below
+    // note: all values past the year are optional and will default to the lowest possible value.
+    // [year, month, day , hour, minute, second, millisecond]
+    function dateFromConfig(config) {
+        var i, date, input = [], currentDate, yearToUse;
+
+        if (config._d) {
+            return;
+        }
+
+        currentDate = currentDateArray(config);
+
+        //compute day of the year from weeks and weekdays
+        if (config._w && config._a[DATE] == null && config._a[MONTH] == null) {
+            dayOfYearFromWeekInfo(config);
+        }
+
+        //if the day of the year is set, figure out what it is
+        if (config._dayOfYear) {
+            yearToUse = dfl(config._a[YEAR], currentDate[YEAR]);
+
+            if (config._dayOfYear > daysInYear(yearToUse)) {
+                config._pf._overflowDayOfYear = true;
+            }
+
+            date = makeUTCDate(yearToUse, 0, config._dayOfYear);
+            config._a[MONTH] = date.getUTCMonth();
+            config._a[DATE] = date.getUTCDate();
+        }
+
+        // Default to current date.
+        // * if no year, month, day of month are given, default to today
+        // * if day of month is given, default month and year
+        // * if month is given, default only year
+        // * if year is given, don't default anything
+        for (i = 0; i < 3 && config._a[i] == null; ++i) {
+            config._a[i] = input[i] = currentDate[i];
+        }
+
+        // Zero out whatever was not defaulted, including time
+        for (; i < 7; i++) {
+            config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
+        }
+
+        // Check for 24:00:00.000
+        if (config._a[HOUR] === 24 &&
+                config._a[MINUTE] === 0 &&
+                config._a[SECOND] === 0 &&
+                config._a[MILLISECOND] === 0) {
+            config._nextDay = true;
+            config._a[HOUR] = 0;
+        }
+
+        config._d = (config._useUTC ? makeUTCDate : makeDate).apply(null, input);
+        // Apply timezone offset from input. The actual zone can be changed
+        // with parseZone.
+        if (config._tzm != null) {
+            config._d.setUTCMinutes(config._d.getUTCMinutes() + config._tzm);
+        }
+
+        if (config._nextDay) {
+            config._a[HOUR] = 24;
+        }
+    }
+
+    function dateFromObject(config) {
+        var normalizedInput;
+
+        if (config._d) {
+            return;
+        }
+
+        normalizedInput = normalizeObjectUnits(config._i);
+        config._a = [
+            normalizedInput.year,
+            normalizedInput.month,
+            normalizedInput.day || normalizedInput.date,
+            normalizedInput.hour,
+            normalizedInput.minute,
+            normalizedInput.second,
+            normalizedInput.millisecond
+        ];
+
+        dateFromConfig(config);
+    }
+
+    function currentDateArray(config) {
+        var now = new Date();
+        if (config._useUTC) {
+            return [
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate()
+            ];
+        } else {
+            return [now.getFullYear(), now.getMonth(), now.getDate()];
+        }
+    }
+
+    // date from string and format string
+    function makeDateFromStringAndFormat(config) {
+        if (config._f === moment.ISO_8601) {
+            parseISO(config);
+            return;
+        }
+
+        config._a = [];
+        config._pf.empty = true;
+
+        // This array is used to make a Date, either with `new Date` or `Date.UTC`
+        var string = '' + config._i,
+            i, parsedInput, tokens, token, skipped,
+            stringLength = string.length,
+            totalParsedInputLength = 0;
+
+        tokens = expandFormat(config._f, config._locale).match(formattingTokens) || [];
+
+        for (i = 0; i < tokens.length; i++) {
+            token = tokens[i];
+            parsedInput = (string.match(getParseRegexForToken(token, config)) || [])[0];
+            if (parsedInput) {
+                skipped = string.substr(0, string.indexOf(parsedInput));
+                if (skipped.length > 0) {
+                    config._pf.unusedInput.push(skipped);
+                }
+                string = string.slice(string.indexOf(parsedInput) + parsedInput.length);
+                totalParsedInputLength += parsedInput.length;
+            }
+            // don't parse if it's not a known token
+            if (formatTokenFunctions[token]) {
+                if (parsedInput) {
+                    config._pf.empty = false;
+                }
+                else {
+                    config._pf.unusedTokens.push(token);
+                }
+                addTimeToArrayFromToken(token, parsedInput, config);
+            }
+            else if (config._strict && !parsedInput) {
+                config._pf.unusedTokens.push(token);
+            }
+        }
+
+        // add remaining unparsed input length to the string
+        config._pf.charsLeftOver = stringLength - totalParsedInputLength;
+        if (string.length > 0) {
+            config._pf.unusedInput.push(string);
+        }
+
+        // clear _12h flag if hour is <= 12
+        if (config._pf.bigHour === true && config._a[HOUR] <= 12) {
+            config._pf.bigHour = undefined;
+        }
+        // handle am pm
+        if (config._isPm && config._a[HOUR] < 12) {
+            config._a[HOUR] += 12;
+        }
+        // if is 12 am, change hours to 0
+        if (config._isPm === false && config._a[HOUR] === 12) {
+            config._a[HOUR] = 0;
+        }
+        dateFromConfig(config);
+        checkOverflow(config);
+    }
+
+    function unescapeFormat(s) {
+        return s.replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (matched, p1, p2, p3, p4) {
+            return p1 || p2 || p3 || p4;
+        });
+    }
+
+    // Code from http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+    function regexpEscape(s) {
+        return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    }
+
+    // date from string and array of format strings
+    function makeDateFromStringAndArray(config) {
+        var tempConfig,
+            bestMoment,
+
+            scoreToBeat,
+            i,
+            currentScore;
+
+        if (config._f.length === 0) {
+            config._pf.invalidFormat = true;
+            config._d = new Date(NaN);
+            return;
+        }
+
+        for (i = 0; i < config._f.length; i++) {
+            currentScore = 0;
+            tempConfig = copyConfig({}, config);
+            if (config._useUTC != null) {
+                tempConfig._useUTC = config._useUTC;
+            }
+            tempConfig._pf = defaultParsingFlags();
+            tempConfig._f = config._f[i];
+            makeDateFromStringAndFormat(tempConfig);
+
+            if (!isValid(tempConfig)) {
+                continue;
+            }
+
+            // if there is any input that was not parsed add a penalty for that format
+            currentScore += tempConfig._pf.charsLeftOver;
+
+            //or tokens
+            currentScore += tempConfig._pf.unusedTokens.length * 10;
+
+            tempConfig._pf.score = currentScore;
+
+            if (scoreToBeat == null || currentScore < scoreToBeat) {
+                scoreToBeat = currentScore;
+                bestMoment = tempConfig;
+            }
+        }
+
+        extend(config, bestMoment || tempConfig);
+    }
+
+    // date from iso format
+    function parseISO(config) {
+        var i, l,
+            string = config._i,
+            match = isoRegex.exec(string);
+
+        if (match) {
+            config._pf.iso = true;
+            for (i = 0, l = isoDates.length; i < l; i++) {
+                if (isoDates[i][1].exec(string)) {
+                    // match[5] should be 'T' or undefined
+                    config._f = isoDates[i][0] + (match[6] || ' ');
+                    break;
+                }
+            }
+            for (i = 0, l = isoTimes.length; i < l; i++) {
+                if (isoTimes[i][1].exec(string)) {
+                    config._f += isoTimes[i][0];
+                    break;
+                }
+            }
+            if (string.match(parseTokenTimezone)) {
+                config._f += 'Z';
+            }
+            makeDateFromStringAndFormat(config);
+        } else {
+            config._isValid = false;
+        }
+    }
+
+    // date from iso format or fallback
+    function makeDateFromString(config) {
+        parseISO(config);
+        if (config._isValid === false) {
+            delete config._isValid;
+            moment.createFromInputFallback(config);
+        }
+    }
+
+    function map(arr, fn) {
+        var res = [], i;
+        for (i = 0; i < arr.length; ++i) {
+            res.push(fn(arr[i], i));
+        }
+        return res;
+    }
+
+    function makeDateFromInput(config) {
+        var input = config._i, matched;
+        if (input === undefined) {
+            config._d = new Date();
+        } else if (isDate(input)) {
+            config._d = new Date(+input);
+        } else if ((matched = aspNetJsonRegex.exec(input)) !== null) {
+            config._d = new Date(+matched[1]);
+        } else if (typeof input === 'string') {
+            makeDateFromString(config);
+        } else if (isArray(input)) {
+            config._a = map(input.slice(0), function (obj) {
+                return parseInt(obj, 10);
+            });
+            dateFromConfig(config);
+        } else if (typeof(input) === 'object') {
+            dateFromObject(config);
+        } else if (typeof(input) === 'number') {
+            // from milliseconds
+            config._d = new Date(input);
+        } else {
+            moment.createFromInputFallback(config);
+        }
+    }
+
+    function makeDate(y, m, d, h, M, s, ms) {
+        //can't just apply() to create a date:
+        //http://stackoverflow.com/questions/181348/instantiating-a-javascript-object-by-calling-prototype-constructor-apply
+        var date = new Date(y, m, d, h, M, s, ms);
+
+        //the date constructor doesn't accept years < 1970
+        if (y < 1970) {
+            date.setFullYear(y);
+        }
+        return date;
+    }
+
+    function makeUTCDate(y) {
+        var date = new Date(Date.UTC.apply(null, arguments));
+        if (y < 1970) {
+            date.setUTCFullYear(y);
+        }
+        return date;
+    }
+
+    function parseWeekday(input, locale) {
+        if (typeof input === 'string') {
+            if (!isNaN(input)) {
+                input = parseInt(input, 10);
+            }
+            else {
+                input = locale.weekdaysParse(input);
+                if (typeof input !== 'number') {
+                    return null;
+                }
+            }
+        }
+        return input;
+    }
+
+    /************************************
+        Relative Time
+    ************************************/
+
+
+    // helper function for moment.fn.from, moment.fn.fromNow, and moment.duration.fn.humanize
+    function substituteTimeAgo(string, number, withoutSuffix, isFuture, locale) {
+        return locale.relativeTime(number || 1, !!withoutSuffix, string, isFuture);
+    }
+
+    function relativeTime(posNegDuration, withoutSuffix, locale) {
+        var duration = moment.duration(posNegDuration).abs(),
+            seconds = round(duration.as('s')),
+            minutes = round(duration.as('m')),
+            hours = round(duration.as('h')),
+            days = round(duration.as('d')),
+            months = round(duration.as('M')),
+            years = round(duration.as('y')),
+
+            args = seconds < relativeTimeThresholds.s && ['s', seconds] ||
+                minutes === 1 && ['m'] ||
+                minutes < relativeTimeThresholds.m && ['mm', minutes] ||
+                hours === 1 && ['h'] ||
+                hours < relativeTimeThresholds.h && ['hh', hours] ||
+                days === 1 && ['d'] ||
+                days < relativeTimeThresholds.d && ['dd', days] ||
+                months === 1 && ['M'] ||
+                months < relativeTimeThresholds.M && ['MM', months] ||
+                years === 1 && ['y'] || ['yy', years];
+
+        args[2] = withoutSuffix;
+        args[3] = +posNegDuration > 0;
+        args[4] = locale;
+        return substituteTimeAgo.apply({}, args);
+    }
+
+
+    /************************************
+        Week of Year
+    ************************************/
+
+
+    // firstDayOfWeek       0 = sun, 6 = sat
+    //                      the day of the week that starts the week
+    //                      (usually sunday or monday)
+    // firstDayOfWeekOfYear 0 = sun, 6 = sat
+    //                      the first week is the week that contains the first
+    //                      of this day of the week
+    //                      (eg. ISO weeks use thursday (4))
+    function weekOfYear(mom, firstDayOfWeek, firstDayOfWeekOfYear) {
+        var end = firstDayOfWeekOfYear - firstDayOfWeek,
+            daysToDayOfWeek = firstDayOfWeekOfYear - mom.day(),
+            adjustedMoment;
+
+
+        if (daysToDayOfWeek > end) {
+            daysToDayOfWeek -= 7;
+        }
+
+        if (daysToDayOfWeek < end - 7) {
+            daysToDayOfWeek += 7;
+        }
+
+        adjustedMoment = moment(mom).add(daysToDayOfWeek, 'd');
+        return {
+            week: Math.ceil(adjustedMoment.dayOfYear() / 7),
+            year: adjustedMoment.year()
+        };
+    }
+
+    //http://en.wikipedia.org/wiki/ISO_week_date#Calculating_a_date_given_the_year.2C_week_number_and_weekday
+    function dayOfYearFromWeeks(year, week, weekday, firstDayOfWeekOfYear, firstDayOfWeek) {
+        var d = makeUTCDate(year, 0, 1).getUTCDay(), daysToAdd, dayOfYear;
+
+        d = d === 0 ? 7 : d;
+        weekday = weekday != null ? weekday : firstDayOfWeek;
+        daysToAdd = firstDayOfWeek - d + (d > firstDayOfWeekOfYear ? 7 : 0) - (d < firstDayOfWeek ? 7 : 0);
+        dayOfYear = 7 * (week - 1) + (weekday - firstDayOfWeek) + daysToAdd + 1;
+
+        return {
+            year: dayOfYear > 0 ? year : year - 1,
+            dayOfYear: dayOfYear > 0 ?  dayOfYear : daysInYear(year - 1) + dayOfYear
+        };
+    }
+
+    /************************************
+        Top Level Functions
+    ************************************/
+
+    function makeMoment(config) {
+        var input = config._i,
+            format = config._f,
+            res;
+
+        config._locale = config._locale || moment.localeData(config._l);
+
+        if (input === null || (format === undefined && input === '')) {
+            return moment.invalid({nullInput: true});
+        }
+
+        if (typeof input === 'string') {
+            config._i = input = config._locale.preparse(input);
+        }
+
+        if (moment.isMoment(input)) {
+            return new Moment(input, true);
+        } else if (format) {
+            if (isArray(format)) {
+                makeDateFromStringAndArray(config);
+            } else {
+                makeDateFromStringAndFormat(config);
+            }
+        } else {
+            makeDateFromInput(config);
+        }
+
+        res = new Moment(config);
+        if (res._nextDay) {
+            // Adding is smart enough around DST
+            res.add(1, 'd');
+            res._nextDay = undefined;
+        }
+
+        return res;
+    }
+
+    moment = function (input, format, locale, strict) {
+        var c;
+
+        if (typeof(locale) === 'boolean') {
+            strict = locale;
+            locale = undefined;
+        }
+        // object construction must be done this way.
+        // https://github.com/moment/moment/issues/1423
+        c = {};
+        c._isAMomentObject = true;
+        c._i = input;
+        c._f = format;
+        c._l = locale;
+        c._strict = strict;
+        c._isUTC = false;
+        c._pf = defaultParsingFlags();
+
+        return makeMoment(c);
+    };
+
+    moment.suppressDeprecationWarnings = false;
+
+    moment.createFromInputFallback = deprecate(
+        'moment construction falls back to js Date. This is ' +
+        'discouraged and will be removed in upcoming major ' +
+        'release. Please refer to ' +
+        'https://github.com/moment/moment/issues/1407 for more info.',
+        function (config) {
+            config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
+        }
+    );
+
+    // Pick a moment m from moments so that m[fn](other) is true for all
+    // other. This relies on the function fn to be transitive.
+    //
+    // moments should either be an array of moment objects or an array, whose
+    // first element is an array of moment objects.
+    function pickBy(fn, moments) {
+        var res, i;
+        if (moments.length === 1 && isArray(moments[0])) {
+            moments = moments[0];
+        }
+        if (!moments.length) {
+            return moment();
+        }
+        res = moments[0];
+        for (i = 1; i < moments.length; ++i) {
+            if (moments[i][fn](res)) {
+                res = moments[i];
+            }
+        }
+        return res;
+    }
+
+    moment.min = function () {
+        var args = [].slice.call(arguments, 0);
+
+        return pickBy('isBefore', args);
+    };
+
+    moment.max = function () {
+        var args = [].slice.call(arguments, 0);
+
+        return pickBy('isAfter', args);
+    };
+
+    // creating with utc
+    moment.utc = function (input, format, locale, strict) {
+        var c;
+
+        if (typeof(locale) === 'boolean') {
+            strict = locale;
+            locale = undefined;
+        }
+        // object construction must be done this way.
+        // https://github.com/moment/moment/issues/1423
+        c = {};
+        c._isAMomentObject = true;
+        c._useUTC = true;
+        c._isUTC = true;
+        c._l = locale;
+        c._i = input;
+        c._f = format;
+        c._strict = strict;
+        c._pf = defaultParsingFlags();
+
+        return makeMoment(c).utc();
+    };
+
+    // creating with unix timestamp (in seconds)
+    moment.unix = function (input) {
+        return moment(input * 1000);
+    };
+
+    // duration
+    moment.duration = function (input, key) {
+        var duration = input,
+            // matching against regexp is expensive, do it on demand
+            match = null,
+            sign,
+            ret,
+            parseIso,
+            diffRes;
+
+        if (moment.isDuration(input)) {
+            duration = {
+                ms: input._milliseconds,
+                d: input._days,
+                M: input._months
+            };
+        } else if (typeof input === 'number') {
+            duration = {};
+            if (key) {
+                duration[key] = input;
+            } else {
+                duration.milliseconds = input;
+            }
+        } else if (!!(match = aspNetTimeSpanJsonRegex.exec(input))) {
+            sign = (match[1] === '-') ? -1 : 1;
+            duration = {
+                y: 0,
+                d: toInt(match[DATE]) * sign,
+                h: toInt(match[HOUR]) * sign,
+                m: toInt(match[MINUTE]) * sign,
+                s: toInt(match[SECOND]) * sign,
+                ms: toInt(match[MILLISECOND]) * sign
+            };
+        } else if (!!(match = isoDurationRegex.exec(input))) {
+            sign = (match[1] === '-') ? -1 : 1;
+            parseIso = function (inp) {
+                // We'd normally use ~~inp for this, but unfortunately it also
+                // converts floats to ints.
+                // inp may be undefined, so careful calling replace on it.
+                var res = inp && parseFloat(inp.replace(',', '.'));
+                // apply sign while we're at it
+                return (isNaN(res) ? 0 : res) * sign;
+            };
+            duration = {
+                y: parseIso(match[2]),
+                M: parseIso(match[3]),
+                d: parseIso(match[4]),
+                h: parseIso(match[5]),
+                m: parseIso(match[6]),
+                s: parseIso(match[7]),
+                w: parseIso(match[8])
+            };
+        } else if (typeof duration === 'object' &&
+                ('from' in duration || 'to' in duration)) {
+            diffRes = momentsDifference(moment(duration.from), moment(duration.to));
+
+            duration = {};
+            duration.ms = diffRes.milliseconds;
+            duration.M = diffRes.months;
+        }
+
+        ret = new Duration(duration);
+
+        if (moment.isDuration(input) && hasOwnProp(input, '_locale')) {
+            ret._locale = input._locale;
+        }
+
+        return ret;
+    };
+
+    // version number
+    moment.version = VERSION;
+
+    // default format
+    moment.defaultFormat = isoFormat;
+
+    // constant that refers to the ISO standard
+    moment.ISO_8601 = function () {};
+
+    // Plugins that add properties should also add the key here (null value),
+    // so we can properly clone ourselves.
+    moment.momentProperties = momentProperties;
+
+    // This function will be called whenever a moment is mutated.
+    // It is intended to keep the offset in sync with the timezone.
+    moment.updateOffset = function () {};
+
+    // This function allows you to set a threshold for relative time strings
+    moment.relativeTimeThreshold = function (threshold, limit) {
+        if (relativeTimeThresholds[threshold] === undefined) {
+            return false;
+        }
+        if (limit === undefined) {
+            return relativeTimeThresholds[threshold];
+        }
+        relativeTimeThresholds[threshold] = limit;
+        return true;
+    };
+
+    moment.lang = deprecate(
+        'moment.lang is deprecated. Use moment.locale instead.',
+        function (key, value) {
+            return moment.locale(key, value);
+        }
+    );
+
+    // This function will load locale and then set the global locale.  If
+    // no arguments are passed in, it will simply return the current global
+    // locale key.
+    moment.locale = function (key, values) {
+        var data;
+        if (key) {
+            if (typeof(values) !== 'undefined') {
+                data = moment.defineLocale(key, values);
+            }
+            else {
+                data = moment.localeData(key);
+            }
+
+            if (data) {
+                moment.duration._locale = moment._locale = data;
+            }
+        }
+
+        return moment._locale._abbr;
+    };
+
+    moment.defineLocale = function (name, values) {
+        if (values !== null) {
+            values.abbr = name;
+            if (!locales[name]) {
+                locales[name] = new Locale();
+            }
+            locales[name].set(values);
+
+            // backwards compat for now: also set the locale
+            moment.locale(name);
+
+            return locales[name];
+        } else {
+            // useful for testing
+            delete locales[name];
+            return null;
+        }
+    };
+
+    moment.langData = deprecate(
+        'moment.langData is deprecated. Use moment.localeData instead.',
+        function (key) {
+            return moment.localeData(key);
+        }
+    );
+
+    // returns locale data
+    moment.localeData = function (key) {
+        var locale;
+
+        if (key && key._locale && key._locale._abbr) {
+            key = key._locale._abbr;
+        }
+
+        if (!key) {
+            return moment._locale;
+        }
+
+        if (!isArray(key)) {
+            //short-circuit everything else
+            locale = loadLocale(key);
+            if (locale) {
+                return locale;
+            }
+            key = [key];
+        }
+
+        return chooseLocale(key);
+    };
+
+    // compare moment object
+    moment.isMoment = function (obj) {
+        return obj instanceof Moment ||
+            (obj != null && hasOwnProp(obj, '_isAMomentObject'));
+    };
+
+    // for typechecking Duration objects
+    moment.isDuration = function (obj) {
+        return obj instanceof Duration;
+    };
+
+    for (i = lists.length - 1; i >= 0; --i) {
+        makeList(lists[i]);
+    }
+
+    moment.normalizeUnits = function (units) {
+        return normalizeUnits(units);
+    };
+
+    moment.invalid = function (flags) {
+        var m = moment.utc(NaN);
+        if (flags != null) {
+            extend(m._pf, flags);
+        }
+        else {
+            m._pf.userInvalidated = true;
+        }
+
+        return m;
+    };
+
+    moment.parseZone = function () {
+        return moment.apply(null, arguments).parseZone();
+    };
+
+    moment.parseTwoDigitYear = function (input) {
+        return toInt(input) + (toInt(input) > 68 ? 1900 : 2000);
+    };
+
+    /************************************
+        Moment Prototype
+    ************************************/
+
+
+    extend(moment.fn = Moment.prototype, {
+
+        clone : function () {
+            return moment(this);
+        },
+
+        valueOf : function () {
+            return +this._d + ((this._offset || 0) * 60000);
+        },
+
+        unix : function () {
+            return Math.floor(+this / 1000);
+        },
+
+        toString : function () {
+            return this.clone().locale('en').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+        },
+
+        toDate : function () {
+            return this._offset ? new Date(+this) : this._d;
+        },
+
+        toISOString : function () {
+            var m = moment(this).utc();
+            if (0 < m.year() && m.year() <= 9999) {
+                if ('function' === typeof Date.prototype.toISOString) {
+                    // native implementation is ~50x faster, use it when we can
+                    return this.toDate().toISOString();
+                } else {
+                    return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+                }
+            } else {
+                return formatMoment(m, 'YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+            }
+        },
+
+        toArray : function () {
+            var m = this;
+            return [
+                m.year(),
+                m.month(),
+                m.date(),
+                m.hours(),
+                m.minutes(),
+                m.seconds(),
+                m.milliseconds()
+            ];
+        },
+
+        isValid : function () {
+            return isValid(this);
+        },
+
+        isDSTShifted : function () {
+            if (this._a) {
+                return this.isValid() && compareArrays(this._a, (this._isUTC ? moment.utc(this._a) : moment(this._a)).toArray()) > 0;
+            }
+
+            return false;
+        },
+
+        parsingFlags : function () {
+            return extend({}, this._pf);
+        },
+
+        invalidAt: function () {
+            return this._pf.overflow;
+        },
+
+        utc : function (keepLocalTime) {
+            return this.zone(0, keepLocalTime);
+        },
+
+        local : function (keepLocalTime) {
+            if (this._isUTC) {
+                this.zone(0, keepLocalTime);
+                this._isUTC = false;
+
+                if (keepLocalTime) {
+                    this.add(this._dateTzOffset(), 'm');
+                }
+            }
+            return this;
+        },
+
+        format : function (inputString) {
+            var output = formatMoment(this, inputString || moment.defaultFormat);
+            return this.localeData().postformat(output);
+        },
+
+        add : createAdder(1, 'add'),
+
+        subtract : createAdder(-1, 'subtract'),
+
+        diff : function (input, units, asFloat) {
+            var that = makeAs(input, this),
+                zoneDiff = (this.zone() - that.zone()) * 6e4,
+                diff, output, daysAdjust;
+
+            units = normalizeUnits(units);
+
+            if (units === 'year' || units === 'month') {
+                // average number of days in the months in the given dates
+                diff = (this.daysInMonth() + that.daysInMonth()) * 432e5; // 24 * 60 * 60 * 1000 / 2
+                // difference in months
+                output = ((this.year() - that.year()) * 12) + (this.month() - that.month());
+                // adjust by taking difference in days, average number of days
+                // and dst in the given months.
+                daysAdjust = (this - moment(this).startOf('month')) -
+                    (that - moment(that).startOf('month'));
+                // same as above but with zones, to negate all dst
+                daysAdjust -= ((this.zone() - moment(this).startOf('month').zone()) -
+                        (that.zone() - moment(that).startOf('month').zone())) * 6e4;
+                output += daysAdjust / diff;
+                if (units === 'year') {
+                    output = output / 12;
+                }
+            } else {
+                diff = (this - that);
+                output = units === 'second' ? diff / 1e3 : // 1000
+                    units === 'minute' ? diff / 6e4 : // 1000 * 60
+                    units === 'hour' ? diff / 36e5 : // 1000 * 60 * 60
+                    units === 'day' ? (diff - zoneDiff) / 864e5 : // 1000 * 60 * 60 * 24, negate dst
+                    units === 'week' ? (diff - zoneDiff) / 6048e5 : // 1000 * 60 * 60 * 24 * 7, negate dst
+                    diff;
+            }
+            return asFloat ? output : absRound(output);
+        },
+
+        from : function (time, withoutSuffix) {
+            return moment.duration({to: this, from: time}).locale(this.locale()).humanize(!withoutSuffix);
+        },
+
+        fromNow : function (withoutSuffix) {
+            return this.from(moment(), withoutSuffix);
+        },
+
+        calendar : function (time) {
+            // We want to compare the start of today, vs this.
+            // Getting start-of-today depends on whether we're zone'd or not.
+            var now = time || moment(),
+                sod = makeAs(now, this).startOf('day'),
+                diff = this.diff(sod, 'days', true),
+                format = diff < -6 ? 'sameElse' :
+                    diff < -1 ? 'lastWeek' :
+                    diff < 0 ? 'lastDay' :
+                    diff < 1 ? 'sameDay' :
+                    diff < 2 ? 'nextDay' :
+                    diff < 7 ? 'nextWeek' : 'sameElse';
+            return this.format(this.localeData().calendar(format, this, moment(now)));
+        },
+
+        isLeapYear : function () {
+            return isLeapYear(this.year());
+        },
+
+        isDST : function () {
+            return (this.zone() < this.clone().month(0).zone() ||
+                this.zone() < this.clone().month(5).zone());
+        },
+
+        day : function (input) {
+            var day = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
+            if (input != null) {
+                input = parseWeekday(input, this.localeData());
+                return this.add(input - day, 'd');
+            } else {
+                return day;
+            }
+        },
+
+        month : makeAccessor('Month', true),
+
+        startOf : function (units) {
+            units = normalizeUnits(units);
+            // the following switch intentionally omits break keywords
+            // to utilize falling through the cases.
+            switch (units) {
+            case 'year':
+                this.month(0);
+                /* falls through */
+            case 'quarter':
+            case 'month':
+                this.date(1);
+                /* falls through */
+            case 'week':
+            case 'isoWeek':
+            case 'day':
+                this.hours(0);
+                /* falls through */
+            case 'hour':
+                this.minutes(0);
+                /* falls through */
+            case 'minute':
+                this.seconds(0);
+                /* falls through */
+            case 'second':
+                this.milliseconds(0);
+                /* falls through */
+            }
+
+            // weeks are a special case
+            if (units === 'week') {
+                this.weekday(0);
+            } else if (units === 'isoWeek') {
+                this.isoWeekday(1);
+            }
+
+            // quarters are also special
+            if (units === 'quarter') {
+                this.month(Math.floor(this.month() / 3) * 3);
+            }
+
+            return this;
+        },
+
+        endOf: function (units) {
+            units = normalizeUnits(units);
+            if (units === undefined || units === 'millisecond') {
+                return this;
+            }
+            return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
+        },
+
+        isAfter: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this > +input;
+            } else {
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return inputMs < +this.clone().startOf(units);
+            }
+        },
+
+        isBefore: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(typeof units !== 'undefined' ? units : 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this < +input;
+            } else {
+                inputMs = moment.isMoment(input) ? +input : +moment(input);
+                return +this.clone().endOf(units) < inputMs;
+            }
+        },
+
+        isSame: function (input, units) {
+            var inputMs;
+            units = normalizeUnits(units || 'millisecond');
+            if (units === 'millisecond') {
+                input = moment.isMoment(input) ? input : moment(input);
+                return +this === +input;
+            } else {
+                inputMs = +moment(input);
+                return +(this.clone().startOf(units)) <= inputMs && inputMs <= +(this.clone().endOf(units));
+            }
+        },
+
+        min: deprecate(
+                 'moment().min is deprecated, use moment.min instead. https://github.com/moment/moment/issues/1548',
+                 function (other) {
+                     other = moment.apply(null, arguments);
+                     return other < this ? this : other;
+                 }
+         ),
+
+        max: deprecate(
+                'moment().max is deprecated, use moment.max instead. https://github.com/moment/moment/issues/1548',
+                function (other) {
+                    other = moment.apply(null, arguments);
+                    return other > this ? this : other;
+                }
+        ),
+
+        // keepLocalTime = true means only change the timezone, without
+        // affecting the local hour. So 5:31:26 +0300 --[zone(2, true)]-->
+        // 5:31:26 +0200 It is possible that 5:31:26 doesn't exist int zone
+        // +0200, so we adjust the time as needed, to be valid.
+        //
+        // Keeping the time actually adds/subtracts (one hour)
+        // from the actual represented time. That is why we call updateOffset
+        // a second time. In case it wants us to change the offset again
+        // _changeInProgress == true case, then we have to adjust, because
+        // there is no such time in the given timezone.
+        zone : function (input, keepLocalTime) {
+            var offset = this._offset || 0,
+                localAdjust;
+            if (input != null) {
+                if (typeof input === 'string') {
+                    input = timezoneMinutesFromString(input);
+                }
+                if (Math.abs(input) < 16) {
+                    input = input * 60;
+                }
+                if (!this._isUTC && keepLocalTime) {
+                    localAdjust = this._dateTzOffset();
+                }
+                this._offset = input;
+                this._isUTC = true;
+                if (localAdjust != null) {
+                    this.subtract(localAdjust, 'm');
+                }
+                if (offset !== input) {
+                    if (!keepLocalTime || this._changeInProgress) {
+                        addOrSubtractDurationFromMoment(this,
+                                moment.duration(offset - input, 'm'), 1, false);
+                    } else if (!this._changeInProgress) {
+                        this._changeInProgress = true;
+                        moment.updateOffset(this, true);
+                        this._changeInProgress = null;
+                    }
+                }
+            } else {
+                return this._isUTC ? offset : this._dateTzOffset();
+            }
+            return this;
+        },
+
+        zoneAbbr : function () {
+            return this._isUTC ? 'UTC' : '';
+        },
+
+        zoneName : function () {
+            return this._isUTC ? 'Coordinated Universal Time' : '';
+        },
+
+        parseZone : function () {
+            if (this._tzm) {
+                this.zone(this._tzm);
+            } else if (typeof this._i === 'string') {
+                this.zone(this._i);
+            }
+            return this;
+        },
+
+        hasAlignedHourOffset : function (input) {
+            if (!input) {
+                input = 0;
+            }
+            else {
+                input = moment(input).zone();
+            }
+
+            return (this.zone() - input) % 60 === 0;
+        },
+
+        daysInMonth : function () {
+            return daysInMonth(this.year(), this.month());
+        },
+
+        dayOfYear : function (input) {
+            var dayOfYear = round((moment(this).startOf('day') - moment(this).startOf('year')) / 864e5) + 1;
+            return input == null ? dayOfYear : this.add((input - dayOfYear), 'd');
+        },
+
+        quarter : function (input) {
+            return input == null ? Math.ceil((this.month() + 1) / 3) : this.month((input - 1) * 3 + this.month() % 3);
+        },
+
+        weekYear : function (input) {
+            var year = weekOfYear(this, this.localeData()._week.dow, this.localeData()._week.doy).year;
+            return input == null ? year : this.add((input - year), 'y');
+        },
+
+        isoWeekYear : function (input) {
+            var year = weekOfYear(this, 1, 4).year;
+            return input == null ? year : this.add((input - year), 'y');
+        },
+
+        week : function (input) {
+            var week = this.localeData().week(this);
+            return input == null ? week : this.add((input - week) * 7, 'd');
+        },
+
+        isoWeek : function (input) {
+            var week = weekOfYear(this, 1, 4).week;
+            return input == null ? week : this.add((input - week) * 7, 'd');
+        },
+
+        weekday : function (input) {
+            var weekday = (this.day() + 7 - this.localeData()._week.dow) % 7;
+            return input == null ? weekday : this.add(input - weekday, 'd');
+        },
+
+        isoWeekday : function (input) {
+            // behaves the same as moment#day except
+            // as a getter, returns 7 instead of 0 (1-7 range instead of 0-6)
+            // as a setter, sunday should belong to the previous week.
+            return input == null ? this.day() || 7 : this.day(this.day() % 7 ? input : input - 7);
+        },
+
+        isoWeeksInYear : function () {
+            return weeksInYear(this.year(), 1, 4);
+        },
+
+        weeksInYear : function () {
+            var weekInfo = this.localeData()._week;
+            return weeksInYear(this.year(), weekInfo.dow, weekInfo.doy);
+        },
+
+        get : function (units) {
+            units = normalizeUnits(units);
+            return this[units]();
+        },
+
+        set : function (units, value) {
+            units = normalizeUnits(units);
+            if (typeof this[units] === 'function') {
+                this[units](value);
+            }
+            return this;
+        },
+
+        // If passed a locale key, it will set the locale for this
+        // instance.  Otherwise, it will return the locale configuration
+        // variables for this instance.
+        locale : function (key) {
+            var newLocaleData;
+
+            if (key === undefined) {
+                return this._locale._abbr;
+            } else {
+                newLocaleData = moment.localeData(key);
+                if (newLocaleData != null) {
+                    this._locale = newLocaleData;
+                }
+                return this;
+            }
+        },
+
+        lang : deprecate(
+            'moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.',
+            function (key) {
+                if (key === undefined) {
+                    return this.localeData();
+                } else {
+                    return this.locale(key);
+                }
+            }
+        ),
+
+        localeData : function () {
+            return this._locale;
+        },
+
+        _dateTzOffset : function () {
+            // On Firefox.24 Date#getTimezoneOffset returns a floating point.
+            // https://github.com/moment/moment/pull/1871
+            return Math.round(this._d.getTimezoneOffset() / 15) * 15;
+        }
+    });
+
+    function rawMonthSetter(mom, value) {
+        var dayOfMonth;
+
+        // TODO: Move this out of here!
+        if (typeof value === 'string') {
+            value = mom.localeData().monthsParse(value);
+            // TODO: Another silent failure?
+            if (typeof value !== 'number') {
+                return mom;
+            }
+        }
+
+        dayOfMonth = Math.min(mom.date(),
+                daysInMonth(mom.year(), value));
+        mom._d['set' + (mom._isUTC ? 'UTC' : '') + 'Month'](value, dayOfMonth);
+        return mom;
+    }
+
+    function rawGetter(mom, unit) {
+        return mom._d['get' + (mom._isUTC ? 'UTC' : '') + unit]();
+    }
+
+    function rawSetter(mom, unit, value) {
+        if (unit === 'Month') {
+            return rawMonthSetter(mom, value);
+        } else {
+            return mom._d['set' + (mom._isUTC ? 'UTC' : '') + unit](value);
+        }
+    }
+
+    function makeAccessor(unit, keepTime) {
+        return function (value) {
+            if (value != null) {
+                rawSetter(this, unit, value);
+                moment.updateOffset(this, keepTime);
+                return this;
+            } else {
+                return rawGetter(this, unit);
+            }
+        };
+    }
+
+    moment.fn.millisecond = moment.fn.milliseconds = makeAccessor('Milliseconds', false);
+    moment.fn.second = moment.fn.seconds = makeAccessor('Seconds', false);
+    moment.fn.minute = moment.fn.minutes = makeAccessor('Minutes', false);
+    // Setting the hour should keep the time, because the user explicitly
+    // specified which hour he wants. So trying to maintain the same hour (in
+    // a new timezone) makes sense. Adding/subtracting hours does not follow
+    // this rule.
+    moment.fn.hour = moment.fn.hours = makeAccessor('Hours', true);
+    // moment.fn.month is defined separately
+    moment.fn.date = makeAccessor('Date', true);
+    moment.fn.dates = deprecate('dates accessor is deprecated. Use date instead.', makeAccessor('Date', true));
+    moment.fn.year = makeAccessor('FullYear', true);
+    moment.fn.years = deprecate('years accessor is deprecated. Use year instead.', makeAccessor('FullYear', true));
+
+    // add plural methods
+    moment.fn.days = moment.fn.day;
+    moment.fn.months = moment.fn.month;
+    moment.fn.weeks = moment.fn.week;
+    moment.fn.isoWeeks = moment.fn.isoWeek;
+    moment.fn.quarters = moment.fn.quarter;
+
+    // add aliased format methods
+    moment.fn.toJSON = moment.fn.toISOString;
+
+    /************************************
+        Duration Prototype
+    ************************************/
+
+
+    function daysToYears (days) {
+        // 400 years have 146097 days (taking into account leap year rules)
+        return days * 400 / 146097;
+    }
+
+    function yearsToDays (years) {
+        // years * 365 + absRound(years / 4) -
+        //     absRound(years / 100) + absRound(years / 400);
+        return years * 146097 / 400;
+    }
+
+    extend(moment.duration.fn = Duration.prototype, {
+
+        _bubble : function () {
+            var milliseconds = this._milliseconds,
+                days = this._days,
+                months = this._months,
+                data = this._data,
+                seconds, minutes, hours, years = 0;
+
+            // The following code bubbles up values, see the tests for
+            // examples of what that means.
+            data.milliseconds = milliseconds % 1000;
+
+            seconds = absRound(milliseconds / 1000);
+            data.seconds = seconds % 60;
+
+            minutes = absRound(seconds / 60);
+            data.minutes = minutes % 60;
+
+            hours = absRound(minutes / 60);
+            data.hours = hours % 24;
+
+            days += absRound(hours / 24);
+
+            // Accurately convert days to years, assume start from year 0.
+            years = absRound(daysToYears(days));
+            days -= absRound(yearsToDays(years));
+
+            // 30 days to a month
+            // TODO (iskren): Use anchor date (like 1st Jan) to compute this.
+            months += absRound(days / 30);
+            days %= 30;
+
+            // 12 months -> 1 year
+            years += absRound(months / 12);
+            months %= 12;
+
+            data.days = days;
+            data.months = months;
+            data.years = years;
+        },
+
+        abs : function () {
+            this._milliseconds = Math.abs(this._milliseconds);
+            this._days = Math.abs(this._days);
+            this._months = Math.abs(this._months);
+
+            this._data.milliseconds = Math.abs(this._data.milliseconds);
+            this._data.seconds = Math.abs(this._data.seconds);
+            this._data.minutes = Math.abs(this._data.minutes);
+            this._data.hours = Math.abs(this._data.hours);
+            this._data.months = Math.abs(this._data.months);
+            this._data.years = Math.abs(this._data.years);
+
+            return this;
+        },
+
+        weeks : function () {
+            return absRound(this.days() / 7);
+        },
+
+        valueOf : function () {
+            return this._milliseconds +
+              this._days * 864e5 +
+              (this._months % 12) * 2592e6 +
+              toInt(this._months / 12) * 31536e6;
+        },
+
+        humanize : function (withSuffix) {
+            var output = relativeTime(this, !withSuffix, this.localeData());
+
+            if (withSuffix) {
+                output = this.localeData().pastFuture(+this, output);
+            }
+
+            return this.localeData().postformat(output);
+        },
+
+        add : function (input, val) {
+            // supports only 2.0-style add(1, 's') or add(moment)
+            var dur = moment.duration(input, val);
+
+            this._milliseconds += dur._milliseconds;
+            this._days += dur._days;
+            this._months += dur._months;
+
+            this._bubble();
+
+            return this;
+        },
+
+        subtract : function (input, val) {
+            var dur = moment.duration(input, val);
+
+            this._milliseconds -= dur._milliseconds;
+            this._days -= dur._days;
+            this._months -= dur._months;
+
+            this._bubble();
+
+            return this;
+        },
+
+        get : function (units) {
+            units = normalizeUnits(units);
+            return this[units.toLowerCase() + 's']();
+        },
+
+        as : function (units) {
+            var days, months;
+            units = normalizeUnits(units);
+
+            if (units === 'month' || units === 'year') {
+                days = this._days + this._milliseconds / 864e5;
+                months = this._months + daysToYears(days) * 12;
+                return units === 'month' ? months : months / 12;
+            } else {
+                // handle milliseconds separately because of floating point math errors (issue #1867)
+                days = this._days + Math.round(yearsToDays(this._months / 12));
+                switch (units) {
+                    case 'week': return days / 7 + this._milliseconds / 6048e5;
+                    case 'day': return days + this._milliseconds / 864e5;
+                    case 'hour': return days * 24 + this._milliseconds / 36e5;
+                    case 'minute': return days * 24 * 60 + this._milliseconds / 6e4;
+                    case 'second': return days * 24 * 60 * 60 + this._milliseconds / 1000;
+                    // Math.floor prevents floating point math errors here
+                    case 'millisecond': return Math.floor(days * 24 * 60 * 60 * 1000) + this._milliseconds;
+                    default: throw new Error('Unknown unit ' + units);
+                }
+            }
+        },
+
+        lang : moment.fn.lang,
+        locale : moment.fn.locale,
+
+        toIsoString : deprecate(
+            'toIsoString() is deprecated. Please use toISOString() instead ' +
+            '(notice the capitals)',
+            function () {
+                return this.toISOString();
+            }
+        ),
+
+        toISOString : function () {
+            // inspired by https://github.com/dordille/moment-isoduration/blob/master/moment.isoduration.js
+            var years = Math.abs(this.years()),
+                months = Math.abs(this.months()),
+                days = Math.abs(this.days()),
+                hours = Math.abs(this.hours()),
+                minutes = Math.abs(this.minutes()),
+                seconds = Math.abs(this.seconds() + this.milliseconds() / 1000);
+
+            if (!this.asSeconds()) {
+                // this is the same as C#'s (Noda) and python (isodate)...
+                // but not other JS (goog.date)
+                return 'P0D';
+            }
+
+            return (this.asSeconds() < 0 ? '-' : '') +
+                'P' +
+                (years ? years + 'Y' : '') +
+                (months ? months + 'M' : '') +
+                (days ? days + 'D' : '') +
+                ((hours || minutes || seconds) ? 'T' : '') +
+                (hours ? hours + 'H' : '') +
+                (minutes ? minutes + 'M' : '') +
+                (seconds ? seconds + 'S' : '');
+        },
+
+        localeData : function () {
+            return this._locale;
+        }
+    });
+
+    moment.duration.fn.toString = moment.duration.fn.toISOString;
+
+    function makeDurationGetter(name) {
+        moment.duration.fn[name] = function () {
+            return this._data[name];
+        };
+    }
+
+    for (i in unitMillisecondFactors) {
+        if (hasOwnProp(unitMillisecondFactors, i)) {
+            makeDurationGetter(i.toLowerCase());
+        }
+    }
+
+    moment.duration.fn.asMilliseconds = function () {
+        return this.as('ms');
+    };
+    moment.duration.fn.asSeconds = function () {
+        return this.as('s');
+    };
+    moment.duration.fn.asMinutes = function () {
+        return this.as('m');
+    };
+    moment.duration.fn.asHours = function () {
+        return this.as('h');
+    };
+    moment.duration.fn.asDays = function () {
+        return this.as('d');
+    };
+    moment.duration.fn.asWeeks = function () {
+        return this.as('weeks');
+    };
+    moment.duration.fn.asMonths = function () {
+        return this.as('M');
+    };
+    moment.duration.fn.asYears = function () {
+        return this.as('y');
+    };
+
+    /************************************
+        Default Locale
+    ************************************/
+
+
+    // Set default locale, other locale will inherit from English.
+    moment.locale('en', {
+        ordinalParse: /\d{1,2}(th|st|nd|rd)/,
+        ordinal : function (number) {
+            var b = number % 10,
+                output = (toInt(number % 100 / 10) === 1) ? 'th' :
+                (b === 1) ? 'st' :
+                (b === 2) ? 'nd' :
+                (b === 3) ? 'rd' : 'th';
+            return number + output;
+        }
+    });
+
+    /* EMBED_LOCALES */
+
+    /************************************
+        Exposing Moment
+    ************************************/
+
+    function makeGlobal(shouldDeprecate) {
+        /*global ender:false */
+        if (typeof ender !== 'undefined') {
+            return;
+        }
+        oldGlobalMoment = globalScope.moment;
+        if (shouldDeprecate) {
+            globalScope.moment = deprecate(
+                    'Accessing Moment through the global scope is ' +
+                    'deprecated, and will be removed in an upcoming ' +
+                    'release.',
+                    moment);
+        } else {
+            globalScope.moment = moment;
+        }
+    }
+
+    // CommonJS module is defined
+    if (hasModule) {
+        module.exports = moment;
+    } else if (typeof define === 'function' && define.amd) {
+        define('moment', function (require, exports, module) {
+            if (module.config && module.config() && module.config().noGlobal === true) {
+                // release the global variable
+                globalScope.moment = oldGlobalMoment;
+            }
+
+            return moment;
+        });
+        makeGlobal(true);
+    } else {
+        makeGlobal();
+    }
+}).call(this);
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],44:[function(require,module,exports){
 var InlineSVGError, PropTypes, React, Status, configurationError, createError, delay, getComponentID, http, httpplease, ieXDomain, isSupportedEnvironment, me, once, span, supportsInlineSVG, uniquifyIDs, unsupportedBrowserError,
   __slice = [].slice,
   __hasProp = {}.hasOwnProperty,
@@ -12384,7 +24518,7 @@ module.exports = me = React.createClass({
   }
 });
 
-},{"httpplease":14,"httpplease/plugins/oldiexdomain":23,"once":25,"react":235}],13:[function(require,module,exports){
+},{"httpplease":46,"httpplease/plugins/oldiexdomain":55,"once":57,"react":267}],45:[function(require,module,exports){
 'use strict';
 
 var Response = require('./response');
@@ -12419,7 +24553,7 @@ RequestError.create = function (message, req, props) {
 
 module.exports = RequestError;
 
-},{"./response":16}],14:[function(require,module,exports){
+},{"./response":48}],46:[function(require,module,exports){
 'use strict';
 
 var i,
@@ -12603,7 +24737,7 @@ function factory(defaults, plugins) {
 
 module.exports = factory({}, [cleanURL]);
 
-},{"../plugins/cleanurl":22,"./error":13,"./request":15,"./response":16,"./utils/delay":17,"./utils/once":18,"./xhr":19,"xtend":21}],15:[function(require,module,exports){
+},{"../plugins/cleanurl":54,"./error":45,"./request":47,"./response":48,"./utils/delay":49,"./utils/once":50,"./xhr":51,"xtend":53}],47:[function(require,module,exports){
 'use strict';
 
 function Request(optsOrUrl) {
@@ -12648,7 +24782,7 @@ Request.prototype.header = function (name, value) {
 
 module.exports = Request;
 
-},{}],16:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 var Request = require('./request');
@@ -12687,7 +24821,7 @@ Response.prototype.header = Request.prototype.header;
 
 module.exports = Response;
 
-},{"./request":15}],17:[function(require,module,exports){
+},{"./request":47}],49:[function(require,module,exports){
 'use strict';
 
 // Wrap a function in a `setTimeout` call. This is used to guarantee async
@@ -12704,7 +24838,7 @@ module.exports = function (fn) {
     };
 };
 
-},{}],18:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 'use strict';
 
 // A "once" utility.
@@ -12719,10 +24853,10 @@ module.exports = function (fn) {
     };
 };
 
-},{}],19:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = window.XMLHttpRequest;
 
-},{}],20:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 (function() {
   var URL, URL_PATTERN, defaults, urllite,
     __hasProp = {}.hasOwnProperty;
@@ -12789,7 +24923,7 @@ module.exports = window.XMLHttpRequest;
 
 }).call(this);
 
-},{}],21:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = extend
 
 function extend() {
@@ -12808,7 +24942,7 @@ function extend() {
     return target
 }
 
-},{}],22:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -12819,7 +24953,7 @@ module.exports = {
     }
 };
 
-},{}],23:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 'use strict';
 
 var
@@ -12888,7 +25022,7 @@ module.exports = {
     }
 };
 
-},{"../lib/utils/once":18,"urllite/lib/core":20}],24:[function(require,module,exports){
+},{"../lib/utils/once":50,"urllite/lib/core":52}],56:[function(require,module,exports){
 // Returns a wrapper function that returns a wrapped callback
 // The wrapper function should do some stuff, and return a
 // presumably different callback function.
@@ -12923,7 +25057,7 @@ function wrappy (fn, cb) {
   }
 }
 
-},{}],25:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var wrappy = require('wrappy')
 module.exports = wrappy(once)
 
@@ -12946,7 +25080,7 @@ function once (fn) {
   return f
 }
 
-},{"wrappy":24}],26:[function(require,module,exports){
+},{"wrappy":56}],58:[function(require,module,exports){
 var canUseDOM = require('can-use-dom');
 var enquire = canUseDOM && require('enquire.js');
 var json2mq = require('json2mq');
@@ -12975,7 +25109,7 @@ var ResponsiveMixin = {
 };
 
 module.exports = ResponsiveMixin;
-},{"can-use-dom":27,"enquire.js":28,"json2mq":29}],27:[function(require,module,exports){
+},{"can-use-dom":59,"enquire.js":60,"json2mq":61}],59:[function(require,module,exports){
 var canUseDOM = !!(
   typeof window !== 'undefined' &&
   window.document &&
@@ -12983,7 +25117,7 @@ var canUseDOM = !!(
 );
 
 module.exports = canUseDOM;
-},{}],28:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 /*!
  * enquire.js v2.1.1 - Awesome Media Queries in JavaScript
  * Copyright (c) 2014 Nick Williams - http://wicky.nillia.ms/enquire.js
@@ -13277,7 +25411,7 @@ module.exports = canUseDOM;
 	return new MediaQueryDispatch();
 
 }));
-},{}],29:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 var camel2hyphen = require('string-convert/camel2hyphen');
 
 var isDimension = function (feature) {
@@ -13329,7 +25463,7 @@ var json2mq = function (query) {
 };
 
 module.exports = json2mq;
-},{"string-convert/camel2hyphen":30}],30:[function(require,module,exports){
+},{"string-convert/camel2hyphen":62}],62:[function(require,module,exports){
 var camel2hyphen = function (str) {
   return str
           .replace(/[A-Z]/g, function (match) {
@@ -13339,7 +25473,7 @@ var camel2hyphen = function (str) {
 };
 
 module.exports = camel2hyphen;
-},{}],31:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 /**
  * Actions that modify the URL.
  */
@@ -13364,7 +25498,7 @@ var LocationActions = {
 
 module.exports = LocationActions;
 
-},{}],32:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 var LocationActions = require('../actions/LocationActions');
 
 /**
@@ -13393,7 +25527,7 @@ var ImitateBrowserBehavior = {
 
 module.exports = ImitateBrowserBehavior;
 
-},{"../actions/LocationActions":31}],33:[function(require,module,exports){
+},{"../actions/LocationActions":63}],65:[function(require,module,exports){
 /**
  * A scroll behavior that always scrolls to the top of the page
  * after a transition.
@@ -13408,7 +25542,7 @@ var ScrollToTopBehavior = {
 
 module.exports = ScrollToTopBehavior;
 
-},{}],34:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 var React = require('react');
 var FakeNode = require('../mixins/FakeNode');
 var PropTypes = require('../utils/PropTypes');
@@ -13435,7 +25569,7 @@ var DefaultRoute = React.createClass({
 
 module.exports = DefaultRoute;
 
-},{"../mixins/FakeNode":44,"../utils/PropTypes":55,"react":235}],35:[function(require,module,exports){
+},{"../mixins/FakeNode":76,"../utils/PropTypes":87,"react":267}],67:[function(require,module,exports){
 var React = require('react');
 var classSet = require('react/lib/cx');
 var assign = require('react/lib/Object.assign');
@@ -13544,7 +25678,7 @@ var Link = React.createClass({
 
 module.exports = Link;
 
-},{"../mixins/Navigation":45,"../mixins/State":49,"react":235,"react/lib/Object.assign":102,"react/lib/cx":192}],36:[function(require,module,exports){
+},{"../mixins/Navigation":77,"../mixins/State":81,"react":267,"react/lib/Object.assign":134,"react/lib/cx":224}],68:[function(require,module,exports){
 var React = require('react');
 var FakeNode = require('../mixins/FakeNode');
 var PropTypes = require('../utils/PropTypes');
@@ -13572,7 +25706,7 @@ var NotFoundRoute = React.createClass({
 
 module.exports = NotFoundRoute;
 
-},{"../mixins/FakeNode":44,"../utils/PropTypes":55,"react":235}],37:[function(require,module,exports){
+},{"../mixins/FakeNode":76,"../utils/PropTypes":87,"react":267}],69:[function(require,module,exports){
 var React = require('react');
 var FakeNode = require('../mixins/FakeNode');
 var PropTypes = require('../utils/PropTypes');
@@ -13598,7 +25732,7 @@ var Redirect = React.createClass({
 
 module.exports = Redirect;
 
-},{"../mixins/FakeNode":44,"../utils/PropTypes":55,"react":235}],38:[function(require,module,exports){
+},{"../mixins/FakeNode":76,"../utils/PropTypes":87,"react":267}],70:[function(require,module,exports){
 var React = require('react');
 var FakeNode = require('../mixins/FakeNode');
 
@@ -13657,7 +25791,7 @@ var Route = React.createClass({
 
 module.exports = Route;
 
-},{"../mixins/FakeNode":44,"react":235}],39:[function(require,module,exports){
+},{"../mixins/FakeNode":76,"react":267}],71:[function(require,module,exports){
 var React = require('react');
 var RouteHandlerMixin = require('../mixins/RouteHandler');
 
@@ -13685,7 +25819,7 @@ var RouteHandler = React.createClass({
 
 module.exports = RouteHandler;
 
-},{"../mixins/RouteHandler":47,"react":235}],40:[function(require,module,exports){
+},{"../mixins/RouteHandler":79,"react":267}],72:[function(require,module,exports){
 exports.DefaultRoute = require('./components/DefaultRoute');
 exports.Link = require('./components/Link');
 exports.NotFoundRoute = require('./components/NotFoundRoute');
@@ -13708,7 +25842,7 @@ exports.run = require('./utils/runRouter');
 
 exports.History = require('./utils/History');
 
-},{"./behaviors/ImitateBrowserBehavior":32,"./behaviors/ScrollToTopBehavior":33,"./components/DefaultRoute":34,"./components/Link":35,"./components/NotFoundRoute":36,"./components/Redirect":37,"./components/Route":38,"./components/RouteHandler":39,"./locations/HashLocation":41,"./locations/HistoryLocation":42,"./locations/RefreshLocation":43,"./mixins/Navigation":45,"./mixins/State":49,"./utils/History":52,"./utils/createRouter":58,"./utils/runRouter":62}],41:[function(require,module,exports){
+},{"./behaviors/ImitateBrowserBehavior":64,"./behaviors/ScrollToTopBehavior":65,"./components/DefaultRoute":66,"./components/Link":67,"./components/NotFoundRoute":68,"./components/Redirect":69,"./components/Route":70,"./components/RouteHandler":71,"./locations/HashLocation":73,"./locations/HistoryLocation":74,"./locations/RefreshLocation":75,"./mixins/Navigation":77,"./mixins/State":81,"./utils/History":84,"./utils/createRouter":90,"./utils/runRouter":94}],73:[function(require,module,exports){
 var LocationActions = require('../actions/LocationActions');
 var History = require('../utils/History');
 var Path = require('../utils/Path');
@@ -13835,7 +25969,7 @@ var HashLocation = {
 
 module.exports = HashLocation;
 
-},{"../actions/LocationActions":31,"../utils/History":52,"../utils/Path":53}],42:[function(require,module,exports){
+},{"../actions/LocationActions":63,"../utils/History":84,"../utils/Path":85}],74:[function(require,module,exports){
 var LocationActions = require('../actions/LocationActions');
 var History = require('../utils/History');
 var Path = require('../utils/Path');
@@ -13931,7 +26065,7 @@ var HistoryLocation = {
 
 module.exports = HistoryLocation;
 
-},{"../actions/LocationActions":31,"../utils/History":52,"../utils/Path":53}],43:[function(require,module,exports){
+},{"../actions/LocationActions":63,"../utils/History":84,"../utils/Path":85}],75:[function(require,module,exports){
 var HistoryLocation = require('./HistoryLocation');
 var History = require('../utils/History');
 var Path = require('../utils/Path');
@@ -13963,7 +26097,7 @@ var RefreshLocation = {
 
 module.exports = RefreshLocation;
 
-},{"../utils/History":52,"../utils/Path":53,"./HistoryLocation":42}],44:[function(require,module,exports){
+},{"../utils/History":84,"../utils/Path":85,"./HistoryLocation":74}],76:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 
 var FakeNode = {
@@ -13980,7 +26114,7 @@ var FakeNode = {
 
 module.exports = FakeNode;
 
-},{"react/lib/invariant":214}],45:[function(require,module,exports){
+},{"react/lib/invariant":246}],77:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -14054,7 +26188,7 @@ var Navigation = {
 
 module.exports = Navigation;
 
-},{"react":235}],46:[function(require,module,exports){
+},{"react":267}],78:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -14084,7 +26218,7 @@ var NavigationContext = {
 
 module.exports = NavigationContext;
 
-},{"react":235}],47:[function(require,module,exports){
+},{"react":267}],79:[function(require,module,exports){
 var React = require('react');
 
 module.exports = {
@@ -14127,7 +26261,7 @@ module.exports = {
     return route ? React.createElement(route.handler, props || this.props) : null;
   }
 };
-},{"react":235}],48:[function(require,module,exports){
+},{"react":267}],80:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var canUseDOM = require('react/lib/ExecutionEnvironment').canUseDOM;
 var getWindowScrollPosition = require('../utils/getWindowScrollPosition');
@@ -14212,7 +26346,7 @@ var Scrolling = {
 
 module.exports = Scrolling;
 
-},{"../utils/getWindowScrollPosition":60,"react/lib/ExecutionEnvironment":96,"react/lib/invariant":214}],49:[function(require,module,exports){
+},{"../utils/getWindowScrollPosition":92,"react/lib/ExecutionEnvironment":128,"react/lib/invariant":246}],81:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -14291,7 +26425,7 @@ var State = {
 
 module.exports = State;
 
-},{"react":235}],50:[function(require,module,exports){
+},{"react":267}],82:[function(require,module,exports){
 var React = require('react');
 var assign = require('react/lib/Object.assign');
 var Path = require('../utils/Path');
@@ -14394,7 +26528,7 @@ var StateContext = {
 
 module.exports = StateContext;
 
-},{"../utils/Path":53,"react":235,"react/lib/Object.assign":102}],51:[function(require,module,exports){
+},{"../utils/Path":85,"react":267,"react/lib/Object.assign":134}],83:[function(require,module,exports){
 /**
  * Represents a cancellation caused by navigating away
  * before the previous transition has fully resolved.
@@ -14403,7 +26537,7 @@ function Cancellation() { }
 
 module.exports = Cancellation;
 
-},{}],52:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var canUseDOM = require('react/lib/ExecutionEnvironment').canUseDOM;
 
@@ -14434,7 +26568,7 @@ var History = {
 
 module.exports = History;
 
-},{"react/lib/ExecutionEnvironment":96,"react/lib/invariant":214}],53:[function(require,module,exports){
+},{"react/lib/ExecutionEnvironment":128,"react/lib/invariant":246}],85:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var merge = require('qs/lib/utils').merge;
 var qs = require('qs');
@@ -14614,7 +26748,7 @@ var Path = {
 
 module.exports = Path;
 
-},{"qs":64,"qs/lib/utils":68,"react/lib/invariant":214}],54:[function(require,module,exports){
+},{"qs":96,"qs/lib/utils":100,"react/lib/invariant":246}],86:[function(require,module,exports){
 var Promise = require('when/lib/Promise');
 
 // TODO: Use process.env.NODE_ENV check + envify to enable
@@ -14622,7 +26756,7 @@ var Promise = require('when/lib/Promise');
 
 module.exports = Promise;
 
-},{"when/lib/Promise":69}],55:[function(require,module,exports){
+},{"when/lib/Promise":101}],87:[function(require,module,exports){
 var PropTypes = {
 
   /**
@@ -14637,7 +26771,7 @@ var PropTypes = {
 
 module.exports = PropTypes;
 
-},{}],56:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 /**
  * Encapsulates a redirect to the given route.
  */
@@ -14649,7 +26783,7 @@ function Redirect(to, params, query) {
 
 module.exports = Redirect;
 
-},{}],57:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 var assign = require('react/lib/Object.assign');
 var reversedArray = require('./reversedArray');
 var Redirect = require('./Redirect');
@@ -14780,7 +26914,7 @@ assign(Transition.prototype, {
 
 module.exports = Transition;
 
-},{"./Promise":54,"./Redirect":56,"./reversedArray":61,"react/lib/Object.assign":102}],58:[function(require,module,exports){
+},{"./Promise":86,"./Redirect":88,"./reversedArray":93,"react/lib/Object.assign":134}],90:[function(require,module,exports){
 (function (process){
 /* jshint -W058 */
 var React = require('react');
@@ -15278,7 +27412,7 @@ function createRouter(options) {
 module.exports = createRouter;
 
 }).call(this,require('_process'))
-},{"../actions/LocationActions":31,"../behaviors/ImitateBrowserBehavior":32,"../components/RouteHandler":39,"../locations/HashLocation":41,"../locations/HistoryLocation":42,"../locations/RefreshLocation":43,"../mixins/NavigationContext":46,"../mixins/Scrolling":48,"../mixins/StateContext":50,"./Cancellation":51,"./History":52,"./Path":53,"./PropTypes":55,"./Redirect":56,"./Transition":57,"./createRoutesFromChildren":59,"./supportsHistory":63,"_process":8,"react":235,"react/lib/ExecutionEnvironment":96,"react/lib/invariant":214,"react/lib/warning":234}],59:[function(require,module,exports){
+},{"../actions/LocationActions":63,"../behaviors/ImitateBrowserBehavior":64,"../components/RouteHandler":71,"../locations/HashLocation":73,"../locations/HistoryLocation":74,"../locations/RefreshLocation":75,"../mixins/NavigationContext":78,"../mixins/Scrolling":80,"../mixins/StateContext":82,"./Cancellation":83,"./History":84,"./Path":85,"./PropTypes":87,"./Redirect":88,"./Transition":89,"./createRoutesFromChildren":91,"./supportsHistory":95,"_process":22,"react":267,"react/lib/ExecutionEnvironment":128,"react/lib/invariant":246,"react/lib/warning":266}],91:[function(require,module,exports){
 /* jshint -W084 */
 var React = require('react');
 var warning = require('react/lib/warning');
@@ -15445,7 +27579,7 @@ function createRoutesFromChildren(children, parentRoute, namedRoutes) {
 
 module.exports = createRoutesFromChildren;
 
-},{"../components/DefaultRoute":34,"../components/NotFoundRoute":36,"../components/Redirect":37,"../components/Route":38,"./Path":53,"react":235,"react/lib/invariant":214,"react/lib/warning":234}],60:[function(require,module,exports){
+},{"../components/DefaultRoute":66,"../components/NotFoundRoute":68,"../components/Redirect":69,"../components/Route":70,"./Path":85,"react":267,"react/lib/invariant":246,"react/lib/warning":266}],92:[function(require,module,exports){
 var invariant = require('react/lib/invariant');
 var canUseDOM = require('react/lib/ExecutionEnvironment').canUseDOM;
 
@@ -15466,14 +27600,14 @@ function getWindowScrollPosition() {
 
 module.exports = getWindowScrollPosition;
 
-},{"react/lib/ExecutionEnvironment":96,"react/lib/invariant":214}],61:[function(require,module,exports){
+},{"react/lib/ExecutionEnvironment":128,"react/lib/invariant":246}],93:[function(require,module,exports){
 function reversedArray(array) {
   return array.slice(0).reverse();
 }
 
 module.exports = reversedArray;
 
-},{}],62:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 var createRouter = require('./createRouter');
 
 /**
@@ -15523,7 +27657,7 @@ function runRouter(routes, location, callback) {
 
 module.exports = runRouter;
 
-},{"./createRouter":58}],63:[function(require,module,exports){
+},{"./createRouter":90}],95:[function(require,module,exports){
 function supportsHistory() {
   /*! taken from modernizr
    * https://github.com/Modernizr/Modernizr/blob/master/LICENSE
@@ -15543,10 +27677,10 @@ function supportsHistory() {
 
 module.exports = supportsHistory;
 
-},{}],64:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 module.exports = require('./lib');
 
-},{"./lib":65}],65:[function(require,module,exports){
+},{"./lib":97}],97:[function(require,module,exports){
 // Load modules
 
 var Stringify = require('./stringify');
@@ -15563,7 +27697,7 @@ module.exports = {
     parse: Parse
 };
 
-},{"./parse":66,"./stringify":67}],66:[function(require,module,exports){
+},{"./parse":98,"./stringify":99}],98:[function(require,module,exports){
 // Load modules
 
 var Utils = require('./utils');
@@ -15719,7 +27853,7 @@ module.exports = function (str, options) {
     return Utils.compact(obj);
 };
 
-},{"./utils":68}],67:[function(require,module,exports){
+},{"./utils":100}],99:[function(require,module,exports){
 // Load modules
 
 var Utils = require('./utils');
@@ -15779,7 +27913,7 @@ module.exports = function (obj, options) {
     return keys.join(delimiter);
 };
 
-},{"./utils":68}],68:[function(require,module,exports){
+},{"./utils":100}],100:[function(require,module,exports){
 (function (Buffer){
 // Load modules
 
@@ -15922,7 +28056,7 @@ exports.isBuffer = function (obj) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":3}],69:[function(require,module,exports){
+},{"buffer":17}],101:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -15941,7 +28075,7 @@ define(function (require) {
 });
 })(typeof define === 'function' && define.amd ? define : function (factory) { module.exports = factory(require); });
 
-},{"./Scheduler":71,"./async":72,"./makePromise":73}],70:[function(require,module,exports){
+},{"./Scheduler":103,"./async":104,"./makePromise":105}],102:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -16013,7 +28147,7 @@ define(function() {
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); }));
 
-},{}],71:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -16097,7 +28231,7 @@ define(function(require) {
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(require); }));
 
-},{"./Queue":70}],72:[function(require,module,exports){
+},{"./Queue":102}],104:[function(require,module,exports){
 (function (process){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
@@ -16172,7 +28306,7 @@ define(function(require) {
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(require); }));
 
 }).call(this,require('_process'))
-},{"_process":8}],73:[function(require,module,exports){
+},{"_process":22}],105:[function(require,module,exports){
 /** @license MIT License (c) copyright 2010-2014 original author or authors */
 /** @author Brian Cavalier */
 /** @author John Hann */
@@ -16970,10 +29104,10 @@ define(function() {
 });
 }(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); }));
 
-},{}],74:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 module.exports = require('./lib/ReactWithAddons');
 
-},{"./lib/ReactWithAddons":165}],75:[function(require,module,exports){
+},{"./lib/ReactWithAddons":197}],107:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17000,7 +29134,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":199}],76:[function(require,module,exports){
+},{"./focusNode":231}],108:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -17222,7 +29356,7 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":90,"./EventPropagators":95,"./ExecutionEnvironment":96,"./SyntheticInputEvent":175,"./keyOf":221}],77:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPropagators":127,"./ExecutionEnvironment":128,"./SyntheticInputEvent":207,"./keyOf":253}],109:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17332,7 +29466,7 @@ var CSSCore = {
 
 module.exports = CSSCore;
 
-},{"./invariant":214}],78:[function(require,module,exports){
+},{"./invariant":246}],110:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17451,7 +29585,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],79:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17584,7 +29718,7 @@ var CSSPropertyOperations = {
 
 module.exports = CSSPropertyOperations;
 
-},{"./CSSProperty":78,"./ExecutionEnvironment":96,"./camelizeStyleName":186,"./dangerousStyleValue":193,"./hyphenateStyleName":212,"./memoizeStringOnly":223,"./warning":234}],80:[function(require,module,exports){
+},{"./CSSProperty":110,"./ExecutionEnvironment":128,"./camelizeStyleName":218,"./dangerousStyleValue":225,"./hyphenateStyleName":244,"./memoizeStringOnly":255,"./warning":266}],112:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17682,7 +29816,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 
 module.exports = CallbackQueue;
 
-},{"./Object.assign":102,"./PooledClass":103,"./invariant":214}],81:[function(require,module,exports){
+},{"./Object.assign":134,"./PooledClass":135,"./invariant":246}],113:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18064,7 +30198,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":90,"./EventPluginHub":92,"./EventPropagators":95,"./ExecutionEnvironment":96,"./ReactUpdates":164,"./SyntheticEvent":173,"./isEventSupported":215,"./isTextInputElement":217,"./keyOf":221}],82:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPluginHub":124,"./EventPropagators":127,"./ExecutionEnvironment":128,"./ReactUpdates":196,"./SyntheticEvent":205,"./isEventSupported":247,"./isTextInputElement":249,"./keyOf":253}],114:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18089,7 +30223,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],83:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18348,7 +30482,7 @@ var CompositionEventPlugin = {
 
 module.exports = CompositionEventPlugin;
 
-},{"./EventConstants":90,"./EventPropagators":95,"./ExecutionEnvironment":96,"./ReactInputSelection":138,"./SyntheticCompositionEvent":171,"./getTextContentAccessor":209,"./keyOf":221}],84:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPropagators":127,"./ExecutionEnvironment":128,"./ReactInputSelection":170,"./SyntheticCompositionEvent":203,"./getTextContentAccessor":241,"./keyOf":253}],116:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18521,7 +30655,7 @@ var DOMChildrenOperations = {
 
 module.exports = DOMChildrenOperations;
 
-},{"./Danger":87,"./ReactMultiChildUpdateTypes":145,"./getTextContentAccessor":209,"./invariant":214}],85:[function(require,module,exports){
+},{"./Danger":119,"./ReactMultiChildUpdateTypes":177,"./getTextContentAccessor":241,"./invariant":246}],117:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18818,7 +30952,7 @@ var DOMProperty = {
 
 module.exports = DOMProperty;
 
-},{"./invariant":214}],86:[function(require,module,exports){
+},{"./invariant":246}],118:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19013,7 +31147,7 @@ var DOMPropertyOperations = {
 
 module.exports = DOMPropertyOperations;
 
-},{"./DOMProperty":85,"./escapeTextForBrowser":197,"./memoizeStringOnly":223,"./warning":234}],87:[function(require,module,exports){
+},{"./DOMProperty":117,"./escapeTextForBrowser":229,"./memoizeStringOnly":255,"./warning":266}],119:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19197,7 +31331,7 @@ var Danger = {
 
 module.exports = Danger;
 
-},{"./ExecutionEnvironment":96,"./createNodesFromMarkup":191,"./emptyFunction":195,"./getMarkupWrap":206,"./invariant":214}],88:[function(require,module,exports){
+},{"./ExecutionEnvironment":128,"./createNodesFromMarkup":223,"./emptyFunction":227,"./getMarkupWrap":238,"./invariant":246}],120:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19237,7 +31371,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":221}],89:[function(require,module,exports){
+},{"./keyOf":253}],121:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19377,7 +31511,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":90,"./EventPropagators":95,"./ReactMount":143,"./SyntheticMouseEvent":177,"./keyOf":221}],90:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPropagators":127,"./ReactMount":175,"./SyntheticMouseEvent":209,"./keyOf":253}],122:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19449,7 +31583,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":220}],91:[function(require,module,exports){
+},{"./keyMirror":252}],123:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -19537,7 +31671,7 @@ var EventListener = {
 
 module.exports = EventListener;
 
-},{"./emptyFunction":195}],92:[function(require,module,exports){
+},{"./emptyFunction":227}],124:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19811,7 +31945,7 @@ var EventPluginHub = {
 
 module.exports = EventPluginHub;
 
-},{"./EventPluginRegistry":93,"./EventPluginUtils":94,"./accumulateInto":183,"./forEachAccumulated":200,"./invariant":214}],93:[function(require,module,exports){
+},{"./EventPluginRegistry":125,"./EventPluginUtils":126,"./accumulateInto":215,"./forEachAccumulated":232,"./invariant":246}],125:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20089,7 +32223,7 @@ var EventPluginRegistry = {
 
 module.exports = EventPluginRegistry;
 
-},{"./invariant":214}],94:[function(require,module,exports){
+},{"./invariant":246}],126:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20308,7 +32442,7 @@ var EventPluginUtils = {
 
 module.exports = EventPluginUtils;
 
-},{"./EventConstants":90,"./invariant":214}],95:[function(require,module,exports){
+},{"./EventConstants":122,"./invariant":246}],127:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20448,7 +32582,7 @@ var EventPropagators = {
 
 module.exports = EventPropagators;
 
-},{"./EventConstants":90,"./EventPluginHub":92,"./accumulateInto":183,"./forEachAccumulated":200}],96:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPluginHub":124,"./accumulateInto":215,"./forEachAccumulated":232}],128:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20493,7 +32627,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],97:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20685,7 +32819,7 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":85,"./ExecutionEnvironment":96}],98:[function(require,module,exports){
+},{"./DOMProperty":117,"./ExecutionEnvironment":128}],130:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20726,7 +32860,7 @@ var LinkedStateMixin = {
 
 module.exports = LinkedStateMixin;
 
-},{"./ReactLink":141,"./ReactStateSetters":158}],99:[function(require,module,exports){
+},{"./ReactLink":173,"./ReactStateSetters":190}],131:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20880,7 +33014,7 @@ var LinkedValueUtils = {
 
 module.exports = LinkedValueUtils;
 
-},{"./ReactPropTypes":152,"./invariant":214}],100:[function(require,module,exports){
+},{"./ReactPropTypes":184,"./invariant":246}],132:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -20928,7 +33062,7 @@ var LocalEventTrapMixin = {
 
 module.exports = LocalEventTrapMixin;
 
-},{"./ReactBrowserEventEmitter":106,"./accumulateInto":183,"./forEachAccumulated":200,"./invariant":214}],101:[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":138,"./accumulateInto":215,"./forEachAccumulated":232,"./invariant":246}],133:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20986,7 +33120,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":90,"./emptyFunction":195}],102:[function(require,module,exports){
+},{"./EventConstants":122,"./emptyFunction":227}],134:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -21033,7 +33167,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],103:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21147,7 +33281,7 @@ var PooledClass = {
 
 module.exports = PooledClass;
 
-},{"./invariant":214}],104:[function(require,module,exports){
+},{"./invariant":246}],136:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21333,7 +33467,7 @@ React.version = '0.12.2';
 
 module.exports = React;
 
-},{"./DOMPropertyOperations":86,"./EventPluginUtils":94,"./ExecutionEnvironment":96,"./Object.assign":102,"./ReactChildren":109,"./ReactComponent":110,"./ReactCompositeComponent":113,"./ReactContext":114,"./ReactCurrentOwner":115,"./ReactDOM":116,"./ReactDOMComponent":118,"./ReactDefaultInjection":128,"./ReactElement":131,"./ReactElementValidator":132,"./ReactInstanceHandles":139,"./ReactLegacyElement":140,"./ReactMount":143,"./ReactMultiChild":144,"./ReactPerf":148,"./ReactPropTypes":152,"./ReactServerRendering":156,"./ReactTextComponent":160,"./deprecated":194,"./onlyChild":225}],105:[function(require,module,exports){
+},{"./DOMPropertyOperations":118,"./EventPluginUtils":126,"./ExecutionEnvironment":128,"./Object.assign":134,"./ReactChildren":141,"./ReactComponent":142,"./ReactCompositeComponent":145,"./ReactContext":146,"./ReactCurrentOwner":147,"./ReactDOM":148,"./ReactDOMComponent":150,"./ReactDefaultInjection":160,"./ReactElement":163,"./ReactElementValidator":164,"./ReactInstanceHandles":171,"./ReactLegacyElement":172,"./ReactMount":175,"./ReactMultiChild":176,"./ReactPerf":180,"./ReactPropTypes":184,"./ReactServerRendering":188,"./ReactTextComponent":192,"./deprecated":226,"./onlyChild":257}],137:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21374,7 +33508,7 @@ var ReactBrowserComponentMixin = {
 
 module.exports = ReactBrowserComponentMixin;
 
-},{"./ReactEmptyComponent":133,"./ReactMount":143,"./invariant":214}],106:[function(require,module,exports){
+},{"./ReactEmptyComponent":165,"./ReactMount":175,"./invariant":246}],138:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21729,7 +33863,7 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":90,"./EventPluginHub":92,"./EventPluginRegistry":93,"./Object.assign":102,"./ReactEventEmitterMixin":135,"./ViewportMetrics":182,"./isEventSupported":215}],107:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPluginHub":124,"./EventPluginRegistry":125,"./Object.assign":134,"./ReactEventEmitterMixin":167,"./ViewportMetrics":214,"./isEventSupported":247}],139:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21796,7 +33930,7 @@ var ReactCSSTransitionGroup = React.createClass({
 
 module.exports = ReactCSSTransitionGroup;
 
-},{"./Object.assign":102,"./React":104,"./ReactCSSTransitionGroupChild":108,"./ReactTransitionGroup":163}],108:[function(require,module,exports){
+},{"./Object.assign":134,"./React":136,"./ReactCSSTransitionGroupChild":140,"./ReactTransitionGroup":195}],140:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21929,7 +34063,7 @@ var ReactCSSTransitionGroupChild = React.createClass({
 
 module.exports = ReactCSSTransitionGroupChild;
 
-},{"./CSSCore":77,"./React":104,"./ReactTransitionEvents":162,"./onlyChild":225}],109:[function(require,module,exports){
+},{"./CSSCore":109,"./React":136,"./ReactTransitionEvents":194,"./onlyChild":257}],141:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22077,7 +34211,7 @@ var ReactChildren = {
 
 module.exports = ReactChildren;
 
-},{"./PooledClass":103,"./traverseAllChildren":232,"./warning":234}],110:[function(require,module,exports){
+},{"./PooledClass":135,"./traverseAllChildren":264,"./warning":266}],142:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22518,7 +34652,7 @@ var ReactComponent = {
 
 module.exports = ReactComponent;
 
-},{"./Object.assign":102,"./ReactElement":131,"./ReactOwner":147,"./ReactUpdates":164,"./invariant":214,"./keyMirror":220}],111:[function(require,module,exports){
+},{"./Object.assign":134,"./ReactElement":163,"./ReactOwner":179,"./ReactUpdates":196,"./invariant":246,"./keyMirror":252}],143:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22638,7 +34772,7 @@ var ReactComponentBrowserEnvironment = {
 
 module.exports = ReactComponentBrowserEnvironment;
 
-},{"./ReactDOMIDOperations":120,"./ReactMarkupChecksum":142,"./ReactMount":143,"./ReactPerf":148,"./ReactReconcileTransaction":154,"./getReactRootElementInContainer":208,"./invariant":214,"./setInnerHTML":228}],112:[function(require,module,exports){
+},{"./ReactDOMIDOperations":152,"./ReactMarkupChecksum":174,"./ReactMount":175,"./ReactPerf":180,"./ReactReconcileTransaction":186,"./getReactRootElementInContainer":240,"./invariant":246,"./setInnerHTML":260}],144:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22687,7 +34821,7 @@ var ReactComponentWithPureRenderMixin = {
 
 module.exports = ReactComponentWithPureRenderMixin;
 
-},{"./shallowEqual":229}],113:[function(require,module,exports){
+},{"./shallowEqual":261}],145:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24125,7 +36259,7 @@ var ReactCompositeComponent = {
 
 module.exports = ReactCompositeComponent;
 
-},{"./Object.assign":102,"./ReactComponent":110,"./ReactContext":114,"./ReactCurrentOwner":115,"./ReactElement":131,"./ReactElementValidator":132,"./ReactEmptyComponent":133,"./ReactErrorUtils":134,"./ReactLegacyElement":140,"./ReactOwner":147,"./ReactPerf":148,"./ReactPropTransferer":149,"./ReactPropTypeLocationNames":150,"./ReactPropTypeLocations":151,"./ReactUpdates":164,"./instantiateReactComponent":213,"./invariant":214,"./keyMirror":220,"./keyOf":221,"./mapObject":222,"./monitorCodeUse":224,"./shouldUpdateReactComponent":230,"./warning":234}],114:[function(require,module,exports){
+},{"./Object.assign":134,"./ReactComponent":142,"./ReactContext":146,"./ReactCurrentOwner":147,"./ReactElement":163,"./ReactElementValidator":164,"./ReactEmptyComponent":165,"./ReactErrorUtils":166,"./ReactLegacyElement":172,"./ReactOwner":179,"./ReactPerf":180,"./ReactPropTransferer":181,"./ReactPropTypeLocationNames":182,"./ReactPropTypeLocations":183,"./ReactUpdates":196,"./instantiateReactComponent":245,"./invariant":246,"./keyMirror":252,"./keyOf":253,"./mapObject":254,"./monitorCodeUse":256,"./shouldUpdateReactComponent":262,"./warning":266}],146:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24187,7 +36321,7 @@ var ReactContext = {
 
 module.exports = ReactContext;
 
-},{"./Object.assign":102}],115:[function(require,module,exports){
+},{"./Object.assign":134}],147:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24221,7 +36355,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],116:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24402,7 +36536,7 @@ var ReactDOM = mapObject({
 
 module.exports = ReactDOM;
 
-},{"./ReactElement":131,"./ReactElementValidator":132,"./ReactLegacyElement":140,"./mapObject":222}],117:[function(require,module,exports){
+},{"./ReactElement":163,"./ReactElementValidator":164,"./ReactLegacyElement":172,"./mapObject":254}],149:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24467,7 +36601,7 @@ var ReactDOMButton = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":75,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./keyMirror":220}],118:[function(require,module,exports){
+},{"./AutoFocusMixin":107,"./ReactBrowserComponentMixin":137,"./ReactCompositeComponent":145,"./ReactDOM":148,"./ReactElement":163,"./keyMirror":252}],150:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24952,7 +37086,7 @@ assign(
 
 module.exports = ReactDOMComponent;
 
-},{"./CSSPropertyOperations":79,"./DOMProperty":85,"./DOMPropertyOperations":86,"./Object.assign":102,"./ReactBrowserComponentMixin":105,"./ReactBrowserEventEmitter":106,"./ReactComponent":110,"./ReactMount":143,"./ReactMultiChild":144,"./ReactPerf":148,"./escapeTextForBrowser":197,"./invariant":214,"./isEventSupported":215,"./keyOf":221,"./monitorCodeUse":224}],119:[function(require,module,exports){
+},{"./CSSPropertyOperations":111,"./DOMProperty":117,"./DOMPropertyOperations":118,"./Object.assign":134,"./ReactBrowserComponentMixin":137,"./ReactBrowserEventEmitter":138,"./ReactComponent":142,"./ReactMount":175,"./ReactMultiChild":176,"./ReactPerf":180,"./escapeTextForBrowser":229,"./invariant":246,"./isEventSupported":247,"./keyOf":253,"./monitorCodeUse":256}],151:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25002,7 +37136,7 @@ var ReactDOMForm = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":90,"./LocalEventTrapMixin":100,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131}],120:[function(require,module,exports){
+},{"./EventConstants":122,"./LocalEventTrapMixin":132,"./ReactBrowserComponentMixin":137,"./ReactCompositeComponent":145,"./ReactDOM":148,"./ReactElement":163}],152:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25186,7 +37320,7 @@ var ReactDOMIDOperations = {
 
 module.exports = ReactDOMIDOperations;
 
-},{"./CSSPropertyOperations":79,"./DOMChildrenOperations":84,"./DOMPropertyOperations":86,"./ReactMount":143,"./ReactPerf":148,"./invariant":214,"./setInnerHTML":228}],121:[function(require,module,exports){
+},{"./CSSPropertyOperations":111,"./DOMChildrenOperations":116,"./DOMPropertyOperations":118,"./ReactMount":175,"./ReactPerf":180,"./invariant":246,"./setInnerHTML":260}],153:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25234,7 +37368,7 @@ var ReactDOMImg = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":90,"./LocalEventTrapMixin":100,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131}],122:[function(require,module,exports){
+},{"./EventConstants":122,"./LocalEventTrapMixin":132,"./ReactBrowserComponentMixin":137,"./ReactCompositeComponent":145,"./ReactDOM":148,"./ReactElement":163}],154:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25410,7 +37544,7 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMInput;
 
-},{"./AutoFocusMixin":75,"./DOMPropertyOperations":86,"./LinkedValueUtils":99,"./Object.assign":102,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./ReactMount":143,"./ReactUpdates":164,"./invariant":214}],123:[function(require,module,exports){
+},{"./AutoFocusMixin":107,"./DOMPropertyOperations":118,"./LinkedValueUtils":131,"./Object.assign":134,"./ReactBrowserComponentMixin":137,"./ReactCompositeComponent":145,"./ReactDOM":148,"./ReactElement":163,"./ReactMount":175,"./ReactUpdates":196,"./invariant":246}],155:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25461,7 +37595,7 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMOption;
 
-},{"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./warning":234}],124:[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":137,"./ReactCompositeComponent":145,"./ReactDOM":148,"./ReactElement":163,"./warning":266}],156:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25645,7 +37779,7 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":75,"./LinkedValueUtils":99,"./Object.assign":102,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./ReactUpdates":164}],125:[function(require,module,exports){
+},{"./AutoFocusMixin":107,"./LinkedValueUtils":131,"./Object.assign":134,"./ReactBrowserComponentMixin":137,"./ReactCompositeComponent":145,"./ReactDOM":148,"./ReactElement":163,"./ReactUpdates":196}],157:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25854,7 +37988,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":96,"./getNodeForCharacterOffset":207,"./getTextContentAccessor":209}],126:[function(require,module,exports){
+},{"./ExecutionEnvironment":128,"./getNodeForCharacterOffset":239,"./getTextContentAccessor":241}],158:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25993,7 +38127,7 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMTextarea;
 
-},{"./AutoFocusMixin":75,"./DOMPropertyOperations":86,"./LinkedValueUtils":99,"./Object.assign":102,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./ReactUpdates":164,"./invariant":214,"./warning":234}],127:[function(require,module,exports){
+},{"./AutoFocusMixin":107,"./DOMPropertyOperations":118,"./LinkedValueUtils":131,"./Object.assign":134,"./ReactBrowserComponentMixin":137,"./ReactCompositeComponent":145,"./ReactDOM":148,"./ReactElement":163,"./ReactUpdates":196,"./invariant":246,"./warning":266}],159:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26066,7 +38200,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./Object.assign":102,"./ReactUpdates":164,"./Transaction":181,"./emptyFunction":195}],128:[function(require,module,exports){
+},{"./Object.assign":134,"./ReactUpdates":196,"./Transaction":213,"./emptyFunction":227}],160:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26193,7 +38327,7 @@ module.exports = {
   inject: inject
 };
 
-},{"./BeforeInputEventPlugin":76,"./ChangeEventPlugin":81,"./ClientReactRootIndex":82,"./CompositionEventPlugin":83,"./DefaultEventPluginOrder":88,"./EnterLeaveEventPlugin":89,"./ExecutionEnvironment":96,"./HTMLDOMPropertyConfig":97,"./MobileSafariClickEventPlugin":101,"./ReactBrowserComponentMixin":105,"./ReactComponentBrowserEnvironment":111,"./ReactDOMButton":117,"./ReactDOMComponent":118,"./ReactDOMForm":119,"./ReactDOMImg":121,"./ReactDOMInput":122,"./ReactDOMOption":123,"./ReactDOMSelect":124,"./ReactDOMTextarea":126,"./ReactDefaultBatchingStrategy":127,"./ReactDefaultPerf":129,"./ReactEventListener":136,"./ReactInjection":137,"./ReactInstanceHandles":139,"./ReactMount":143,"./SVGDOMPropertyConfig":166,"./SelectEventPlugin":167,"./ServerReactRootIndex":168,"./SimpleEventPlugin":169,"./createFullPageComponent":190}],129:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":108,"./ChangeEventPlugin":113,"./ClientReactRootIndex":114,"./CompositionEventPlugin":115,"./DefaultEventPluginOrder":120,"./EnterLeaveEventPlugin":121,"./ExecutionEnvironment":128,"./HTMLDOMPropertyConfig":129,"./MobileSafariClickEventPlugin":133,"./ReactBrowserComponentMixin":137,"./ReactComponentBrowserEnvironment":143,"./ReactDOMButton":149,"./ReactDOMComponent":150,"./ReactDOMForm":151,"./ReactDOMImg":153,"./ReactDOMInput":154,"./ReactDOMOption":155,"./ReactDOMSelect":156,"./ReactDOMTextarea":158,"./ReactDefaultBatchingStrategy":159,"./ReactDefaultPerf":161,"./ReactEventListener":168,"./ReactInjection":169,"./ReactInstanceHandles":171,"./ReactMount":175,"./SVGDOMPropertyConfig":198,"./SelectEventPlugin":199,"./ServerReactRootIndex":200,"./SimpleEventPlugin":201,"./createFullPageComponent":222}],161:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26453,7 +38587,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":85,"./ReactDefaultPerfAnalysis":130,"./ReactMount":143,"./ReactPerf":148,"./performanceNow":227}],130:[function(require,module,exports){
+},{"./DOMProperty":117,"./ReactDefaultPerfAnalysis":162,"./ReactMount":175,"./ReactPerf":180,"./performanceNow":259}],162:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26659,7 +38793,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./Object.assign":102}],131:[function(require,module,exports){
+},{"./Object.assign":134}],163:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -26903,7 +39037,7 @@ ReactElement.isValidElement = function(object) {
 
 module.exports = ReactElement;
 
-},{"./ReactContext":114,"./ReactCurrentOwner":115,"./warning":234}],132:[function(require,module,exports){
+},{"./ReactContext":146,"./ReactCurrentOwner":147,"./warning":266}],164:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -27183,7 +39317,7 @@ var ReactElementValidator = {
 
 module.exports = ReactElementValidator;
 
-},{"./ReactCurrentOwner":115,"./ReactElement":131,"./ReactPropTypeLocations":151,"./monitorCodeUse":224,"./warning":234}],133:[function(require,module,exports){
+},{"./ReactCurrentOwner":147,"./ReactElement":163,"./ReactPropTypeLocations":183,"./monitorCodeUse":256,"./warning":266}],165:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -27258,7 +39392,7 @@ var ReactEmptyComponent = {
 
 module.exports = ReactEmptyComponent;
 
-},{"./ReactElement":131,"./invariant":214}],134:[function(require,module,exports){
+},{"./ReactElement":163,"./invariant":246}],166:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27290,7 +39424,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],135:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27340,7 +39474,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":92}],136:[function(require,module,exports){
+},{"./EventPluginHub":124}],168:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27524,7 +39658,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":91,"./ExecutionEnvironment":96,"./Object.assign":102,"./PooledClass":103,"./ReactInstanceHandles":139,"./ReactMount":143,"./ReactUpdates":164,"./getEventTarget":205,"./getUnboundedScrollPosition":210}],137:[function(require,module,exports){
+},{"./EventListener":123,"./ExecutionEnvironment":128,"./Object.assign":134,"./PooledClass":135,"./ReactInstanceHandles":171,"./ReactMount":175,"./ReactUpdates":196,"./getEventTarget":237,"./getUnboundedScrollPosition":242}],169:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27564,7 +39698,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":85,"./EventPluginHub":92,"./ReactBrowserEventEmitter":106,"./ReactComponent":110,"./ReactCompositeComponent":113,"./ReactEmptyComponent":133,"./ReactNativeComponent":146,"./ReactPerf":148,"./ReactRootIndex":155,"./ReactUpdates":164}],138:[function(require,module,exports){
+},{"./DOMProperty":117,"./EventPluginHub":124,"./ReactBrowserEventEmitter":138,"./ReactComponent":142,"./ReactCompositeComponent":145,"./ReactEmptyComponent":165,"./ReactNativeComponent":178,"./ReactPerf":180,"./ReactRootIndex":187,"./ReactUpdates":196}],170:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27700,7 +39834,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":125,"./containsNode":188,"./focusNode":199,"./getActiveElement":201}],139:[function(require,module,exports){
+},{"./ReactDOMSelection":157,"./containsNode":220,"./focusNode":231,"./getActiveElement":233}],171:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28033,7 +40167,7 @@ var ReactInstanceHandles = {
 
 module.exports = ReactInstanceHandles;
 
-},{"./ReactRootIndex":155,"./invariant":214}],140:[function(require,module,exports){
+},{"./ReactRootIndex":187,"./invariant":246}],172:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -28278,7 +40412,7 @@ ReactLegacyElementFactory._isLegacyCallWarningEnabled = true;
 
 module.exports = ReactLegacyElementFactory;
 
-},{"./ReactCurrentOwner":115,"./invariant":214,"./monitorCodeUse":224,"./warning":234}],141:[function(require,module,exports){
+},{"./ReactCurrentOwner":147,"./invariant":246,"./monitorCodeUse":256,"./warning":266}],173:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28351,7 +40485,7 @@ ReactLink.PropTypes = {
 
 module.exports = ReactLink;
 
-},{"./React":104}],142:[function(require,module,exports){
+},{"./React":136}],174:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28399,7 +40533,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":184}],143:[function(require,module,exports){
+},{"./adler32":216}],175:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29095,7 +41229,7 @@ ReactMount.renderComponent = deprecated(
 
 module.exports = ReactMount;
 
-},{"./DOMProperty":85,"./ReactBrowserEventEmitter":106,"./ReactCurrentOwner":115,"./ReactElement":131,"./ReactInstanceHandles":139,"./ReactLegacyElement":140,"./ReactPerf":148,"./containsNode":188,"./deprecated":194,"./getReactRootElementInContainer":208,"./instantiateReactComponent":213,"./invariant":214,"./shouldUpdateReactComponent":230,"./warning":234}],144:[function(require,module,exports){
+},{"./DOMProperty":117,"./ReactBrowserEventEmitter":138,"./ReactCurrentOwner":147,"./ReactElement":163,"./ReactInstanceHandles":171,"./ReactLegacyElement":172,"./ReactPerf":180,"./containsNode":220,"./deprecated":226,"./getReactRootElementInContainer":240,"./instantiateReactComponent":245,"./invariant":246,"./shouldUpdateReactComponent":262,"./warning":266}],176:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29523,7 +41657,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactComponent":110,"./ReactMultiChildUpdateTypes":145,"./flattenChildren":198,"./instantiateReactComponent":213,"./shouldUpdateReactComponent":230}],145:[function(require,module,exports){
+},{"./ReactComponent":142,"./ReactMultiChildUpdateTypes":177,"./flattenChildren":230,"./instantiateReactComponent":245,"./shouldUpdateReactComponent":262}],177:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29556,7 +41690,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":220}],146:[function(require,module,exports){
+},{"./keyMirror":252}],178:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -29627,7 +41761,7 @@ var ReactNativeComponent = {
 
 module.exports = ReactNativeComponent;
 
-},{"./Object.assign":102,"./invariant":214}],147:[function(require,module,exports){
+},{"./Object.assign":134,"./invariant":246}],179:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29781,7 +41915,7 @@ var ReactOwner = {
 
 module.exports = ReactOwner;
 
-},{"./emptyObject":196,"./invariant":214}],148:[function(require,module,exports){
+},{"./emptyObject":228,"./invariant":246}],180:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29863,7 +41997,7 @@ function _noMeasure(objName, fnName, func) {
 
 module.exports = ReactPerf;
 
-},{}],149:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30028,7 +42162,7 @@ var ReactPropTransferer = {
 
 module.exports = ReactPropTransferer;
 
-},{"./Object.assign":102,"./emptyFunction":195,"./invariant":214,"./joinClasses":219,"./warning":234}],150:[function(require,module,exports){
+},{"./Object.assign":134,"./emptyFunction":227,"./invariant":246,"./joinClasses":251,"./warning":266}],182:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30054,7 +42188,7 @@ if ("production" !== "development") {
 
 module.exports = ReactPropTypeLocationNames;
 
-},{}],151:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30078,7 +42212,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":220}],152:[function(require,module,exports){
+},{"./keyMirror":252}],184:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30432,7 +42566,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactElement":131,"./ReactPropTypeLocationNames":150,"./deprecated":194,"./emptyFunction":195}],153:[function(require,module,exports){
+},{"./ReactElement":163,"./ReactPropTypeLocationNames":182,"./deprecated":226,"./emptyFunction":227}],185:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30488,7 +42622,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./Object.assign":102,"./PooledClass":103,"./ReactBrowserEventEmitter":106}],154:[function(require,module,exports){
+},{"./Object.assign":134,"./PooledClass":135,"./ReactBrowserEventEmitter":138}],186:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30664,7 +42798,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":80,"./Object.assign":102,"./PooledClass":103,"./ReactBrowserEventEmitter":106,"./ReactInputSelection":138,"./ReactPutListenerQueue":153,"./Transaction":181}],155:[function(require,module,exports){
+},{"./CallbackQueue":112,"./Object.assign":134,"./PooledClass":135,"./ReactBrowserEventEmitter":138,"./ReactInputSelection":170,"./ReactPutListenerQueue":185,"./Transaction":213}],187:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30695,7 +42829,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],156:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30773,7 +42907,7 @@ module.exports = {
   renderToStaticMarkup: renderToStaticMarkup
 };
 
-},{"./ReactElement":131,"./ReactInstanceHandles":139,"./ReactMarkupChecksum":142,"./ReactServerRenderingTransaction":157,"./instantiateReactComponent":213,"./invariant":214}],157:[function(require,module,exports){
+},{"./ReactElement":163,"./ReactInstanceHandles":171,"./ReactMarkupChecksum":174,"./ReactServerRenderingTransaction":189,"./instantiateReactComponent":245,"./invariant":246}],189:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -30886,7 +43020,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":80,"./Object.assign":102,"./PooledClass":103,"./ReactPutListenerQueue":153,"./Transaction":181,"./emptyFunction":195}],158:[function(require,module,exports){
+},{"./CallbackQueue":112,"./Object.assign":134,"./PooledClass":135,"./ReactPutListenerQueue":185,"./Transaction":213,"./emptyFunction":227}],190:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -30992,7 +43126,7 @@ ReactStateSetters.Mixin = {
 
 module.exports = ReactStateSetters;
 
-},{}],159:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -31404,7 +43538,7 @@ for (eventType in topLevelTypes) {
 
 module.exports = ReactTestUtils;
 
-},{"./EventConstants":90,"./EventPluginHub":92,"./EventPropagators":95,"./Object.assign":102,"./React":104,"./ReactBrowserEventEmitter":106,"./ReactElement":131,"./ReactMount":143,"./ReactTextComponent":160,"./ReactUpdates":164,"./SyntheticEvent":173}],160:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPluginHub":124,"./EventPropagators":127,"./Object.assign":134,"./React":136,"./ReactBrowserEventEmitter":138,"./ReactElement":163,"./ReactMount":175,"./ReactTextComponent":192,"./ReactUpdates":196,"./SyntheticEvent":205}],192:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -31510,7 +43644,7 @@ ReactTextComponentFactory.type = ReactTextComponent;
 
 module.exports = ReactTextComponentFactory;
 
-},{"./DOMPropertyOperations":86,"./Object.assign":102,"./ReactComponent":110,"./ReactElement":131,"./escapeTextForBrowser":197}],161:[function(require,module,exports){
+},{"./DOMPropertyOperations":118,"./Object.assign":134,"./ReactComponent":142,"./ReactElement":163,"./escapeTextForBrowser":229}],193:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -31611,7 +43745,7 @@ var ReactTransitionChildMapping = {
 
 module.exports = ReactTransitionChildMapping;
 
-},{"./ReactChildren":109}],162:[function(require,module,exports){
+},{"./ReactChildren":141}],194:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -31722,7 +43856,7 @@ var ReactTransitionEvents = {
 
 module.exports = ReactTransitionEvents;
 
-},{"./ExecutionEnvironment":96}],163:[function(require,module,exports){
+},{"./ExecutionEnvironment":128}],195:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -31911,7 +44045,7 @@ var ReactTransitionGroup = React.createClass({
 
 module.exports = ReactTransitionGroup;
 
-},{"./Object.assign":102,"./React":104,"./ReactTransitionChildMapping":161,"./cloneWithProps":187,"./emptyFunction":195}],164:[function(require,module,exports){
+},{"./Object.assign":134,"./React":136,"./ReactTransitionChildMapping":193,"./cloneWithProps":219,"./emptyFunction":227}],196:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -32199,7 +44333,7 @@ var ReactUpdates = {
 
 module.exports = ReactUpdates;
 
-},{"./CallbackQueue":80,"./Object.assign":102,"./PooledClass":103,"./ReactCurrentOwner":115,"./ReactPerf":148,"./Transaction":181,"./invariant":214,"./warning":234}],165:[function(require,module,exports){
+},{"./CallbackQueue":112,"./Object.assign":134,"./PooledClass":135,"./ReactCurrentOwner":147,"./ReactPerf":180,"./Transaction":213,"./invariant":246,"./warning":266}],197:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -32251,7 +44385,7 @@ if ("production" !== "development") {
 
 module.exports = React;
 
-},{"./LinkedStateMixin":98,"./React":104,"./ReactCSSTransitionGroup":107,"./ReactComponentWithPureRenderMixin":112,"./ReactDefaultPerf":129,"./ReactTestUtils":159,"./ReactTransitionGroup":163,"./ReactUpdates":164,"./cloneWithProps":187,"./cx":192,"./update":233}],166:[function(require,module,exports){
+},{"./LinkedStateMixin":130,"./React":136,"./ReactCSSTransitionGroup":139,"./ReactComponentWithPureRenderMixin":144,"./ReactDefaultPerf":161,"./ReactTestUtils":191,"./ReactTransitionGroup":195,"./ReactUpdates":196,"./cloneWithProps":219,"./cx":224,"./update":265}],198:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -32343,7 +44477,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":85}],167:[function(require,module,exports){
+},{"./DOMProperty":117}],199:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -32538,7 +44672,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":90,"./EventPropagators":95,"./ReactInputSelection":138,"./SyntheticEvent":173,"./getActiveElement":201,"./isTextInputElement":217,"./keyOf":221,"./shallowEqual":229}],168:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPropagators":127,"./ReactInputSelection":170,"./SyntheticEvent":205,"./getActiveElement":233,"./isTextInputElement":249,"./keyOf":253,"./shallowEqual":261}],200:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -32569,7 +44703,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],169:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -32995,7 +45129,7 @@ var SimpleEventPlugin = {
 
 module.exports = SimpleEventPlugin;
 
-},{"./EventConstants":90,"./EventPluginUtils":94,"./EventPropagators":95,"./SyntheticClipboardEvent":170,"./SyntheticDragEvent":172,"./SyntheticEvent":173,"./SyntheticFocusEvent":174,"./SyntheticKeyboardEvent":176,"./SyntheticMouseEvent":177,"./SyntheticTouchEvent":178,"./SyntheticUIEvent":179,"./SyntheticWheelEvent":180,"./getEventCharCode":202,"./invariant":214,"./keyOf":221,"./warning":234}],170:[function(require,module,exports){
+},{"./EventConstants":122,"./EventPluginUtils":126,"./EventPropagators":127,"./SyntheticClipboardEvent":202,"./SyntheticDragEvent":204,"./SyntheticEvent":205,"./SyntheticFocusEvent":206,"./SyntheticKeyboardEvent":208,"./SyntheticMouseEvent":209,"./SyntheticTouchEvent":210,"./SyntheticUIEvent":211,"./SyntheticWheelEvent":212,"./getEventCharCode":234,"./invariant":246,"./keyOf":253,"./warning":266}],202:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33041,7 +45175,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 module.exports = SyntheticClipboardEvent;
 
 
-},{"./SyntheticEvent":173}],171:[function(require,module,exports){
+},{"./SyntheticEvent":205}],203:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33087,7 +45221,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticCompositionEvent;
 
 
-},{"./SyntheticEvent":173}],172:[function(require,module,exports){
+},{"./SyntheticEvent":205}],204:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33126,7 +45260,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":177}],173:[function(require,module,exports){
+},{"./SyntheticMouseEvent":209}],205:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33284,7 +45418,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./Object.assign":102,"./PooledClass":103,"./emptyFunction":195,"./getEventTarget":205}],174:[function(require,module,exports){
+},{"./Object.assign":134,"./PooledClass":135,"./emptyFunction":227,"./getEventTarget":237}],206:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33323,7 +45457,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":179}],175:[function(require,module,exports){
+},{"./SyntheticUIEvent":211}],207:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -33370,7 +45504,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticInputEvent;
 
 
-},{"./SyntheticEvent":173}],176:[function(require,module,exports){
+},{"./SyntheticEvent":205}],208:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33457,7 +45591,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":179,"./getEventCharCode":202,"./getEventKey":203,"./getEventModifierState":204}],177:[function(require,module,exports){
+},{"./SyntheticUIEvent":211,"./getEventCharCode":234,"./getEventKey":235,"./getEventModifierState":236}],209:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33540,7 +45674,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":179,"./ViewportMetrics":182,"./getEventModifierState":204}],178:[function(require,module,exports){
+},{"./SyntheticUIEvent":211,"./ViewportMetrics":214,"./getEventModifierState":236}],210:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33588,7 +45722,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":179,"./getEventModifierState":204}],179:[function(require,module,exports){
+},{"./SyntheticUIEvent":211,"./getEventModifierState":236}],211:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33650,7 +45784,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":173,"./getEventTarget":205}],180:[function(require,module,exports){
+},{"./SyntheticEvent":205,"./getEventTarget":237}],212:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33711,7 +45845,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":177}],181:[function(require,module,exports){
+},{"./SyntheticMouseEvent":209}],213:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33950,7 +46084,7 @@ var Transaction = {
 
 module.exports = Transaction;
 
-},{"./invariant":214}],182:[function(require,module,exports){
+},{"./invariant":246}],214:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -33982,7 +46116,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{"./getUnboundedScrollPosition":210}],183:[function(require,module,exports){
+},{"./getUnboundedScrollPosition":242}],215:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -34046,7 +46180,7 @@ function accumulateInto(current, next) {
 
 module.exports = accumulateInto;
 
-},{"./invariant":214}],184:[function(require,module,exports){
+},{"./invariant":246}],216:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34080,7 +46214,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],185:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34112,7 +46246,7 @@ function camelize(string) {
 
 module.exports = camelize;
 
-},{}],186:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -34154,7 +46288,7 @@ function camelizeStyleName(string) {
 
 module.exports = camelizeStyleName;
 
-},{"./camelize":185}],187:[function(require,module,exports){
+},{"./camelize":217}],219:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34211,7 +46345,7 @@ function cloneWithProps(child, props) {
 
 module.exports = cloneWithProps;
 
-},{"./ReactElement":131,"./ReactPropTransferer":149,"./keyOf":221,"./warning":234}],188:[function(require,module,exports){
+},{"./ReactElement":163,"./ReactPropTransferer":181,"./keyOf":253,"./warning":266}],220:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34255,7 +46389,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":218}],189:[function(require,module,exports){
+},{"./isTextNode":250}],221:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34341,7 +46475,7 @@ function createArrayFrom(obj) {
 
 module.exports = createArrayFrom;
 
-},{"./toArray":231}],190:[function(require,module,exports){
+},{"./toArray":263}],222:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34400,7 +46534,7 @@ function createFullPageComponent(tag) {
 
 module.exports = createFullPageComponent;
 
-},{"./ReactCompositeComponent":113,"./ReactElement":131,"./invariant":214}],191:[function(require,module,exports){
+},{"./ReactCompositeComponent":145,"./ReactElement":163,"./invariant":246}],223:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34488,7 +46622,7 @@ function createNodesFromMarkup(markup, handleScript) {
 
 module.exports = createNodesFromMarkup;
 
-},{"./ExecutionEnvironment":96,"./createArrayFrom":189,"./getMarkupWrap":206,"./invariant":214}],192:[function(require,module,exports){
+},{"./ExecutionEnvironment":128,"./createArrayFrom":221,"./getMarkupWrap":238,"./invariant":246}],224:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34527,7 +46661,7 @@ function cx(classNames) {
 
 module.exports = cx;
 
-},{}],193:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34585,7 +46719,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":78}],194:[function(require,module,exports){
+},{"./CSSProperty":110}],226:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34634,7 +46768,7 @@ function deprecated(namespace, oldName, newName, ctx, fn) {
 
 module.exports = deprecated;
 
-},{"./Object.assign":102,"./warning":234}],195:[function(require,module,exports){
+},{"./Object.assign":134,"./warning":266}],227:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34668,7 +46802,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],196:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34690,7 +46824,7 @@ if ("production" !== "development") {
 
 module.exports = emptyObject;
 
-},{}],197:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34731,7 +46865,7 @@ function escapeTextForBrowser(text) {
 
 module.exports = escapeTextForBrowser;
 
-},{}],198:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34798,7 +46932,7 @@ function flattenChildren(children) {
 
 module.exports = flattenChildren;
 
-},{"./ReactTextComponent":160,"./traverseAllChildren":232,"./warning":234}],199:[function(require,module,exports){
+},{"./ReactTextComponent":192,"./traverseAllChildren":264,"./warning":266}],231:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -34827,7 +46961,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],200:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34858,7 +46992,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],201:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34887,7 +47021,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],202:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -34939,7 +47073,7 @@ function getEventCharCode(nativeEvent) {
 
 module.exports = getEventCharCode;
 
-},{}],203:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35044,7 +47178,7 @@ function getEventKey(nativeEvent) {
 
 module.exports = getEventKey;
 
-},{"./getEventCharCode":202}],204:[function(require,module,exports){
+},{"./getEventCharCode":234}],236:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -35091,7 +47225,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],205:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35122,7 +47256,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],206:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35237,7 +47371,7 @@ function getMarkupWrap(nodeName) {
 
 module.exports = getMarkupWrap;
 
-},{"./ExecutionEnvironment":96,"./invariant":214}],207:[function(require,module,exports){
+},{"./ExecutionEnvironment":128,"./invariant":246}],239:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35312,7 +47446,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],208:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35347,7 +47481,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],209:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35384,7 +47518,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":96}],210:[function(require,module,exports){
+},{"./ExecutionEnvironment":128}],242:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35424,7 +47558,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],211:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35457,7 +47591,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],212:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35498,7 +47632,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":211}],213:[function(require,module,exports){
+},{"./hyphenate":243}],245:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35610,7 +47744,7 @@ function instantiateReactComponent(element, parentCompositeType) {
 
 module.exports = instantiateReactComponent;
 
-},{"./ReactElement":131,"./ReactEmptyComponent":133,"./ReactLegacyElement":140,"./ReactNativeComponent":146,"./warning":234}],214:[function(require,module,exports){
+},{"./ReactElement":163,"./ReactEmptyComponent":165,"./ReactLegacyElement":172,"./ReactNativeComponent":178,"./warning":266}],246:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35665,7 +47799,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 
 module.exports = invariant;
 
-},{}],215:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35730,7 +47864,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":96}],216:[function(require,module,exports){
+},{"./ExecutionEnvironment":128}],248:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35758,7 +47892,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],217:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35802,7 +47936,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],218:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35827,7 +47961,7 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":216}],219:[function(require,module,exports){
+},{"./isNode":248}],251:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35868,7 +48002,7 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],220:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35921,7 +48055,7 @@ var keyMirror = function(obj) {
 
 module.exports = keyMirror;
 
-},{"./invariant":214}],221:[function(require,module,exports){
+},{"./invariant":246}],253:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -35957,7 +48091,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],222:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36010,7 +48144,7 @@ function mapObject(object, callback, context) {
 
 module.exports = mapObject;
 
-},{}],223:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36044,7 +48178,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],224:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -36076,7 +48210,7 @@ function monitorCodeUse(eventName, data) {
 
 module.exports = monitorCodeUse;
 
-},{"./invariant":214}],225:[function(require,module,exports){
+},{"./invariant":246}],257:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36114,7 +48248,7 @@ function onlyChild(children) {
 
 module.exports = onlyChild;
 
-},{"./ReactElement":131,"./invariant":214}],226:[function(require,module,exports){
+},{"./ReactElement":163,"./invariant":246}],258:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36142,7 +48276,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":96}],227:[function(require,module,exports){
+},{"./ExecutionEnvironment":128}],259:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36170,7 +48304,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":226}],228:[function(require,module,exports){
+},{"./performance":258}],260:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36248,7 +48382,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":96}],229:[function(require,module,exports){
+},{"./ExecutionEnvironment":128}],261:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36292,7 +48426,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],230:[function(require,module,exports){
+},{}],262:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36330,7 +48464,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 
 module.exports = shouldUpdateReactComponent;
 
-},{}],231:[function(require,module,exports){
+},{}],263:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -36400,7 +48534,7 @@ function toArray(obj) {
 
 module.exports = toArray;
 
-},{"./invariant":214}],232:[function(require,module,exports){
+},{"./invariant":246}],264:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36581,7 +48715,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 
-},{"./ReactElement":131,"./ReactInstanceHandles":139,"./invariant":214}],233:[function(require,module,exports){
+},{"./ReactElement":163,"./ReactInstanceHandles":171,"./invariant":246}],265:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -36747,7 +48881,7 @@ function update(value, spec) {
 
 module.exports = update;
 
-},{"./Object.assign":102,"./invariant":214,"./keyOf":221}],234:[function(require,module,exports){
+},{"./Object.assign":134,"./invariant":246,"./keyOf":253}],266:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -36790,10 +48924,10 @@ if ("production" !== "development") {
 
 module.exports = warning;
 
-},{"./emptyFunction":195}],235:[function(require,module,exports){
+},{"./emptyFunction":227}],267:[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":104}],236:[function(require,module,exports){
+},{"./lib/React":136}],268:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -37876,7 +50010,7 @@ request.put = function(url, data, fn){
 
 module.exports = request;
 
-},{"emitter":237,"reduce":238}],237:[function(require,module,exports){
+},{"emitter":269,"reduce":270}],269:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -38042,7 +50176,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],238:[function(require,module,exports){
+},{}],270:[function(require,module,exports){
 
 /**
  * Reduce `arr` with `fn`.
@@ -38067,7 +50201,7 @@ module.exports = function(arr, fn, initial){
   
   return curr;
 };
-},{}],239:[function(require,module,exports){
+},{}],271:[function(require,module,exports){
 /*! VelocityJS.org (1.2.1). (C) 2014 Julian Shapiro. MIT @license: en.wikipedia.org/wiki/MIT_License */
 
 /*************************
@@ -41936,7 +54070,7 @@ return function (global, window, document, undefined) {
 /* The CSS spec mandates that the translateX/Y/Z transforms are %-relative to the element itself -- not its parent.
 Velocity, however, doesn't make this distinction. Thus, converting to or from the % unit with these subproperties
 will produce an inaccurate conversion value. The same issue exists with the cx/cy attributes of SVG circles and ellipses. */
-},{}],240:[function(require,module,exports){
+},{}],272:[function(require,module,exports){
 /**********************
    Velocity UI Pack
 **********************/
@@ -42691,7 +54825,398 @@ return function (global, window, document, undefined) {
     };
 }((window.jQuery || window.Zepto || window), window, document);
 }));
-},{}],241:[function(require,module,exports){
+},{}],273:[function(require,module,exports){
+/*!
+ * headroom.js v0.7.0 - Give your page some headroom. Hide your header until you need it
+ * Copyright (c) 2014 Nick Williams - http://wicky.nillia.ms/headroom.js
+ * License: MIT
+ */
+
+(function(window, document) {
+
+  'use strict';
+
+  /* exported features */
+  
+  var features = {
+    bind : !!(function(){}.bind),
+    classList : 'classList' in document.documentElement,
+    rAF : !!(window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame)
+  };
+  window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
+  
+  /**
+   * Handles debouncing of events via requestAnimationFrame
+   * @see http://www.html5rocks.com/en/tutorials/speed/animations/
+   * @param {Function} callback The callback to handle whichever event
+   */
+  function Debouncer (callback) {
+    this.callback = callback;
+    this.ticking = false;
+  }
+  Debouncer.prototype = {
+    constructor : Debouncer,
+  
+    /**
+     * dispatches the event to the supplied callback
+     * @private
+     */
+    update : function() {
+      this.callback && this.callback();
+      this.ticking = false;
+    },
+  
+    /**
+     * ensures events don't get stacked
+     * @private
+     */
+    requestTick : function() {
+      if(!this.ticking) {
+        requestAnimationFrame(this.rafCallback || (this.rafCallback = this.update.bind(this)));
+        this.ticking = true;
+      }
+    },
+  
+    /**
+     * Attach this as the event listeners
+     */
+    handleEvent : function() {
+      this.requestTick();
+    }
+  };
+  /**
+   * Check if object is part of the DOM
+   * @constructor
+   * @param {Object} obj element to check
+   */
+  function isDOMElement(obj) {
+    return obj && typeof window !== 'undefined' && (obj === window || obj.nodeType);
+  }
+  
+  /**
+   * Helper function for extending objects
+   */
+  function extend (object /*, objectN ... */) {
+    if(arguments.length <= 0) {
+      throw new Error('Missing arguments in extend function');
+    }
+  
+    var result = object || {},
+        key,
+        i;
+  
+    for (i = 1; i < arguments.length; i++) {
+      var replacement = arguments[i] || {};
+  
+      for (key in replacement) {
+        // Recurse into object except if the object is a DOM element
+        if(typeof result[key] === 'object' && ! isDOMElement(result[key])) {
+          result[key] = extend(result[key], replacement[key]);
+        }
+        else {
+          result[key] = result[key] || replacement[key];
+        }
+      }
+    }
+  
+    return result;
+  }
+  
+  /**
+   * Helper function for normalizing tolerance option to object format
+   */
+  function normalizeTolerance (t) {
+    return t === Object(t) ? t : { down : t, up : t };
+  }
+  
+  /**
+   * UI enhancement for fixed headers.
+   * Hides header when scrolling down
+   * Shows header when scrolling up
+   * @constructor
+   * @param {DOMElement} elem the header element
+   * @param {Object} options options for the widget
+   */
+  function Headroom (elem, options) {
+    options = extend(options, Headroom.options);
+  
+    this.lastKnownScrollY = 0;
+    this.elem             = elem;
+    this.debouncer        = new Debouncer(this.update.bind(this));
+    this.tolerance        = normalizeTolerance(options.tolerance);
+    this.classes          = options.classes;
+    this.offset           = options.offset;
+    this.scroller         = options.scroller;
+    this.initialised      = false;
+    this.onPin            = options.onPin;
+    this.onUnpin          = options.onUnpin;
+    this.onTop            = options.onTop;
+    this.onNotTop         = options.onNotTop;
+  }
+  Headroom.prototype = {
+    constructor : Headroom,
+  
+    /**
+     * Initialises the widget
+     */
+    init : function() {
+      if(!Headroom.cutsTheMustard) {
+        return;
+      }
+  
+      this.elem.classList.add(this.classes.initial);
+  
+      // defer event registration to handle browser 
+      // potentially restoring previous scroll position
+      setTimeout(this.attachEvent.bind(this), 100);
+  
+      return this;
+    },
+  
+    /**
+     * Unattaches events and removes any classes that were added
+     */
+    destroy : function() {
+      var classes = this.classes;
+  
+      this.initialised = false;
+      this.elem.classList.remove(classes.unpinned, classes.pinned, classes.top, classes.initial);
+      this.scroller.removeEventListener('scroll', this.debouncer, false);
+    },
+  
+    /**
+     * Attaches the scroll event
+     * @private
+     */
+    attachEvent : function() {
+      if(!this.initialised){
+        this.lastKnownScrollY = this.getScrollY();
+        this.initialised = true;
+        this.scroller.addEventListener('scroll', this.debouncer, false);
+  
+        this.debouncer.handleEvent();
+      }
+    },
+    
+    /**
+     * Unpins the header if it's currently pinned
+     */
+    unpin : function() {
+      var classList = this.elem.classList,
+        classes = this.classes;
+      
+      if(classList.contains(classes.pinned) || !classList.contains(classes.unpinned)) {
+        classList.add(classes.unpinned);
+        classList.remove(classes.pinned);
+        this.onUnpin && this.onUnpin.call(this);
+      }
+    },
+  
+    /**
+     * Pins the header if it's currently unpinned
+     */
+    pin : function() {
+      var classList = this.elem.classList,
+        classes = this.classes;
+      
+      if(classList.contains(classes.unpinned)) {
+        classList.remove(classes.unpinned);
+        classList.add(classes.pinned);
+        this.onPin && this.onPin.call(this);
+      }
+    },
+  
+    /**
+     * Handles the top states
+     */
+    top : function() {
+      var classList = this.elem.classList,
+        classes = this.classes;
+      
+      if(!classList.contains(classes.top)) {
+        classList.add(classes.top);
+        classList.remove(classes.notTop);
+        this.onTop && this.onTop.call(this);
+      }
+    },
+  
+    /**
+     * Handles the not top state
+     */
+    notTop : function() {
+      var classList = this.elem.classList,
+        classes = this.classes;
+      
+      if(!classList.contains(classes.notTop)) {
+        classList.add(classes.notTop);
+        classList.remove(classes.top);
+        this.onNotTop && this.onNotTop.call(this);
+      }
+    },
+  
+    /**
+     * Gets the Y scroll position
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/Window.scrollY
+     * @return {Number} pixels the page has scrolled along the Y-axis
+     */
+    getScrollY : function() {
+      return (this.scroller.pageYOffset !== undefined)
+        ? this.scroller.pageYOffset
+        : (this.scroller.scrollTop !== undefined)
+          ? this.scroller.scrollTop
+          : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+    },
+  
+    /**
+     * Gets the height of the viewport
+     * @see http://andylangton.co.uk/blog/development/get-viewport-size-width-and-height-javascript
+     * @return {int} the height of the viewport in pixels
+     */
+    getViewportHeight : function () {
+      return window.innerHeight
+        || document.documentElement.clientHeight
+        || document.body.clientHeight;
+    },
+  
+    /**
+     * Gets the height of the document
+     * @see http://james.padolsey.com/javascript/get-document-height-cross-browser/
+     * @return {int} the height of the document in pixels
+     */
+    getDocumentHeight : function () {
+      var body = document.body,
+        documentElement = document.documentElement;
+    
+      return Math.max(
+        body.scrollHeight, documentElement.scrollHeight,
+        body.offsetHeight, documentElement.offsetHeight,
+        body.clientHeight, documentElement.clientHeight
+      );
+    },
+  
+    /**
+     * Gets the height of the DOM element
+     * @param  {Object}  elm the element to calculate the height of which
+     * @return {int}     the height of the element in pixels
+     */
+    getElementHeight : function (elm) {
+      return Math.max(
+        elm.scrollHeight,
+        elm.offsetHeight,
+        elm.clientHeight
+      );
+    },
+  
+    /**
+     * Gets the height of the scroller element
+     * @return {int} the height of the scroller element in pixels
+     */
+    getScrollerHeight : function () {
+      return (this.scroller === window || this.scroller === document.body)
+        ? this.getDocumentHeight()
+        : this.getElementHeight(this.scroller);
+    },
+  
+    /**
+     * determines if the scroll position is outside of document boundaries
+     * @param  {int}  currentScrollY the current y scroll position
+     * @return {bool} true if out of bounds, false otherwise
+     */
+    isOutOfBounds : function (currentScrollY) {
+      var pastTop  = currentScrollY < 0,
+        pastBottom = currentScrollY + this.getViewportHeight() > this.getScrollerHeight();
+      
+      return pastTop || pastBottom;
+    },
+  
+    /**
+     * determines if the tolerance has been exceeded
+     * @param  {int} currentScrollY the current scroll y position
+     * @return {bool} true if tolerance exceeded, false otherwise
+     */
+    toleranceExceeded : function (currentScrollY, direction) {
+      return Math.abs(currentScrollY-this.lastKnownScrollY) >= this.tolerance[direction];
+    },
+  
+    /**
+     * determine if it is appropriate to unpin
+     * @param  {int} currentScrollY the current y scroll position
+     * @param  {bool} toleranceExceeded has the tolerance been exceeded?
+     * @return {bool} true if should unpin, false otherwise
+     */
+    shouldUnpin : function (currentScrollY, toleranceExceeded) {
+      var scrollingDown = currentScrollY > this.lastKnownScrollY,
+        pastOffset = currentScrollY >= this.offset;
+  
+      return scrollingDown && pastOffset && toleranceExceeded;
+    },
+  
+    /**
+     * determine if it is appropriate to pin
+     * @param  {int} currentScrollY the current y scroll position
+     * @param  {bool} toleranceExceeded has the tolerance been exceeded?
+     * @return {bool} true if should pin, false otherwise
+     */
+    shouldPin : function (currentScrollY, toleranceExceeded) {
+      var scrollingUp  = currentScrollY < this.lastKnownScrollY,
+        pastOffset = currentScrollY <= this.offset;
+  
+      return (scrollingUp && toleranceExceeded) || pastOffset;
+    },
+  
+    /**
+     * Handles updating the state of the widget
+     */
+    update : function() {
+      var currentScrollY  = this.getScrollY(),
+        scrollDirection = currentScrollY > this.lastKnownScrollY ? 'down' : 'up',
+        toleranceExceeded = this.toleranceExceeded(currentScrollY, scrollDirection);
+  
+      if(this.isOutOfBounds(currentScrollY)) { // Ignore bouncy scrolling in OSX
+        return;
+      }
+  
+      if (currentScrollY <= this.offset ) {
+        this.top();
+      } else {
+        this.notTop();
+      }
+  
+      if(this.shouldUnpin(currentScrollY, toleranceExceeded)) {
+        this.unpin();
+      }
+      else if(this.shouldPin(currentScrollY, toleranceExceeded)) {
+        this.pin();
+      }
+  
+      this.lastKnownScrollY = currentScrollY;
+    }
+  };
+  /**
+   * Default options
+   * @type {Object}
+   */
+  Headroom.options = {
+    tolerance : {
+      up : 0,
+      down : 0
+    },
+    offset : 0,
+    scroller: window,
+    classes : {
+      pinned : 'headroom--pinned',
+      unpinned : 'headroom--unpinned',
+      top : 'headroom--top',
+      notTop : 'headroom--not-top',
+      initial : 'headroom'
+    }
+  };
+  Headroom.cutsTheMustard = typeof features !== 'undefined' && features.rAF && features.bind && features.classList;
+
+  window.Headroom = Headroom;
+
+}(window, document));
+},{}],274:[function(require,module,exports){
 /*! matchMedia() polyfill addListener/removeListener extension. Author & copyright (c) 2012: Scott Jehl. Dual MIT/BSD license */
 (function(){
     // Bail out for browsers that have addListener support
@@ -42768,7 +55293,7 @@ return function (global, window, document, undefined) {
     };
 }());
 
-},{}],242:[function(require,module,exports){
+},{}],275:[function(require,module,exports){
 /*! matchMedia() polyfill - Test a CSS media type/query in JS. Authors & copyright (c) 2012: Scott Jehl, Paul Irish, Nicholas Zakas, David Knight. Dual MIT/BSD license */
 
 window.matchMedia || (window.matchMedia = function() {
