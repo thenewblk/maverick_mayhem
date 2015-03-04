@@ -42,6 +42,17 @@ var App = React.createClass({displayName: "App",
 		console.log('closeNav');
 		this.setState({nav_show: false});
 	},
+
+	openSocial: function(){
+		console.log('openSocial');
+		this.setState({social_show: true});
+	},
+
+	closeSocial: function(){
+		console.log('closeSocial');
+		this.setState({social_show: false});
+	},
+
 	componentDidMount: function(){
 	    if(!('backgroundBlendMode' in document.body.style)) {
 	        // No support for background-blend-mode
@@ -76,6 +87,13 @@ var App = React.createClass({displayName: "App",
 		} else if (self.state.nav_show == false) {
 			nav = "App"
 		}
+
+		var social;
+	    if (self.state.social_show) {
+	      social = "social_overlay up";
+	    } else {
+	      social = "social_overlay"
+	    }
 
 		return (
 		  React.createElement("div", {className: nav}, 
@@ -130,8 +148,47 @@ var App = React.createClass({displayName: "App",
 		        )
 		    ), 
 		    React.createElement("div", {className: "main_content"}, 
-		      React.createElement(RouteHandler, {key: this.getHandlerKey()})
+		      React.createElement(RouteHandler, {key: this.getHandlerKey(), open_social: self.openSocial, close_social: self.closeSocial})
 		    ), 
+
+			React.createElement("div", {className: social}, 
+				React.createElement("div", {className: "social_wrapper"}, 
+					React.createElement("div", {className: "social_content"}, 
+						React.createElement("div", {className: "social_content_inner"}, 
+						  React.createElement("img", {className: "social_mayhem", src: "/img/icon--maverick-mayhem.svg"}), 
+						  React.createElement("p", null, "We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year."), 
+						  React.createElement("p", {className: "stayintouch"}, "Stay in Touch with the Mavericks"), 
+						  React.createElement("div", {className: "social_icons"}, 
+						    React.createElement("a", {href: "#", className: "link"}, 
+						      React.createElement(InlineSVG, {src: "/img/icon--facebook.svg", uniquifyIDs: false})
+						    ), 
+						    React.createElement("a", {href: "#", className: "link"}, 
+						      React.createElement(InlineSVG, {src: "/img/icon--twitter.svg", uniquifyIDs: false})
+						    ), 
+						    React.createElement("a", {href: "#", className: "link"}, 
+						      React.createElement(InlineSVG, {src: "/img/icon--instagram.svg", uniquifyIDs: false})
+
+						    ), 
+						    React.createElement("a", {href: "#", className: "link"}, 
+						        React.createElement(InlineSVG, {src: "/img/icon--youtube.svg", uniquifyIDs: false})
+						    )
+						  ), 
+						  React.createElement("form", {action: "http://universityofnebraskaomahaathletics.createsend.com/t/t/s/krihty/", method: "post"}, 
+						    React.createElement("p", null, 
+						        React.createElement("input", {id: "fieldEmail", name: "cm-krihty-krihty", placeholder: "Join our Email List", type: "email", required: true}), 
+						        React.createElement("button", {type: "submit"}, "Submit")
+						    )
+						  )
+						), 
+						React.createElement("img", {className: "scribble_bkd", src: "/img/scribble_bkgrd_scale.svg"}), 
+						React.createElement("span", {onClick: self.closeSocial}, 
+							React.createElement(InlineSVG, {src: "/img/icon--close.svg", uniquifyIDs: false})
+						)
+					)
+				)
+			), 
+
+
 		    React.createElement("footer", null, 
 		        React.createElement("div", {className: "stripe"}, 
 		          React.createElement("img", {className: "icon--mav-mayhem", src: "/img/icon--maverick-mayhem.svg", alt: "#maverickmayhem"}), 
@@ -4530,23 +4587,17 @@ var Main = React.createClass({displayName: "Main",
     this.setState({playVideo: false});
   },
 
-  openSocial: function(){
-    console.log('openSocial');
-    this.setState({social_show: true});
-  },
-
-  closeSocial: function(){
-    console.log('closeSocial');
-    this.setState({social_show: false});
-  },
-
   scrollToPhotos: function() {
-    this.openSocial();
+    this.props.open_social();
     Velocity(document.getElementById('instagrams'), 
         "scroll", {
           duration: 1000,
           easing: "ease-in-out"
         });
+  },
+
+  alertTest: function(){
+    this.props.send_message("fuck off");
   },
 
   componentDidMount: function () {
@@ -4560,12 +4611,6 @@ var Main = React.createClass({displayName: "Main",
       bkd_video.poster="/img/SportsCombineStill.jpg";
       bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4"
 
-    var social;
-    if (self.state.social_show) {
-      social = "social_overlay up";
-    } else {
-      social = "social_overlay"
-    }
     if (self.state.loaded == true) {
       return (
         React.createElement("div", null, 
@@ -4576,7 +4621,8 @@ var Main = React.createClass({displayName: "Main",
                     React.createElement("div", {className: "hero__content"}, 
                       React.createElement("img", {src: "img/hashtag_MM_HOME.svg", alt: ""}), 
                       React.createElement("p", null, "This site belongs to all Mavericks – fans, players, campus, and community. Tag your photos and posts and join the conversation."), 
-                      React.createElement("a", {className: "btn--show-pride", onClick: self.scrollToPhotos}, "Make Some Noise"), " ")
+                      React.createElement("a", {className: "btn--show-pride", onClick: self.scrollToPhotos}, "Make Some Noise")
+                    )
                   )
                 ), 
 
@@ -4600,46 +4646,7 @@ var Main = React.createClass({displayName: "Main",
               )
             ), 
 
-            React.createElement(CombinedList, null), 
-
-
-          React.createElement("div", {className: social}, 
-            React.createElement("div", {className: "social_wrapper"}, 
-              React.createElement("div", {className: "social_content"}, 
-                React.createElement("div", {className: "social_content_inner"}, 
-                  React.createElement("img", {className: "social_mayhem", src: "/img/icon--maverick-mayhem.svg"}), 
-                  React.createElement("p", null, "We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year."), 
-                  React.createElement("p", {className: "stayintouch"}, "Stay in Touch with the Mavericks"), 
-                  React.createElement("div", {className: "social_icons"}, 
-                    React.createElement("a", {href: "#", className: "link"}, 
-                      React.createElement(InlineSVG, {src: "/img/icon--facebook.svg", uniquifyIDs: false})
-                    ), 
-                    React.createElement("a", {href: "#", className: "link"}, 
-                      React.createElement(InlineSVG, {src: "/img/icon--twitter.svg", uniquifyIDs: false})
-                    ), 
-                    React.createElement("a", {href: "#", className: "link"}, 
-                      React.createElement(InlineSVG, {src: "/img/icon--instagram.svg", uniquifyIDs: false})
-
-                    ), 
-                    React.createElement("a", {href: "#", className: "link"}, 
-                        React.createElement(InlineSVG, {src: "/img/icon--youtube.svg", uniquifyIDs: false})
-                    )
-                  ), 
-                  React.createElement("form", {action: "http://universityofnebraskaomahaathletics.createsend.com/t/t/s/krihty/", method: "post"}, 
-                    React.createElement("p", null, 
-                        React.createElement("input", {id: "fieldEmail", name: "cm-krihty-krihty", placeholder: "Join our Email List", type: "email", required: true}), 
-                        React.createElement("button", {type: "submit"}, "Submit")
-                    )
-                  )
-                ), 
-                React.createElement("img", {className: "scribble_bkd", src: "/img/scribble_bkgrd_scale.svg"}), 
-                React.createElement("span", {onClick: self.closeSocial}, 
-                  React.createElement(InlineSVG, {src: "/img/icon--close.svg", uniquifyIDs: false})
-                )
-              )
-            )
-          )
-
+            React.createElement(CombinedList, null)
         )
       )
     } else {

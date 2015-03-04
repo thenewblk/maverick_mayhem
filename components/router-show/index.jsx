@@ -36,6 +36,16 @@ var App = React.createClass({
 		this.setState({nav_show: false});
 	},
 
+	openSocial: function(){
+		console.log('openSocial');
+		this.setState({social_show: true});
+	},
+
+	closeSocial: function(){
+		console.log('closeSocial');
+		this.setState({social_show: false});
+	},
+
 	componentDidMount: function(){
 	    if(!('backgroundBlendMode' in document.body.style)) {
 	        // No support for background-blend-mode
@@ -63,6 +73,13 @@ var App = React.createClass({
 		} else {
 			nav = "App"
 		}
+
+		var social;
+	    if (self.state.social_show) {
+	      social = "social_overlay up";
+	    } else {
+	      social = "social_overlay"
+	    }
 		
 		return (
 		  <div className={nav}>
@@ -106,8 +123,46 @@ var App = React.createClass({
 		        </nav>
 		    </header>
 		    <div className="main_content">
-		      <RouteHandler key={this.getHandlerKey()} />
+		      <RouteHandler key={this.getHandlerKey()} open_social={self.openSocial} close_social={self.closeSocial} />
 		    </div>
+
+			<div className={social}>
+				<div className="social_wrapper">
+					<div className="social_content">
+						<div className="social_content_inner">
+						  <img className="social_mayhem" src="/img/icon--maverick-mayhem.svg" />
+						  <p>We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year.</p>
+						  <p className="stayintouch">Stay in Touch with the Mavericks</p>
+						  <div className="social_icons">
+						    <a href="#" className="link">
+						      <InlineSVG src="/img/icon--facebook.svg" uniquifyIDs={false}></InlineSVG>
+						    </a>
+						    <a href="#" className="link">
+						      <InlineSVG src="/img/icon--twitter.svg" uniquifyIDs={false}></InlineSVG>
+						    </a>
+						    <a href="#" className="link">
+						      <InlineSVG src="/img/icon--instagram.svg" uniquifyIDs={false}></InlineSVG>
+
+						    </a>
+						    <a href="#" className="link">
+						        <InlineSVG src="/img/icon--youtube.svg" uniquifyIDs={false}></InlineSVG>
+						    </a>
+						  </div>
+						  <form action="http://universityofnebraskaomahaathletics.createsend.com/t/t/s/krihty/" method="post">
+						    <p>
+						        <input id="fieldEmail" name="cm-krihty-krihty" placeholder="Join our Email List" type="email" required />
+						        <button type="submit">Submit</button>
+						    </p>
+						  </form>
+						</div>
+						<img className="scribble_bkd" src="/img/scribble_bkgrd_scale.svg" />
+						<span onClick={self.closeSocial}>
+							<InlineSVG src="/img/icon--close.svg" uniquifyIDs={false}></InlineSVG>
+						</span>
+					</div>
+				</div>
+			</div>
+
 
 
 		    <footer>

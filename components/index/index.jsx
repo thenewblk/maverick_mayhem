@@ -378,23 +378,17 @@ var Main = React.createClass({
     this.setState({playVideo: false});
   },
 
-  openSocial: function(){
-    console.log('openSocial');
-    this.setState({social_show: true});
-  },
-
-  closeSocial: function(){
-    console.log('closeSocial');
-    this.setState({social_show: false});
-  },
-
   scrollToPhotos: function() {
-    this.openSocial();
+    this.props.open_social();
     Velocity(document.getElementById('instagrams'), 
         "scroll", {
           duration: 1000,
           easing: "ease-in-out"
         });
+  },
+
+  alertTest: function(){
+    this.props.send_message("fuck off");
   },
 
   componentDidMount: function () {
@@ -408,12 +402,6 @@ var Main = React.createClass({
       bkd_video.poster="/img/SportsCombineStill.jpg";
       bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_all-sports.mp4"
 
-    var social;
-    if (self.state.social_show) {
-      social = "social_overlay up";
-    } else {
-      social = "social_overlay"
-    }
     if (self.state.loaded == true) {
       return (
         <div>
@@ -424,7 +412,8 @@ var Main = React.createClass({
                     <div className="hero__content">
                       <img src="img/hashtag_MM_HOME.svg" alt="" />
                       <p>This site belongs to all Mavericks – fans, players, campus, and community. Tag your photos and posts and join the conversation.</p>
-                      <a className="btn--show-pride" onClick={self.scrollToPhotos} >Make Some Noise</a> </div>
+                      <a className="btn--show-pride" onClick={self.scrollToPhotos} >Make Some Noise</a>
+                    </div>
                   </div>
                 </div>
 
@@ -449,45 +438,6 @@ var Main = React.createClass({
             </div>
 
             <CombinedList />
-
-
-          <div className={social}>
-            <div className="social_wrapper">
-              <div className="social_content">
-                <div className="social_content_inner">
-                  <img className="social_mayhem" src="/img/icon--maverick-mayhem.svg" />
-                  <p>We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year.</p>
-                  <p className="stayintouch">Stay in Touch with the Mavericks</p>
-                  <div className="social_icons">
-                    <a href="#" className="link">
-                      <InlineSVG src="/img/icon--facebook.svg" uniquifyIDs={false}></InlineSVG>
-                    </a>
-                    <a href="#" className="link">
-                      <InlineSVG src="/img/icon--twitter.svg" uniquifyIDs={false}></InlineSVG>
-                    </a>
-                    <a href="#" className="link">
-                      <InlineSVG src="/img/icon--instagram.svg" uniquifyIDs={false}></InlineSVG>
-
-                    </a>
-                    <a href="#" className="link">
-                        <InlineSVG src="/img/icon--youtube.svg" uniquifyIDs={false}></InlineSVG>
-                    </a>
-                  </div>
-                  <form action="http://universityofnebraskaomahaathletics.createsend.com/t/t/s/krihty/" method="post">
-                    <p>
-                        <input id="fieldEmail" name="cm-krihty-krihty" placeholder="Join our Email List" type="email" required />
-                        <button type="submit">Submit</button>
-                    </p>
-                  </form>
-                </div>
-                <img className="scribble_bkd" src="/img/scribble_bkgrd_scale.svg" />
-                <span onClick={self.closeSocial}>
-                  <InlineSVG src="/img/icon--close.svg" uniquifyIDs={false}></InlineSVG>
-                </span>
-              </div>
-            </div>
-          </div>
-
         </div>
       )
     } else {
