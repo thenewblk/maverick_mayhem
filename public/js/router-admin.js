@@ -105,7 +105,8 @@ var App = React.createClass({displayName: "App",
 		        React.createElement("nav", {className: "nav--secondary", role: "navigation"}, 
 		          React.createElement("div", {className: "menu"}, 
 		            React.createElement("ul", {className: "menu--secondary menu__list"}, 
-		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "our-house", onClick: self.closeNav}, "Our House"))
+		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "our-house", onClick: self.closeNav}, "Our House")), 
+		              React.createElement("li", {className: "menu__list--item"}, React.createElement("a", {href: "javascript:void(0);", onClick: self.openSocial}, "Join"))
 		            )
 		          )
 		        ), 
@@ -142,7 +143,8 @@ var App = React.createClass({displayName: "App",
 		            React.createElement("ul", {className: "menu__list"}, 
 		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "page", params: {slug: "hockey"}, onClick: self.closeNav}, "Hockey")), 
 		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "page", params: {slug: "basketball"}, onClick: self.closeNav}, "Men`s Basketball")), 
-		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "our-house", onClick: self.closeNav}, "Our House"))
+		              React.createElement("li", {className: "menu__list--item"}, React.createElement(Link, {to: "our-house", onClick: self.closeNav}, "Our House")), 
+		              React.createElement("li", {className: "menu__list--item"}, React.createElement("a", {href: "javascript:void(0);", onClick: self.openSocial}, "Join"))
 		            )
 		          )
 		        )
@@ -159,17 +161,17 @@ var App = React.createClass({displayName: "App",
 						  React.createElement("p", null, "We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year."), 
 						  React.createElement("p", {className: "stayintouch"}, "Stay in Touch with the Mavericks"), 
 						  React.createElement("div", {className: "social_icons"}, 
-						    React.createElement("a", {href: "#", className: "link"}, 
+						    React.createElement("a", {href: "https://www.facebook.com/omavs", className: "link", target: "_blank"}, 
 						      React.createElement(InlineSVG, {src: "/img/icon--facebook.svg", uniquifyIDs: false})
 						    ), 
-						    React.createElement("a", {href: "#", className: "link"}, 
+						    React.createElement("a", {href: "https://twitter.com/omavs", className: "link", target: "_blank"}, 
 						      React.createElement(InlineSVG, {src: "/img/icon--twitter.svg", uniquifyIDs: false})
 						    ), 
-						    React.createElement("a", {href: "#", className: "link"}, 
+						    React.createElement("a", {href: "https://instagram.com/omavs/", className: "link", target: "_blank"}, 
 						      React.createElement(InlineSVG, {src: "/img/icon--instagram.svg", uniquifyIDs: false})
 
 						    ), 
-						    React.createElement("a", {href: "#", className: "link"}, 
+						    React.createElement("a", {href: "https://www.youtube.com/channel/UCgeWMNjBgNPQEqzJowm89CQ", className: "link", target: "_blank"}, 
 						        React.createElement(InlineSVG, {src: "/img/icon--youtube.svg", uniquifyIDs: false})
 						    )
 						  ), 

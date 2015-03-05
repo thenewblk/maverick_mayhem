@@ -481,8 +481,18 @@ html, body {
 
 					svg {
 						width: 25px;
-						g { 
+						transition: 0.15s ease-out;
+						g, path { 
+							transition: 0.15s ease-out;
 							fill: white; 
+						}
+					}
+
+					&:hover {
+						svg {
+							g, path { 
+								fill: $brand_red; 
+							}
 						}
 					}
 				}
@@ -503,7 +513,7 @@ html, body {
 					-webkit-appearance: none;
 					border: none;
 					background: $brand_red;
-					line-height: 30px;
+					line-height: 31px;
 					padding: 3px 15px;
 					outline: none;
 					text-transform: uppercase;

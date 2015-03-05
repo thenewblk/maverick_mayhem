@@ -92,6 +92,7 @@ var App = React.createClass({
 		          <div className="menu">
 		            <ul className="menu--secondary menu__list">
 		              <li className="menu__list--item"><Link to="our-house" onClick={self.closeNav}>Our House</Link></li>
+		              <li className="menu__list--item"><a href="javascript:void(0);" onClick={self.openSocial}>Join</a></li>
 		            </ul>
 		          </div>
 		        </nav>
@@ -118,6 +119,7 @@ var App = React.createClass({
 		              <li className="menu__list--item"><Link to="page" params={{slug: "hockey"}} onClick={self.closeNav}>Hockey</Link></li>
 		              <li className="menu__list--item"><Link to="page" params={{slug: "basketball"}} onClick={self.closeNav}>Mens Basketball</Link></li>
 		              <li className="menu__list--item"><Link to="our-house" onClick={self.closeNav}>Our House</Link></li>
+		              <li className="menu__list--item"><a href="javascript:void(0);" onClick={self.openSocial}>Join</a></li>
 		            </ul>
 		          </div>
 		        </nav>
@@ -134,17 +136,17 @@ var App = React.createClass({
 						  <p>We'll periodically select great photos and posts to spotlight. We'll also be giving out special prize packages to fans. Stay tuned for specific promotions throughout the year.</p>
 						  <p className="stayintouch">Stay in Touch with the Mavericks</p>
 						  <div className="social_icons">
-						    <a href="#" className="link">
+						    <a href="https://www.facebook.com/omavs" className="link" target="_blank">
 						      <InlineSVG src="/img/icon--facebook.svg" uniquifyIDs={false}></InlineSVG>
 						    </a>
-						    <a href="#" className="link">
+						    <a href="https://twitter.com/omavs" className="link" target="_blank">
 						      <InlineSVG src="/img/icon--twitter.svg" uniquifyIDs={false}></InlineSVG>
 						    </a>
-						    <a href="#" className="link">
+						    <a href="https://instagram.com/omavs/" className="link" target="_blank">
 						      <InlineSVG src="/img/icon--instagram.svg" uniquifyIDs={false}></InlineSVG>
 
 						    </a>
-						    <a href="#" className="link">
+						    <a href="https://www.youtube.com/channel/UCgeWMNjBgNPQEqzJowm89CQ" className="link" target="_blank">
 						        <InlineSVG src="/img/icon--youtube.svg" uniquifyIDs={false}></InlineSVG>
 						    </a>
 						  </div>
@@ -182,7 +184,7 @@ var App = React.createClass({
 
 var routes = (
   <Route handler={App} path="/">
-    <DefaultRoute handler={Home} open_social={App.openSocial} />
+    <DefaultRoute handler={Home} />
     <Route name="our-house" path="/our-house" handler={Arena} />
 	<Route name="page" path="/:slug" handler={Page} />
   </Route>
