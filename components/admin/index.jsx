@@ -235,13 +235,16 @@ var Page = React.createClass({
 
     if (object._id) {
       for ( i in  current_news) {
-        if ( current_news[i] == object._id ){
+        if ( current_news[i]._id == object._id ){
           found_new = i;
         }
       }
-      current_news.splice(found_new, 1);
 
-      self.setState({news: current_news });      
+      if (found_new){
+        current_news.splice(found_new, 1);
+
+        self.setState({news: current_news });
+      }      
     }
   },
 
@@ -251,15 +254,17 @@ var Page = React.createClass({
         current_news = self.state.news,
         found_new;
 
-    if (object._id) {
+    if (object.identifier) {
       for ( i in  current_news) {
-        if ( current_news[i].identifier == object._id ){
+        if ( current_news[i].identifier == object.identifier ){
           found_new = i;
         }
       }
-      current_news.splice(found_new, 1);
+      if (found_new){
+        current_news.splice(found_new, 1);
 
-      self.setState({news: current_news });      
+        self.setState({news: current_news });
+      }         
     }
   },
 

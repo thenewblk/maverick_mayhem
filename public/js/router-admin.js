@@ -458,13 +458,16 @@ var Page = React.createClass({displayName: "Page",
 
     if (object._id) {
       for ( i in  current_news) {
-        if ( current_news[i] == object._id ){
+        if ( current_news[i]._id == object._id ){
           found_new = i;
         }
       }
-      current_news.splice(found_new, 1);
 
-      self.setState({news: current_news });      
+      if (found_new){
+        current_news.splice(found_new, 1);
+
+        self.setState({news: current_news });
+      }      
     }
   },
 
@@ -474,15 +477,17 @@ var Page = React.createClass({displayName: "Page",
         current_news = self.state.news,
         found_new;
 
-    if (object._id) {
+    if (object.identifier) {
       for ( i in  current_news) {
-        if ( current_news[i].identifier == object._id ){
+        if ( current_news[i].identifier == object.identifier ){
           found_new = i;
         }
       }
-      current_news.splice(found_new, 1);
+      if (found_new){
+        current_news.splice(found_new, 1);
 
-      self.setState({news: current_news });      
+        self.setState({news: current_news });
+      }         
     }
   },
 
@@ -1419,7 +1424,7 @@ var News = React.createClass({displayName: "News",
 
 
   handleRemoveNew: function(){
-    this.props.remove_new_news({_id: 4});
+    this.props.remove_new_news({ identifier: this.state.identifier});
   },
 
   submitContent: function(){
@@ -1504,14 +1509,9 @@ var News = React.createClass({displayName: "News",
       )
     } else {
       return (
-        React.createElement("div", {className: "matchup"}, 
-          React.createElement("h3", null, name), 
-          React.createElement("ul", null, 
-            React.createElement("li", null, "Title: ", title), 
-            React.createElement("li", null, "Link: ", link), 
-            React.createElement("li", null, "Image: ", image), 
-            React.createElement("li", null, "Credit: ", credit)
-          ), 
+        React.createElement("div", {className: "matchup show"}, 
+          React.createElement("h3", null, title), 
+
           React.createElement("div", {className: "edit_buttons"}, 
             React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "edit"), 
             React.createElement("a", {className: "edit_button", onClick: self.handleRemove}, "remove")
@@ -2079,8 +2079,165 @@ var Page = React.createClass({displayName: "Page",
 module.exports = Page; 
 
 },{"../dropzone.js":12,"./news.jsx":8,"./photo.jsx":9,"./photos_uploader.jsx":10,"react":267,"react-inlinesvg":44,"react-router":72,"superagent":268,"util":24}],8:[function(require,module,exports){
-arguments[4][4][0].apply(exports,arguments)
-},{"dup":4,"react":267,"superagent":268,"util":24}],9:[function(require,module,exports){
+var React = require('react'),
+    request = require('superagent'),
+    util = require('util');
+
+var News = React.createClass({displayName: "News",
+  getInitialState: function() {
+    return { title: '', status: 'show', link: '', image: '', credit: '' };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var tmp_news = {};
+    tmp_news.identifier = self.props.identifier,
+    tmp_news.title = self.props.title,
+    tmp_news.credit = self.props.credit,
+    tmp_news.link = self.props.link,
+    tmp_news.image = self.props.image,
+    tmp_news._id = self.props._id,
+    tmp_news.status = self.props.status;
+    
+    self.setState(tmp_news);
+
+  },
+
+  componentDidMount: function(){
+
+  },
+
+  handleTitleChange: function(event) {
+    this.setState({title: event.target.value});
+  },
+
+  handleLinkChange: function(event) {
+    this.setState({link: event.target.value});
+  },
+
+  handleImageChange: function(event) {
+    this.setState({image: event.target.value});
+  },
+
+  handleCreditChange: function(event) {
+    this.setState({credit: event.target.value});
+  },
+
+  handleEdit: function(){
+    this.setState({status: "edit"})
+  },
+
+  handleRemove: function(){
+    this.props.remove_news({_id: this.state._id});
+  },
+
+
+  handleRemoveNew: function(){
+    this.props.remove_new_news({_id: 4});
+  },
+
+  submitContent: function(){
+    var self = this;
+    request
+      .post('/api/news/new')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          console.log('new news: '+res.text);
+          var new_game = JSON.parse(res.text);
+          new_game.identifier = self.state.identifier;
+          new_game.status = 'show';
+          self.props.new_news(new_game);
+          self.setState(new_game);
+        }
+      }.bind(self));
+  },
+
+  editContent: function(){
+    var self = this;
+
+    request
+      .post('/api/news/'+self.state._id+'/edit')
+      .send(self.state)
+      .end(function(res) {
+        console.log(res)
+        if (res.text) {
+          console.log('new news: '+res.text);
+          var new_game = JSON.parse(res.text);
+          new_game.identifier = self.state.identifier;
+          new_game.status = 'show';
+          self.setState(new_game);
+        }
+      }.bind(self));
+  },
+
+  cancelEdit: function() {
+    this.setState({status: 'show'});
+  },
+
+  render: function () {
+    var self = this;
+
+    var title = self.state.title,
+        link = self.state.link,
+        image = self.state.image,
+        credit = self.state.credit,
+        status = self.state.status;
+
+
+    if (status == 'new') {
+      return (
+        React.createElement("div", {className: "matchup"}, 
+          React.createElement("h3", null, "New News"), 
+          React.createElement("h3", null, React.createElement("input", {type: "text", value: title, onChange: this.handleTitleChange, placeholder: "Title"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: link, onChange: this.handleLinkChange, placeholder: "Link"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: image, onChange: this.handleImageChange, placeholder: "Image"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: credit, onChange: this.handleCreditChange, placeholder: "Credit"})), 
+          
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button red", onClick: self.submitContent}, "save"), 
+            React.createElement("a", {className: "edit_button", onClick: self.handleRemoveNew}, "cancel")
+          )
+        )
+      )
+    } else if (status == 'edit') {
+      return (
+        React.createElement("div", {className: "matchup"}, 
+          React.createElement("h3", null, "Edit News"), 
+          React.createElement("h3", null, React.createElement("input", {type: "text", value: title, onChange: this.handleTitleChange, placeholder: "Title"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: link, onChange: this.handleLinkChange, placeholder: "Link"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: image, onChange: this.handleImageChange, placeholder: "Image"})), 
+          React.createElement("h5", null, React.createElement("input", {type: "text", value: credit, onChange: this.handleCreditChange, placeholder: "Credit"})), 
+          
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button red", onClick: self.editContent}, "save"), 
+            React.createElement("a", {className: "edit_button", onClick: self.cancelEdit}, "cancel")
+          )
+        )
+      )
+    } else {
+      return (
+        React.createElement("div", {className: "matchup"}, 
+          React.createElement("h3", null, name), 
+          React.createElement("ul", null, 
+            React.createElement("li", null, "Title: ", title), 
+            React.createElement("li", null, "Link: ", link), 
+            React.createElement("li", null, "Image: ", image), 
+            React.createElement("li", null, "Credit: ", credit)
+          ), 
+          React.createElement("div", {className: "edit_buttons"}, 
+            React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "edit"), 
+            React.createElement("a", {className: "edit_button", onClick: self.handleRemove}, "remove")
+          )
+        )
+      )
+    }
+  }
+});
+
+module.exports = News;
+},{"react":267,"superagent":268,"util":24}],9:[function(require,module,exports){
 /**
  * @jsx React.DOM
  */

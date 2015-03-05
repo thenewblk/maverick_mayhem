@@ -236,13 +236,16 @@ var Page = React.createClass({displayName: "Page",
 
     if (object._id) {
       for ( i in  current_news) {
-        if ( current_news[i] == object._id ){
+        if ( current_news[i]._id == object._id ){
           found_new = i;
         }
       }
-      current_news.splice(found_new, 1);
 
-      self.setState({news: current_news });      
+      if (found_new){
+        current_news.splice(found_new, 1);
+
+        self.setState({news: current_news });
+      }      
     }
   },
 
@@ -252,15 +255,17 @@ var Page = React.createClass({displayName: "Page",
         current_news = self.state.news,
         found_new;
 
-    if (object._id) {
+    if (object.identifier) {
       for ( i in  current_news) {
-        if ( current_news[i].identifier == object._id ){
+        if ( current_news[i].identifier == object.identifier ){
           found_new = i;
         }
       }
-      current_news.splice(found_new, 1);
+      if (found_new){
+        current_news.splice(found_new, 1);
 
-      self.setState({news: current_news });      
+        self.setState({news: current_news });
+      }         
     }
   },
 
@@ -1197,7 +1202,7 @@ var News = React.createClass({displayName: "News",
 
 
   handleRemoveNew: function(){
-    this.props.remove_new_news({_id: 4});
+    this.props.remove_new_news({ identifier: this.state.identifier});
   },
 
   submitContent: function(){
@@ -1282,14 +1287,9 @@ var News = React.createClass({displayName: "News",
       )
     } else {
       return (
-        React.createElement("div", {className: "matchup"}, 
-          React.createElement("h3", null, name), 
-          React.createElement("ul", null, 
-            React.createElement("li", null, "Title: ", title), 
-            React.createElement("li", null, "Link: ", link), 
-            React.createElement("li", null, "Image: ", image), 
-            React.createElement("li", null, "Credit: ", credit)
-          ), 
+        React.createElement("div", {className: "matchup show"}, 
+          React.createElement("h3", null, title), 
+
           React.createElement("div", {className: "edit_buttons"}, 
             React.createElement("a", {className: "edit_button border", onClick: self.handleEdit}, "edit"), 
             React.createElement("a", {className: "edit_button", onClick: self.handleRemove}, "remove")

@@ -52,7 +52,7 @@ var News = React.createClass({
 
 
   handleRemoveNew: function(){
-    this.props.remove_new_news({_id: 4});
+    this.props.remove_new_news({ identifier: this.state.identifier});
   },
 
   submitContent: function(){
@@ -137,14 +137,9 @@ var News = React.createClass({
       )
     } else {
       return (
-        <div className="matchup">
-          <h3>{name}</h3>
-          <ul>
-            <li>Title: {title}</li>
-            <li>Link: {link}</li>
-            <li>Image: {image}</li>
-            <li>Credit: {credit}</li>
-          </ul>
+        <div className="matchup show">
+          <h3>{title}</h3>
+
           <div className='edit_buttons'>
             <a className='edit_button border' onClick={self.handleEdit}>edit</a> 
             <a className='edit_button' onClick={self.handleRemove}>remove</a> 
