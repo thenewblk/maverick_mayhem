@@ -387,10 +387,6 @@ var Main = React.createClass({
         });
   },
 
-  alertTest: function(){
-    this.props.send_message("fuck off");
-  },
-
   componentDidMount: function () {
         // $('.instagram .imageloader.loaded img').velocity('transition.slideUpBigIn');
   },
@@ -428,9 +424,6 @@ var Main = React.createClass({
             </div>
             <div className="marquee">
               <ul className="marquee__list" id="marquee__list">
-                <li className="marquee__list-item marquee__list-graphic">&nbsp;</li>
-                <li className="marquee__list-item">2/26 Women`s B-ball v. Ft. Wayne</li>
-                <li className="marquee__list-item">2/28 Women`s B-ball v. Denver</li>
                 <li className="marquee__list-item marquee__list-graphic">&nbsp;</li>
                 <li className="marquee__list-item">3/6 Hockey v. Colorado College</li>
                 <li className="marquee__list-item">3/7 Hockey v. Colorado College</li>

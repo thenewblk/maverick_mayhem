@@ -810,10 +810,6 @@ var Main = React.createClass({displayName: "Main",
         });
   },
 
-  alertTest: function(){
-    this.props.send_message("fuck off");
-  },
-
   componentDidMount: function () {
         // $('.instagram .imageloader.loaded img').velocity('transition.slideUpBigIn');
   },
@@ -851,9 +847,6 @@ var Main = React.createClass({displayName: "Main",
             ), 
             React.createElement("div", {className: "marquee"}, 
               React.createElement("ul", {className: "marquee__list", id: "marquee__list"}, 
-                React.createElement("li", {className: "marquee__list-item marquee__list-graphic"}, " "), 
-                React.createElement("li", {className: "marquee__list-item"}, "2/26 Women`s B-ball v. Ft. Wayne"), 
-                React.createElement("li", {className: "marquee__list-item"}, "2/28 Women`s B-ball v. Denver"), 
                 React.createElement("li", {className: "marquee__list-item marquee__list-graphic"}, " "), 
                 React.createElement("li", {className: "marquee__list-item"}, "3/6 Hockey v. Colorado College"), 
                 React.createElement("li", {className: "marquee__list-item"}, "3/7 Hockey v. Colorado College")

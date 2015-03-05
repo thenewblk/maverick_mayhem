@@ -28,7 +28,7 @@ module.exports = function(app, passport) {
 		Photo
 			.find({})
 			.sort('-updated_date')
-			.limit(15)
+			.limit(12)
 			.exec( function (err, photos) {
 			  	if (err) return console.log(err);
 				res.send(photos);
