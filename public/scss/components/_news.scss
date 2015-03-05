@@ -36,6 +36,11 @@
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
+.news__list.arena {
+  max-height: none;
+  overflow-y: visible;
+}
+
 .news__list-item {
   position: relative;
   margin: 10px 0;

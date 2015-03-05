@@ -395,7 +395,7 @@ var AssetList = React.createClass({displayName: "AssetList",
             ), 
           React.createElement("div", {className: "container"}, 
             React.createElement("div", {className: "news arena"}, 
-              React.createElement("ul", {className: "news__list"}, 
+              React.createElement("ul", {className: "news__list arena"}, 
                 news
               )
             )

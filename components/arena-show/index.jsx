@@ -197,7 +197,7 @@ var AssetList = React.createClass({
             </div>
           <div className="container">
             <div className="news arena">
-              <ul className="news__list">
+              <ul className="news__list arena">
                 {news}
               </ul>
             </div>
