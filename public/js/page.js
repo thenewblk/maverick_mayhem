@@ -67,8 +67,6 @@ var Photo = React.createClass({displayName: "Photo",
 
   },
 
-  componentDidMount: function () {},
-
   render: function(){
     var self = this;
     var divStyles = {
@@ -84,6 +82,54 @@ var Photo = React.createClass({displayName: "Photo",
       )
   }
 });
+
+var Video = React.createClass({displayName: "Video",
+  getInitialState: function() {
+    return { 
+      className: 'loading',
+    };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var my_image = new Image();
+    my_image.onload = this.onLoad;
+    my_image.src = self.props.image_url;
+  },
+
+
+
+  onLoad: function() {
+    var self = this;
+    self.setState({className: "loaded"});
+
+  },
+
+  componentDidMount: function () {},
+
+
+  videoClicked: function () {
+    var self = this;
+    this.props.play_video({video_url: self.props.video_url});
+  },
+
+
+  render: function(){
+    var self = this;
+    var divStyles = {
+      backgroundImage: "url('" +self.props.image_url+"')" ,
+    };
+    return (
+      React.createElement("div", {className: "matchup_photo video "+self.state.className, style: divStyles, onClick: self.videoClicked}, 
+        React.createElement("div", {className: "description"}, 
+          React.createElement(InlineSVG, {className: "play_button", src: "/img/icon--play_button.svg", uniquifyIDs: false})
+        )
+      )
+      )
+  }
+});
+
+
 
 var MatchupScores = React.createClass({displayName: "MatchupScores",
   getInitialState: function() {
@@ -275,9 +321,11 @@ var Page = React.createClass({displayName: "Page",
       video: {}, 
       icon: {}, 
       current_matchup: {},
+      current_video: "",
       last_matchup: {},
       next_matchup: {},
       matchups: [], 
+      videos: [], 
       photos: [], 
       featured_photos: [],
       tmp_photos: [], 
@@ -423,12 +471,16 @@ var Page = React.createClass({displayName: "Page",
     }
   },
 
-  playVideo: function (){
-    this.setState({playVideo: true});
+  playVideo: function (video){
+    this.setState({play_video: true, current_video: video.video_url});
+  },
+
+  clickVideo: function (video){
+    this.playVideo({video_url: video.video_url+'?autoplay=1'});
   },
 
   stopVideo: function (){
-    this.setState({playVideo: false});
+    this.setState({play_video: false});
   },
 
 
@@ -460,6 +512,10 @@ var Page = React.createClass({displayName: "Page",
         )
       });
 
+      var videos = self.state.videos.map(function(object) {
+        return React.createElement(Video, {image_url: object.image_url, video_url: object.video_url, play_video: self.clickVideo})
+      });
+
       if (self.state.slug == 'hockey') {
         bkd_video.poster="/img/bg--video_hockey.jpg";
         bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_hockey.mp4"
@@ -480,9 +536,9 @@ var Page = React.createClass({displayName: "Page",
       return (
         React.createElement("div", null, 
 
-          React.createElement("div", {className:  self.state.playVideo ? "page-video-wrapper show" : "page-video-wrapper"}, 
+          React.createElement("div", {className:  self.state.play_video ? "page-video-wrapper show" : "page-video-wrapper"}, 
             React.createElement("div", {className: "video-center", onClick: self.stopVideo}, 
-              React.createElement("iframe", {className: "tunnel-walk", width: "853", height: "480", src:  self.state.playVideo ? youtube_video.src : '', frameBorder: "0", allowFullScreen: true})
+              React.createElement("iframe", {className: "tunnel-walk", width: "853", height: "480", src:  self.state.play_video ? self.state.current_video : '', frameBorder: "0", allowFullScreen: true})
             )
           ), 
 
@@ -518,7 +574,7 @@ var Page = React.createClass({displayName: "Page",
               )
 
               ), 
-              React.createElement("div", {className: "play_button", onClick: self.playVideo}, 
+              React.createElement("div", {className: "play_button", onClick: self.playVideo.bind(this, {video_url: youtube_video.src})}, 
                 React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
 
                  self.state.name, " Tunnel Walk Video"
@@ -535,8 +591,13 @@ var Page = React.createClass({displayName: "Page",
           ), 
           React.createElement(PhotoGallery, {matchups: matchups, last_matchup: last_matchup}), 
 
+          React.createElement(InlineSVG, {src: "/img/dots_lineup.svg", uniquifyIDs: false}), 
 
-          React.createElement("div", {className: "play_button mobile", onClick: self.playVideo}, 
+          React.createElement("div", {className: "matchup_photos"}, 
+            videos
+          ), 
+
+          React.createElement("div", {className: "play_button mobile", onClick: self.playVideo.bind(this, {video_url: youtube_video.src}) }, 
             React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
              self.state.name, " Tunnel Walk Video"
           )

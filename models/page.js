@@ -10,6 +10,12 @@ var pageSchema = mongoose.Schema({
   name          : {type: String, index: {unique: true, dropDups: true}},
   slug          : {type: String, index: {unique: true, dropDups: true}},
   video         : {},
+  videos:   [
+    {
+         image_url    : String,
+         video_url    : String
+    }
+  ],
   icon          : {},
   headline      : String,
   banner        : String,

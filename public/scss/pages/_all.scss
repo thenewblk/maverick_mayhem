@@ -131,7 +131,6 @@
 }
 
 .sport-recap {
-  margin-bottom: 80px;
   position: relative;
   @include respond-to(mobile) {
     margin-bottom: 10px;
@@ -564,6 +563,15 @@ html, body {
 		}
 
 	}
+}
+
+.dots_lineup {
+  fill: $brand_red;
+  width: 500px;
+  margin: 15px auto 50px;
+  display: block;
+  max-width: 100%;
+  padding: 0 15px;
 }
 
 @import "page";

@@ -48,6 +48,52 @@ var Photo = React.createClass({displayName: "Photo",
   }
 });
 
+var Video = React.createClass({displayName: "Video",
+  getInitialState: function() {
+    return { 
+      className: 'loading',
+    };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var my_image = new Image();
+    my_image.onload = this.onLoad;
+    my_image.src = self.props.image_url;
+  },
+
+
+
+  onLoad: function() {
+    var self = this;
+    self.setState({className: "loaded"});
+
+  },
+
+  componentDidMount: function () {},
+
+
+  videoClicked: function () {
+    var self = this;
+    this.props.play_video({video_url: self.props.video_url});
+  },
+
+
+  render: function(){
+    var self = this;
+    var divStyles = {
+      backgroundImage: "url('" +self.props.image_url+"')" ,
+    };
+    return (
+      React.createElement("div", {className: "matchup_photo video "+self.state.className, style: divStyles, onClick: self.videoClicked}, 
+        React.createElement("div", {className: "description"}, 
+          React.createElement(InlineSVG, {className: "play_button", src: "/img/icon--play_button.svg", uniquifyIDs: false})
+        )
+      )
+      )
+  }
+});
+
 var News = React.createClass({displayName: "News",
   componentDidMount: function () {},
 
@@ -63,9 +109,6 @@ var News = React.createClass({displayName: "News",
           React.createElement("h4", {className: "news__title"}, React.createElement("span", {className: "news__title__inner"}, self.props.title, React.createElement("em", {className: "news__byline"}, "by ", self.props.credit)))
         )
       )
-
-
-
       )
   }
 });
@@ -74,7 +117,7 @@ var my_image1, bkd_image1;
 
 var AssetList = React.createClass({displayName: "AssetList",
   getInitialState: function() {
-    return { photos: [], news: [], pre_count: 0 };
+    return { photos: [], news: [], pre_count: 0, videos: [], current_video: "" };
   },
   componentWillMount: function(){
     var self = this;
@@ -132,12 +175,16 @@ var AssetList = React.createClass({displayName: "AssetList",
     }
   },
 
-  playVideo: function (){
-    this.setState({playVideo: true});
+  playVideo: function (video){
+    this.setState({play_video: true, current_video: video.video_url});
+  },
+
+  clickVideo: function (video){
+    this.playVideo({video_url: video.video_url+'?autoplay=1'});
   },
 
   stopVideo: function (){
-    this.setState({playVideo: false});
+    this.setState({play_video: false});
   },
 
 
@@ -156,6 +203,10 @@ var AssetList = React.createClass({displayName: "AssetList",
       return React.createElement(Photo, {url: object.url, description: object.description, key: object._id})
     });
 
+    var videos = self.state.videos.map(function(object) {
+      return React.createElement(Video, {image_url: object.image_url, video_url: object.video_url, play_video: self.clickVideo})
+    });
+
     var bkd_video = {},
           youtube_video = {};
       bkd_video.poster="/img/bg--video_arena.jpg";
@@ -165,9 +216,9 @@ var AssetList = React.createClass({displayName: "AssetList",
     if (self.state.loaded == true) {
       return (
         React.createElement("div", null, 
-            React.createElement("div", {className:  self.state.playVideo ? "page-video-wrapper show" : "page-video-wrapper"}, 
+            React.createElement("div", {className:  self.state.play_video ? "page-video-wrapper show" : "page-video-wrapper"}, 
               React.createElement("div", {className: "video-center", onClick: self.stopVideo}, 
-                React.createElement("iframe", {className: "tunnel-walk", width: "853", height: "480", src:  self.state.playVideo ? youtube_video.src : '', frameBorder: "0", allowFullScreen: true})
+                React.createElement("iframe", {className: "tunnel-walk", width: "853", height: "480", src:  self.state.play_video ? self.state.current_video : '', frameBorder: "0", allowFullScreen: true})
               )
             ), 
             React.createElement("div", {className: "page_container", id: "main", role: "main"}, 
@@ -181,7 +232,7 @@ var AssetList = React.createClass({displayName: "AssetList",
                   )
                 ), 
 
-                React.createElement("div", {className: "play_button", onClick: self.playVideo}, 
+                React.createElement("div", {className: "play_button", onClick: self.playVideo.bind(this, {video_url: youtube_video.src})}, 
                   React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
 
                   "Our New Arena" 
@@ -206,7 +257,14 @@ var AssetList = React.createClass({displayName: "AssetList",
           React.createElement("div", {className: "matchup_photos"}, 
             photos
           ), 
-          React.createElement("div", {className: "play_button mobile", onClick: self.playVideo}, 
+
+          React.createElement(InlineSVG, {src: "/img/dots_lineup.svg", uniquifyIDs: false}), 
+
+          React.createElement("div", {className: "matchup_photos"}, 
+            videos
+          ), 
+
+          React.createElement("div", {className: "play_button mobile", onClick: self.playVideo.bind(this, {video_url: youtube_video.src})}, 
             React.createElement(InlineSVG, {src: "/img/icon--play_button.svg", uniquifyIDs: false}), 
             "Our New Arena"
           )

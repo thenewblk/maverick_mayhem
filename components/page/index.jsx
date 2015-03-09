@@ -66,8 +66,6 @@ var Photo = React.createClass({
 
   },
 
-  componentDidMount: function () {},
-
   render: function(){
     var self = this;
     var divStyles = {
@@ -83,6 +81,54 @@ var Photo = React.createClass({
       )
   }
 });
+
+var Video = React.createClass({
+  getInitialState: function() {
+    return { 
+      className: 'loading',
+    };
+  },
+
+  componentWillMount: function(){
+    var self = this;
+    var my_image = new Image();
+    my_image.onload = this.onLoad;
+    my_image.src = self.props.image_url;
+  },
+
+
+
+  onLoad: function() {
+    var self = this;
+    self.setState({className: "loaded"});
+
+  },
+
+  componentDidMount: function () {},
+
+
+  videoClicked: function () {
+    var self = this;
+    this.props.play_video({video_url: self.props.video_url});
+  },
+
+
+  render: function(){
+    var self = this;
+    var divStyles = {
+      backgroundImage: "url('" +self.props.image_url+"')" ,
+    };
+    return (
+      <div className={"matchup_photo video "+self.state.className} style={divStyles} onClick={self.videoClicked}>
+        <div className="description">
+          <InlineSVG className="play_button" src="/img/icon--play_button.svg" uniquifyIDs={false}></InlineSVG>
+        </div>
+      </div>
+      )
+  }
+});
+
+
 
 var MatchupScores = React.createClass({
   getInitialState: function() {
@@ -274,9 +320,11 @@ var Page = React.createClass({
       video: {}, 
       icon: {}, 
       current_matchup: {},
+      current_video: "",
       last_matchup: {},
       next_matchup: {},
       matchups: [], 
+      videos: [], 
       photos: [], 
       featured_photos: [],
       tmp_photos: [], 
@@ -422,12 +470,16 @@ var Page = React.createClass({
     }
   },
 
-  playVideo: function (){
-    this.setState({playVideo: true});
+  playVideo: function (video){
+    this.setState({play_video: true, current_video: video.video_url});
+  },
+
+  clickVideo: function (video){
+    this.playVideo({video_url: video.video_url+'?autoplay=1'});
   },
 
   stopVideo: function (){
-    this.setState({playVideo: false});
+    this.setState({play_video: false});
   },
 
 
@@ -459,6 +511,10 @@ var Page = React.createClass({
         )
       });
 
+      var videos = self.state.videos.map(function(object) {
+        return <Video image_url={object.image_url} video_url={object.video_url} play_video={self.clickVideo}/>
+      });
+
       if (self.state.slug == 'hockey') {
         bkd_video.poster="/img/bg--video_hockey.jpg";
         bkd_video.src="https://s3.amazonaws.com/maverickmayhem/loop_hockey.mp4"
@@ -479,9 +535,9 @@ var Page = React.createClass({
       return (
         <div>
 
-          <div className={ self.state.playVideo ? "page-video-wrapper show" : "page-video-wrapper" }>
+          <div className={ self.state.play_video ? "page-video-wrapper show" : "page-video-wrapper" }>
             <div className="video-center"  onClick={self.stopVideo}>
-              <iframe className="tunnel-walk" width="853" height="480" src={ self.state.playVideo ? youtube_video.src : ''} frameBorder="0" allowFullScreen></iframe>
+              <iframe className="tunnel-walk" width="853" height="480" src={ self.state.play_video ? self.state.current_video : ''} frameBorder="0" allowFullScreen></iframe>
             </div>
           </div>
 
@@ -517,7 +573,7 @@ var Page = React.createClass({
               </div>
 
               </div>
-              <div className="play_button" onClick={self.playVideo}>
+              <div className="play_button" onClick={self.playVideo.bind(this, {video_url: youtube_video.src})}>
                 <InlineSVG src="/img/icon--play_button.svg" uniquifyIDs={false} ></InlineSVG>
 
                 { self.state.name } Tunnel Walk Video
@@ -534,8 +590,13 @@ var Page = React.createClass({
           </div>
           <PhotoGallery matchups={matchups} last_matchup={last_matchup} />
 
+          <InlineSVG src="/img/dots_lineup.svg" uniquifyIDs={false}></InlineSVG>
 
-          <div className="play_button mobile" onClick={self.playVideo}>
+          <div className="matchup_photos">
+            {videos}
+          </div>
+
+          <div className="play_button mobile" onClick={self.playVideo.bind(this, {video_url: youtube_video.src}) }>
             <InlineSVG src="/img/icon--play_button.svg" uniquifyIDs={false}></InlineSVG>
             { self.state.name } Tunnel Walk Video
           </div>

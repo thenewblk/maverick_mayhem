@@ -407,6 +407,21 @@
 			}
 		}
 	}
+
+
+	.matchup_photo.video {
+		.description {
+			opacity: 1;
+			background: rgba(0,0,0,0.7);
+			.play_button {
+				position: relative;
+				#play_button {
+					width: 75px;
+				}
+			}
+		}
+	}
+
 	.matchup_photo:hover {
 		.description {
 
